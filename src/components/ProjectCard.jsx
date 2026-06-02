@@ -1,0 +1,19 @@
+import { Link } from 'react-router-dom';
+
+export default function ProjectCard({ project }) {
+  // Tile thumbnail: prefer the dedicated cover image, then fall back to the
+  // case-study hero. Projects without either fall back to the checkered
+  // placeholder.
+  const thumb = project.cover || project.caseStudy?.overview?.hero?.src;
+  return (
+    <Link to={`/projects/${project.slug}`} className="project-card">
+      <div className="project-card__media" aria-hidden="true">
+        {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
+      </div>
+      <div className="project-card__meta">
+        <span>{project.name}</span>
+        <span>{project.date}</span>
+      </div>
+    </Link>
+  );
+}

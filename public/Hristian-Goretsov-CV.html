@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Curriculum Vitae — Hristian Goretsov, Multi-Disciplinary Experience Designer based in Eindhoven, NL."
+    />
+
+    <!-- Same type stack as the portfolio: DM Sans (body/headings) + DM Mono
+         (eyebrows, meta). One stylesheet request, weights matched to use. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap"
+    />
+
+    <title>Hristian Goretsov — CV</title>
+
+    <!-- Theme bootstrap. Mirrors the portfolio: runs before first paint so the
+         right data-theme is on <html> immediately (no flash). Reuses the same
+         `theme-mode` key, so opening this doc adopts the theme you set on the
+         site. -->
+    <script>
+      (function () {
+        try {
+          var mode = localStorage.getItem('theme-mode') || 'system';
+          if (mode !== 'light' && mode !== 'dark' && mode !== 'system') {
+            mode = 'system';
+          }
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var effective =
+            mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode;
+          var root = document.documentElement;
+          root.setAttribute('data-theme', effective);
+          root.setAttribute('data-theme-mode', mode);
+        } catch (_e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.setAttribute('data-theme-mode', 'system');
+        }
+      })();
+    </script>
+
+    <style>
+      /* ===================================================================
+         Hristian Goretsov — CV
+         Self-contained document styled to match By_Hris Designs. Tokens,
+         type scale and the ( eyebrow ) motif are lifted 1:1 from the site's
+         stylesheet so this reads as the same product.
+         =================================================================== */
+
+      *,
+      *::before,
+      *::after { box-sizing: border-box; }
+
+      html, body { margin: 0; padding: 0; min-height: 100%; }
+      html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+
+      /* -------- Design tokens (from the portfolio) -------- */
+      :root {
+        --bg: #ffffff;
+        --fg: #0a0a0a;
+        --muted: #8a8a8a;
+        --muted-2: #c9c9c9;
+        --line: #e6e6e6;
+        --ink: #0a0a0a;
+        --ink-soft: #1e1e1e;
+        --invert-fg: #f4f4f4;
+        --placeholder: #ededed;
+        --placeholder-2: #f5f5f5;
+
+        --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          system-ui, 'Helvetica Neue', Arial, sans-serif;
+        --font-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas,
+          'Liberation Mono', monospace;
+
+        --doc-max: 1080px;
+        --pad: 24px;
+        --radius-sm: 8px;
+        --radius-lg: 28px;
+      }
+
+      [data-theme='dark'] {
+        --bg: #0e0e0e;
+        --fg: #ededed;
+        --muted: #8a8a8a;
+        --muted-2: #4a4a4a;
+        --line: #262626;
+        --ink: #ededed;
+        --ink-soft: #d4d4d4;
+        --invert-fg: #0a0a0a;
+        --placeholder: #1a1a1a;
+        --placeholder-2: #141414;
+      }
+
+      @media (min-width: 900px) {
+        :root { --pad: 40px; }
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-sans);
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      html {
+        transition: background-color 220ms ease, color 220ms ease;
+      }
+
+      img, svg { display: block; max-width: 100%; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+      h1, h2, h3, p, ul, dl { margin: 0; }
+
+      /* -------- Typography -------- */
+      h1, h2 { letter-spacing: -0.02em; line-height: 1.05; font-weight: 600; }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        color: var(--ink-soft);
+      }
+      .eyebrow::before { content: '( '; }
+      .eyebrow::after { content: ' )'; }
+
+      .mono { font-family: var(--font-mono); }
+      .muted { color: var(--muted); }
+
+      /* -------- Top bar (screen only) -------- */
+      .docbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        -webkit-backdrop-filter: saturate(180%) blur(12px);
+        backdrop-filter: saturate(180%) blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
+      .docbar__inner {
+        max-width: var(--doc-max);
+        margin: 0 auto;
+        padding: 12px var(--pad);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .docbar__logo { display: inline-flex; align-items: center; gap: 10px; color: var(--fg); }
+      .docbar__logo svg { height: 22px; width: auto; }
+      .docbar__logo b { font-size: 0.82rem; font-weight: 600; letter-spacing: -0.01em; }
+      .docbar__actions { display: flex; align-items: center; gap: 10px; }
+
+      .barlink {
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 6px;
+      }
+      .barlink:hover { color: var(--fg); }
+
+      .iconbtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--fg);
+        transition: background-color 180ms ease, border-color 180ms ease;
+      }
+      .iconbtn:hover { background: var(--placeholder); }
+      .iconbtn svg { width: 18px; height: 18px; }
+      .theme-toggle .icon-sun { display: none; }
+      .theme-toggle .icon-moon { display: block; }
+      [data-theme='dark'] .theme-toggle .icon-moon { display: none; }
+      [data-theme='dark'] .theme-toggle .icon-sun { display: block; }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: var(--ink);
+        color: var(--invert-fg);
+        transition: background-color 180ms ease;
+      }
+      .btn:hover { background: #222; }
+      [data-theme='dark'] .btn:hover { background: #cfcfcf; }
+      .btn svg { width: 16px; height: 16px; }
+
+      /* -------- Document canvas -------- */
+      .doc { max-width: var(--doc-max); margin: 0 auto; padding: 0 var(--pad); }
+
+      /* -------- Masthead -------- */
+      .masthead {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 48px 0 40px;
+      }
+      @media (min-width: 760px) {
+        .masthead {
+          grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+          align-items: end;
+        }
+      }
+      .name {
+        margin-top: 14px;
+        font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.02;
+      }
+      .role { margin-top: 12px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
+
+      .masthead__aside { display: flex; flex-direction: column; gap: 8px; }
+      @media (min-width: 760px) { .masthead__aside { align-items: flex-end; text-align: right; } }
+      .contact { display: flex; flex-direction: column; gap: 7px; font-size: 0.85rem; }
+      .contact span { color: var(--ink-soft); }
+      .contact a { width: max-content; border-bottom: 1px solid var(--line); padding-bottom: 2px; transition: border-color 180ms ease; }
+      @media (min-width: 760px) { .contact a, .contact span { align-self: flex-end; } }
+      .contact a:hover { border-color: var(--fg); }
+      .status {
+        margin-top: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        background: var(--placeholder);
+        padding: 7px 13px;
+        border-radius: 999px;
+        width: max-content;
+      }
+
+      /* -------- Sections -------- */
+      .section { padding: 48px 0; border-top: 1px solid var(--line); }
+      .section__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 28px; }
+      .section__title { font-size: clamp(1.5rem, 3vw, 2.05rem); }
+
+      .lead {
+        max-width: 68ch;
+        font-size: 1.02rem;
+        line-height: 1.6;
+        color: var(--ink-soft);
+      }
+      .lead + .lead { margin-top: 16px; }
+      .lead--last { margin-top: 16px; color: var(--fg); }
+
+      /* -------- Entry (experience / education / recognition) -------- */
+      .entry {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px 48px;
+        padding: 26px 0;
+      }
+      .entry + .entry { border-top: 1px solid var(--line); }
+      .entry:first-of-type { padding-top: 2px; }
+      @media (min-width: 760px) {
+        .entry { grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); }
+      }
+      .entry__aside { display: flex; flex-direction: column; gap: 4px; }
+      .entry__org { font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
+      .entry__role { font-size: 0.9rem; color: var(--ink-soft); }
+      .entry__when { margin-top: 3px; font-family: var(--font-mono); font-size: 0.74rem; color: var(--muted); }
+
+      .entry__intro { font-size: 0.95rem; line-height: 1.6; color: var(--ink-soft); max-width: 62ch; }
+      .entry__list { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 9px; max-width: 62ch; }
+      .entry__list li { position: relative; padding-left: 22px; font-size: 0.92rem; line-height: 1.5; color: var(--ink-soft); }
+      .entry__list li::before { content: '—'; position: absolute; left: 0; top: 0; color: var(--muted-2); }
+      .entry__tools { margin-top: 15px; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55; color: var(--muted); max-width: 62ch; }
+      .entry__tools b { color: var(--ink-soft); font-weight: 500; }
+
+      /* -------- Skills groups -------- */
+      .skillgroup {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px 48px;
+        padding: 24px 0;
+      }
+      .skillgroup + .skillgroup { border-top: 1px solid var(--line); }
+      .skillgroup:first-of-type { padding-top: 2px; }
+      @media (min-width: 760px) {
+        .skillgroup { grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); }
+      }
+      .skillgroup__label { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--placeholder);
+        color: var(--ink);
+      }
+      .toolset { display: flex; flex-direction: column; gap: 16px; }
+      .toolrow { display: flex; flex-direction: column; gap: 8px; }
+      .toolrow__label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.02em; color: var(--muted); }
+
+      /* -------- Footer (always dark, like the site) -------- */
+      .doc-foot { background: #0a0a0a; color: #f4f4f4; margin-top: 72px; }
+      .doc-foot__inner { max-width: var(--doc-max); margin: 0 auto; padding: 52px var(--pad) 28px; }
+      .doc-foot__brand { display: flex; align-items: center; gap: 16px; }
+      .doc-foot__brand svg { height: 44px; width: auto; color: #f4f4f4; }
+      .doc-foot__name { font-size: 1.05rem; font-weight: 600; }
+      .doc-foot__tag { margin-top: 24px; font-family: var(--font-mono); font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); }
+      .doc-foot__legal {
+        margin-top: 40px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .doc-foot__legal a { border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 1px; }
+
+      /* -------- Reduced motion -------- */
+      @media (prefers-reduced-motion: reduce) {
+        html, .iconbtn, .btn, .contact a { transition: none; }
+      }
+
+      /* ===================================================================
+         Print — clean A4 export. Forces the light palette (even from dark
+         mode), drops the chrome, and keeps each entry whole across pages.
+         Save as PDF → public/Hristian-Goretsov-CV.pdf to feed the Contact
+         page's download link.
+         =================================================================== */
+      @media print {
+        :root,
+        [data-theme='dark'] {
+          --bg: #ffffff;
+          --fg: #0a0a0a;
+          --muted: #5f5f5f;
+          --muted-2: #9a9a9a;
+          --line: #dcdcdc;
+          --ink: #0a0a0a;
+          --ink-soft: #222222;
+          --placeholder: #f0f0f0;
+          --invert-fg: #ffffff;
+        }
+        @page { size: A4; margin: 15mm; }
+        html, body { background: #fff; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        .docbar, .doc-foot { display: none !important; }
+        .doc { max-width: none; margin: 0; padding: 0; }
+        body { font-size: 10.5pt; }
+
+        .masthead { padding: 0 0 18px; gap: 18px; }
+        .name { font-size: 24pt; }
+        .section { padding: 16px 0; }
+        .section__head { margin-bottom: 14px; }
+        .lead { font-size: 10.5pt; max-width: none; }
+
+        .entry, .skillgroup, .section__head { break-inside: avoid; }
+        .section__head { break-after: avoid; }
+        .entry__intro, .entry__list, .entry__tools { max-width: none; }
+
+        a { color: inherit; }
+        .contact a { border-bottom: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===================== Top bar (screen only) ===================== -->
+    <div class="docbar">
+      <div class="docbar__inner">
+        <a class="docbar__logo" href="/" aria-label="By_Hris Designs — Home">
+          <svg viewBox="526.117 22.9258 147.764 210.151" role="img" aria-label="By_Hris Designs" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M645.778 145.351H659.883C667.614 145.351 673.881 151.618 673.881 159.349C673.881 167.079 667.614 173.347 659.883 173.347H645.778V175.176C645.778 188.087 643.054 198.869 637.604 207.521C632.288 216.039 625.111 222.428 616.073 226.688C607.035 230.947 597.134 233.077 586.368 233.077C578.748 233.077 571.628 232.008 565.007 229.874C574.174 222.976 580.22 212.579 581.724 201.167C583.375 201.407 585.123 201.531 586.967 201.531C592.416 201.531 596.935 200.533 600.523 198.536C604.245 196.406 607.036 193.412 608.896 189.552C610.757 185.559 611.687 180.833 611.688 175.376V173.347H560.646C560.756 178.486 561.626 182.971 563.257 186.801C565.141 190.773 567.899 193.854 571.532 196.045C572.421 196.53 573.356 196.956 574.335 197.326C573.871 209.175 567.47 220.091 557.373 226.13C556.568 225.775 555.771 225.403 554.981 225.014C546.1 220.631 539.035 214.057 533.787 205.291C528.846 196.689 526.294 186.041 526.127 173.347H526.119V172.246C526.119 172.167 526.117 172.089 526.117 172.01L526.119 128.561C526.12 118.88 533.846 111.031 543.377 111.031C552.908 111.031 560.634 118.881 560.634 128.562V145.351H611.688V125.011C611.688 106.183 626.951 90.9201 645.778 90.9199V145.351ZM662.62 22.9258C662.62 35.9157 654.16 47.0967 642.222 50.9375C644.829 56.6876 646.135 62.9609 646.135 69.7578C646.135 74.5948 645.473 79.1929 644.152 83.5527C624.766 83.6006 608.617 97.4174 604.965 115.741C601.464 116.305 597.772 116.59 593.889 116.59C583.237 116.59 573.937 114.468 565.99 110.227C558.213 105.985 552.126 100.385 547.729 93.4277C543.503 86.3012 541.389 78.4114 541.389 69.7578C541.389 61.1041 543.502 53.2987 547.729 46.3418C552.126 39.2152 558.213 33.5311 565.99 29.2891C573.937 25.0471 583.237 22.9258 593.889 22.9258H662.62ZM593.889 54.4863C588.816 54.4863 584.589 55.7585 581.207 58.3037C577.995 60.8489 576.389 64.7518 576.389 70.0117C576.389 75.2717 577.995 79.1745 581.207 81.7197C584.589 84.2649 588.731 85.5381 593.635 85.5381C598.707 85.5381 602.85 84.2649 606.062 81.7197C609.444 79.1745 611.135 75.2716 611.135 70.0117C611.135 64.7518 609.444 60.8489 606.062 58.3037C602.85 55.7586 598.792 54.4864 593.889 54.4863Z" />
+          </svg>
+          <b>Curriculum Vitae</b>
+        </a>
+        <div class="docbar__actions">
+          <a class="barlink" href="/" aria-label="Open the portfolio">
+            Portfolio
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </a>
+          <button id="themeToggle" class="iconbtn theme-toggle" type="button" aria-label="Toggle light / dark theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" /></svg>
+          </button>
+          <button id="printBtn" class="btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6Z" /></svg>
+            Save as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== Document ======================== -->
+    <main class="doc">
+      <!-- Masthead -->
+      <header class="masthead">
+        <div class="masthead__main">
+          <span class="eyebrow">CURRICULUM VITAE</span>
+          <h1 class="name">Hristian Goretsov</h1>
+          <p class="role">Multi-Disciplinary Experience Designer</p>
+        </div>
+        <div class="masthead__aside">
+          <div class="contact">
+            <span>Eindhoven, Netherlands</span>
+            <a href="mailto:h.goretsov@gmail.com">h.goretsov@gmail.com</a>
+            <a href="tel:+359876193850">+359 876 193 850</a>
+            <a href="https://www.linkedin.com/in/hristian-goretsov-aba5a0231/" target="_blank" rel="noopener">linkedin.com/in/hristian-goretsov</a>
+          </div>
+          <span class="status">Open to roles — Netherlands &amp; Remote</span>
+        </div>
+      </header>
+
+      <!-- 01 — Summary -->
+      <section class="section">
+        <div class="section__head">
+          <span class="eyebrow">01</span>
+          <h2 class="section__title">Summary</h2>
+        </div>
+        <p class="lead">
+          I'm a multi-disciplinary experience designer with four years across
+          digital health, studio client work, and complex commerce platforms. I
+          move comfortably between UX research, UI craft, product strategy,
+          design systems, and a bit of front-end — because the most interesting
+          problems rarely sit inside one of those buckets.
+        </p>
+        <p class="lead">
+          I grew up making things: stop-motion Lego films, evenings filled with
+          drawing and sketching, and a lot of tinkering in my dad's garage. That
+          early loop — imagine, make, show someone, fix it — still shapes how I
+          work. I prototype quickly, sit close to engineering, and write specs
+          that pay attention to the features, not just the look of the project.
+          Currently leading design across SaaS products and storefront work at
+          Ultra Commerce, while finishing my MSc in Human-Computer Interaction at
+          Utrecht University. From the very beginning, even throughout my studies,
+          I've worked cross-functionally with a wide range of professionals,
+          facilitated workshops, told stories with the work, and stayed
+          clear-headed when the pressure climbs.
+        </p>
+        <p class="lead lead--last">
+          Currently open to product, experience design, and design roles in the
+          Netherlands or fully remote.
+        </p>
+      </section>
+
+      <!-- 02 — Skills & Expertise -->
+      <section class="section">
+        <div class="section__head">
+          <span class="eyebrow">02</span>
+          <h2 class="section__title">Skills &amp; Expertise</h2>
+        </div>
+
+        <div class="skillgroup">
+          <div class="skillgroup__label">Skills</div>
+          <div class="chips">
+            <span class="chip">Product × Service Design</span>
+            <span class="chip">UX/UI Design</span>
+            <span class="chip">Interaction Design</span>
+            <span class="chip">Web Design</span>
+            <span class="chip">Visual Design</span>
+            <span class="chip">Responsive Design</span>
+            <span class="chip">Design Systems</span>
+            <span class="chip">User Research</span>
+            <span class="chip">User Flows</span>
+            <span class="chip">Wireframing</span>
+            <span class="chip">Sketching</span>
+            <span class="chip">Rapid Prototyping</span>
+            <span class="chip">Interactive Prototyping</span>
+            <span class="chip">Usability Testing</span>
+            <span class="chip">Front-End Dev</span>
+            <span class="chip">3D Design &amp; Modelling</span>
+            <span class="chip">Photography &amp; Videography</span>
+            <span class="chip">Branding &amp; Identity</span>
+            <span class="chip">Presentation Design</span>
+            <span class="chip">Visual Storytelling</span>
+          </div>
+        </div>
+
+        <div class="skillgroup">
+          <div class="skillgroup__label">Tools</div>
+          <div class="toolset">
+            <div class="toolrow">
+              <span class="toolrow__label">Design</span>
+              <div class="chips">
+                <span class="chip">Figma (Design × Jam × Slides × Make)</span>
+                <span class="chip">Miro</span>
+                <span class="chip">Adobe Creative Suite</span>
+              </div>
+            </div>
+            <div class="toolrow">
+              <span class="toolrow__label">Prototyping / Code</span>
+              <div class="chips">
+                <span class="chip">Claude (Design × Code)</span>
+                <span class="chip">Codex (Design × Code)</span>
+                <span class="chip">Cursor (React × Git)</span>
+              </div>
+            </div>
+            <div class="toolrow">
+              <span class="toolrow__label">Creative</span>
+              <div class="chips">
+                <span class="chip">Blender</span>
+                <span class="chip">Spline</span>
+                <span class="chip">Aseprite</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="skillgroup">
+          <div class="skillgroup__label">Languages</div>
+          <div class="chips">
+            <span class="chip">Bulgarian — Native</span>
+            <span class="chip">English — C1/C2</span>
+            <span class="chip">German — Elementary</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 — Experience -->
+      <section class="section">
+        <div class="section__head">
+          <span class="eyebrow">03</span>
+          <h2 class="section__title">Experience</h2>
+        </div>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">Ultra Commerce</div>
+            <div class="entry__role">Experience × Product × Service Designer</div>
+            <div class="entry__when">Eindhoven, NL · 2025 – Present</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Designing across Ultra Commerce's SaaS products and the
+              international storefronts merchants run on the platform. Scope spans
+              product UX, design systems, and end-to-end web design — built around
+              making complex commerce infrastructure feel modern, intuitive, and
+              usable.
+            </p>
+            <ul class="entry__list">
+              <li>Co-designing Horizon / Meridian, UC's all-in-one commerce management SaaS — covering ETL pipelines, automation, and CMS in a single product surface.</li>
+              <li>Designing UC AC (Ultra Commerce Agentic Commerce), the AI-powered layer of the platform — including agents for shopping, content moderation, and advertising.</li>
+              <li>Built two custom design systems from the ground up: one for Glyde Marketplace and one for the Ultra Commerce SaaS product.</li>
+              <li>Led storefront redesigns for international merchants — CALPIA (California), Laneway (Melbourne flight company), Three Ireland (broadband), and Glyde Marketplace, an Australian built-from-scratch web shop.</li>
+            </ul>
+            <p class="entry__tools"><b>Tools —</b> Figma (Design × Jam × Make × Slides), Framer, Cursor, Claude (Code × Design), Codex</p>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">Deity</div>
+            <div class="entry__role">Product × Experience Designer</div>
+            <div class="entry__when">Eindhoven, NL · 2023 – 2025</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Studio-style design role across a portfolio of clients and Deity's
+              in-house product work. Sharpened range and speed across product,
+              web, and presentation design.
+            </p>
+            <ul class="entry__list">
+              <li>Designed UX/UI for Orchestrator, Deity's SaaS automation tool for commerce platform management.</li>
+              <li>Led a full website redesign for Deity's company site, including SEO optimisation, shipped in Framer.</li>
+              <li>Led the e-commerce redesign of UK retailer Blossoming Gifts — occasion-led discovery, product detail pages, and conversion-aware brand updates.</li>
+              <li>Designed two custom presentation systems — one for company showcase, one for product showcase — used across sales, conferences, and partner pitches.</li>
+              <li>Worked across the full project arc on most engagements: kickoff → research → wireframes → high-fidelity → handoff, often as the sole designer.</li>
+            </ul>
+            <p class="entry__tools"><b>Tools —</b> Figma (Design × Jam × Make × Slides), Framer, Adobe Creative Suite, Cursor</p>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">InnerBuddies</div>
+            <div class="entry__role">UX/UI Designer × Front-End Developer</div>
+            <div class="entry__when">Venlo, NL · 2022 – 2023</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Health-tech start-up working on gut-microbiome insights for everyday
+              consumers. My first product role — where I built the muscle of
+              designing and shipping in the same loop.
+            </p>
+            <ul class="entry__list">
+              <li>Led the full redesign of the InnerBuddies official website, with SEO optimisation built into the IA.</li>
+              <li>Translated my own designs into front-end code in HTML, CSS, and JavaScript — closing the gap between design intent and shipped product.</li>
+              <li>Contributed to the brand's evolving visual language at a stage when the system was still being defined.</li>
+            </ul>
+            <p class="entry__tools"><b>Tools —</b> Figma, Adobe Creative Suite, HTML, CSS, JavaScript</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- 04 — Education -->
+      <section class="section">
+        <div class="section__head">
+          <span class="eyebrow">04</span>
+          <h2 class="section__title">Education</h2>
+        </div>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">MSc, Human-Computer Interaction</div>
+            <div class="entry__role">Utrecht University</div>
+            <div class="entry__when">Utrecht, NL · 2024 – 2026</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              <b>Thesis — Bridging the User Flows and Data Flows: A Multi-Perspective UX/UI Design Challenge.</b>
+              My thesis investigates how UX and UI design can render hidden system
+              processes — particularly the data flows underlying user-facing
+              software — more visible and intelligible to the people interacting
+              with them. Using Ultra Commerce as a real-world research site, the
+              work examines how user flows and data flows intersect, and surfaces
+              design patterns capable of communicating complex system behaviour
+              clearly. It combines applied practice with academic reflection,
+              contributing to both the industry partner and the broader HCI field.
+            </p>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">BSc, UX/UI Design</div>
+            <div class="entry__role">Fontys University of Applied Sciences</div>
+            <div class="entry__when">Eindhoven, NL · 2020 – 2024</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Bachelor of Science in UX/UI Design. Coursework spanned interaction
+              design, user research methods, prototyping, design systems, visual
+              design, and front-end development. Graduated with a final-year
+              project building a SaaS platform — focused on intuitivity,
+              efficiency, and effectiveness, especially for non-technical users.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <!-- 05 — Recognition & Achievements -->
+      <section class="section">
+        <div class="section__head">
+          <span class="eyebrow">05</span>
+          <h2 class="section__title">Recognition &amp; Achievements</h2>
+        </div>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">The Mushroom Lamp</div>
+            <div class="entry__role">Innovations Fair · Utrecht University</div>
+            <div class="entry__when">Utrecht, NL · 2025</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Worked in close collaboration on "The Mushroom Lamp" — a 3D, working
+              concept for a smart bedside companion in the form of a
+              mushroom-shaped lamp. The piece explores how a furniture-scale
+              assistant can help people unwind in the evening, supporting
+              time-tracking, ambient lighting, and gentle activity prompts as an
+              alternative to phone-based wind-down.
+            </p>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">Music × ICT Competition</div>
+            <div class="entry__role">Utrecht University</div>
+            <div class="entry__when">Utrecht, NL · 2025</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              A story-driven music-theory game — a concept for an educational video
+              game that teaches music theory through fantasy-driven gameplay.
+              Designed to support students preparing for music-theory finals, solo
+              or in groups, by translating dense theory modules into game mechanics
+              and narrative beats.
+            </p>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="entry__aside">
+            <div class="entry__org">Jumbo Hackathon</div>
+            <div class="entry__role">"Crowd's Best Choice"</div>
+            <div class="entry__when">Veghel, NL · 2024</div>
+          </div>
+          <div class="entry__body">
+            <p class="entry__intro">
+              Our university team was selected for the final round — the only
+              academic team competing against Jumbo HQ's professional design and
+              product divisions. The proposed feature set was integrated into
+              Jumbo Supermarkets' app architecture.
+            </p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- ========================= Footer ========================= -->
+    <footer class="doc-foot">
+      <div class="doc-foot__inner">
+        <div class="doc-foot__brand">
+          <svg viewBox="526.117 22.9258 147.764 210.151" role="img" aria-label="By_Hris Designs" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M645.778 145.351H659.883C667.614 145.351 673.881 151.618 673.881 159.349C673.881 167.079 667.614 173.347 659.883 173.347H645.778V175.176C645.778 188.087 643.054 198.869 637.604 207.521C632.288 216.039 625.111 222.428 616.073 226.688C607.035 230.947 597.134 233.077 586.368 233.077C578.748 233.077 571.628 232.008 565.007 229.874C574.174 222.976 580.22 212.579 581.724 201.167C583.375 201.407 585.123 201.531 586.967 201.531C592.416 201.531 596.935 200.533 600.523 198.536C604.245 196.406 607.036 193.412 608.896 189.552C610.757 185.559 611.687 180.833 611.688 175.376V173.347H560.646C560.756 178.486 561.626 182.971 563.257 186.801C565.141 190.773 567.899 193.854 571.532 196.045C572.421 196.53 573.356 196.956 574.335 197.326C573.871 209.175 567.47 220.091 557.373 226.13C556.568 225.775 555.771 225.403 554.981 225.014C546.1 220.631 539.035 214.057 533.787 205.291C528.846 196.689 526.294 186.041 526.127 173.347H526.119V172.246C526.119 172.167 526.117 172.089 526.117 172.01L526.119 128.561C526.12 118.88 533.846 111.031 543.377 111.031C552.908 111.031 560.634 118.881 560.634 128.562V145.351H611.688V125.011C611.688 106.183 626.951 90.9201 645.778 90.9199V145.351ZM662.62 22.9258C662.62 35.9157 654.16 47.0967 642.222 50.9375C644.829 56.6876 646.135 62.9609 646.135 69.7578C646.135 74.5948 645.473 79.1929 644.152 83.5527C624.766 83.6006 608.617 97.4174 604.965 115.741C601.464 116.305 597.772 116.59 593.889 116.59C583.237 116.59 573.937 114.468 565.99 110.227C558.213 105.985 552.126 100.385 547.729 93.4277C543.503 86.3012 541.389 78.4114 541.389 69.7578C541.389 61.1041 543.502 53.2987 547.729 46.3418C552.126 39.2152 558.213 33.5311 565.99 29.2891C573.937 25.0471 583.237 22.9258 593.889 22.9258H662.62ZM593.889 54.4863C588.816 54.4863 584.589 55.7585 581.207 58.3037C577.995 60.8489 576.389 64.7518 576.389 70.0117C576.389 75.2717 577.995 79.1745 581.207 81.7197C584.589 84.2649 588.731 85.5381 593.635 85.5381C598.707 85.5381 602.85 84.2649 606.062 81.7197C609.444 79.1745 611.135 75.2716 611.135 70.0117C611.135 64.7518 609.444 60.8489 606.062 58.3037C602.85 55.7586 598.792 54.4864 593.889 54.4863Z" />
+          </svg>
+          <span class="doc-foot__name">Hristian Goretsov</span>
+        </div>
+        <p class="doc-foot__tag">Observe → Reflect → Correct → Repeat …</p>
+        <div class="doc-foot__legal">
+          <span><a href="mailto:h.goretsov@gmail.com">h.goretsov@gmail.com</a> · <a href="https://www.linkedin.com/in/hristian-goretsov-aba5a0231/" target="_blank" rel="noopener">LinkedIn</a></span>
+          <span>( ©26 By_Hris Designs )</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var toggle = document.getElementById('themeToggle');
+        if (toggle) {
+          toggle.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            root.setAttribute('data-theme-mode', next);
+            try { localStorage.setItem('theme-mode', next); } catch (_e) {}
+          });
+        }
+        var printBtn = document.getElementById('printBtn');
+        if (printBtn) {
+          printBtn.addEventListener('click', function () { window.print(); });
+        }
+      })();
+    </script>
+  </body>
+</html>

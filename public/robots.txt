@@ -1,0 +1,6 @@
+# By_Hris Designs — crawler rules
+User-agent: *
+Allow: /
+
+# After you set the production domain, deploy sitemap.xml and uncomment:
+# Sitemap: https://YOUR-DOMAIN/sitemap.xml

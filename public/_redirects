@@ -1,0 +1,6 @@
+# SPA history fallback — Netlify / Cloudflare Pages / Render.
+# Real files (hashed assets, /Hristian-Goretsov-CV.html, /favicon.svg, etc.)
+# are served first; every other path returns index.html with a 200 so
+# client-side routes like /about and /projects/surge resolve on a direct
+# hit or a refresh instead of 404-ing.
+/*    /index.html   200

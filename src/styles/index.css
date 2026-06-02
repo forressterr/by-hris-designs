@@ -1,0 +1,3721 @@
+/* ============================================================
+   By_Hris Designs — Global Stylesheet
+   Single file to keep the runtime light. Organized in sections.
+   ============================================================ */
+
+/* -------- Reset & Box Model -------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+/* The Labs canvas wires its nodes with an oversized edge <svg> (2400×1700). The
+   reset above would clamp it to ~0 width against its zero-width parent and the
+   connection lines vanish. Scope the cap off for that canvas only — do NOT delete
+   the global reset; other media on the site rely on it. (The component also sets
+   maxWidth:'none' inline; this is defence in depth.) */
+.labs-canvas svg {
+  max-width: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* -------- Design Tokens -------- */
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #8a8a8a;
+  --muted-2: #c9c9c9;
+  --line: #e6e6e6;
+  --line-strong: #1a1a1a;
+  --ink: #0a0a0a;
+  --ink-soft: #1e1e1e;
+  --invert-fg: #f4f4f4;
+  --invert-bg: #0a0a0a;
+  --placeholder: #ededed;
+  --placeholder-2: #f5f5f5;
+
+  --accent-purple: #d6c9ff;
+  --accent-green: #c7f5cf;
+  --accent-pink: #ffd2d3;
+  --accent-yellow: #f8e6b0;
+
+  --font-sans:
+    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    'DM Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas,
+    'Liberation Mono', monospace;
+
+  --container-max: 1440px;
+  --gutter: 24px;
+  --gutter-lg: 40px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+
+  --transition: 180ms ease;
+
+  /* ------------------------------------------------------------------
+     Frozen tokens — DO NOT vary with theme.
+     Used by surfaces that must look identical in light and dark mode:
+       - Site footer (must stay dark ink on light text in both themes)
+       - Service / Testimonial / More cards (coloured surfaces that
+         always sit on a light cardstock palette regardless of theme)
+     If you ever change the brand's "always-dark" or "always-light"
+     value, change it here once.
+  ------------------------------------------------------------------ */
+  --frozen-ink: #0a0a0a;
+  --frozen-ink-soft: #1e1e1e;
+  --frozen-invert-fg: #f4f4f4;
+}
+
+/* ====================================================================
+   Dark theme overrides.
+   Activated by the inline bootstrap in index.html (and the React
+   ThemeProvider once it mounts), which sets `data-theme="dark"` on
+   <html>. The accent colours (--accent-purple/green/pink/yellow) and
+   frozen tokens stay put — only the neutrals invert.
+
+   What deliberately STAYS as light theme regardless:
+     - Site footer (uses frozen tokens directly)
+     - Service / Testimonial / More cards (use frozen tokens for text)
+     - Typewriter rope-pull "lit" state (gold gradient + warm glow are
+       hard-coded on .rotating-word.is-lit and don't reference any
+       neutral tokens — they survive the swap automatically)
+==================================================================== */
+[data-theme='dark'] {
+  --bg: #0e0e0e;
+  --fg: #ededed;
+  --muted: #8a8a8a;
+  --muted-2: #4a4a4a;
+  --line: #262626;
+  --line-strong: #ededed;
+  --ink: #ededed;
+  --ink-soft: #d4d4d4;
+  --invert-fg: #0a0a0a;
+  --invert-bg: #ededed;
+  --placeholder: #1a1a1a;
+  --placeholder-2: #141414;
+}
+
+/* ---------------------------------------------------------------------
+   "Stay as they are" subtrees.
+   The brief calls out three places that must look identical in both
+   themes: service cards, testimonial cards, and the site footer. Their
+   *descendants* internally use color: var(--ink) / var(--ink-soft) /
+   var(--invert-fg) — which would flip to the dark palette and become
+   illegible on the pastel surfaces.
+   The fix uses CSS variable scoping: redefine the neutral tokens
+   *inside* these subtrees so they point back at the frozen values. No
+   need to touch the dozens of inner rules — they resolve to the
+   right colour automatically once the subtree token is reset.
+--------------------------------------------------------------------- */
+[data-theme='dark'] .service-card,
+[data-theme='dark'] .testimonial-card,
+[data-theme='dark'] .more-card,
+[data-theme='dark'] .hero-marquee__slide,
+[data-theme='dark'] .site-footer {
+  --ink: var(--frozen-ink);
+  --ink-soft: var(--frozen-ink-soft);
+  --invert-fg: var(--frozen-invert-fg);
+}
+
+/* Smooth the transition when the user flips the theme so the page
+   doesn't flash from one palette to the other. Capped to the colour
+   properties only — never animate `width`, `transform`, etc. with a
+   universal selector. Prefers-reduced-motion below opts out entirely. */
+html {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+body,
+.site-header,
+.site-drawer,
+.btn,
+.tile,
+.gear,
+.faq__item,
+.bio p,
+.field input,
+.field textarea {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  .site-header,
+  .site-drawer,
+  .btn,
+  .tile,
+  .gear,
+  .faq__item,
+  .bio p,
+  .field input,
+  .field textarea {
+    transition: none;
+  }
+}
+
+/* -------- Typography -------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-transform: none;
+}
+
+.eyebrow::before {
+  content: '( ';
+}
+
+.eyebrow::after {
+  content: ' )';
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+/* -------- Layout helpers -------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+@media (min-width: 900px) {
+  .container {
+    padding: 0 var(--gutter-lg);
+  }
+}
+
+/* Single canvas wrapping all page content (excluding header & footer).
+   Sections inside this canvas inherit the 1440px max-width and gutters
+   from .container — they must NOT re-declare .container themselves. */
+.page-canvas {
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------- Page reveal (diagonal wave from top-left to bottom-right) ----
+   The .page-reveal wrapper around Breadcrumbs + Outlet is given a
+   key={pathname} in Layout.jsx, so it remounts on every route change
+   and re-runs this animation.
+
+   How the wave works:
+   The mask is a 135° gradient with a soft black → transparent boundary
+   at the ~50% mark. The mask image is sized at 300% × 300% (three
+   times the element) and we animate `mask-position` from `100% 100%`
+   (gradient's transparent end sits over the element → nothing visible)
+   to `0% 0%` (gradient's black start sits over the element → fully
+   visible). As the position shifts, the diagonal boundary inside the
+   gradient slides across the page from the top-left to the bottom-
+   right — a true wave-front sweep rather than the rectangle-growing
+   look of the previous clip-path implementation.
+
+   The 10% black-to-transparent fade (45 % → 55 %) softens the wave
+   edge so it reads as a graceful sweep rather than a hard line.
+
+   `cubic-bezier(0.45, 0, 0.55, 1)` is a mild ease-in-out — gives the
+   motion a wave-like acceleration into the middle and deceleration
+   out the far side. */
+
+.page-reveal {
+  -webkit-mask-image: linear-gradient(
+    135deg,
+    #000 0%,
+    #000 45%,
+    transparent 55%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    135deg,
+    #000 0%,
+    #000 45%,
+    transparent 55%,
+    transparent 100%
+  );
+  -webkit-mask-size: 300% 300%;
+  mask-size: 300% 300%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: page-reveal 600ms cubic-bezier(0.45, 0, 0.55, 1) both;
+}
+
+@keyframes page-reveal {
+  from {
+    -webkit-mask-position: 100% 100%;
+    mask-position: 100% 100%;
+  }
+  to {
+    -webkit-mask-position: 0% 0%;
+    mask-position: 0% 0%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-reveal {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* -------- Breadcrumbs --------------------------------------------
+   Minimalist mono breadcrumb above the page-head on every non-home
+   page. Three levels max:
+     [home] › Current  (top-level routes)
+     [home] › … › Current  (deep routes — "…" navigates back) */
+
+.breadcrumbs {
+  padding: 24px 0 12px;
+}
+
+.breadcrumbs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+}
+
+/* Chevron separator — mid-grey so the eye prioritizes the linked
+   labels on either side. */
+.breadcrumbs__sep {
+  display: flex;
+  align-items: center;
+  color: var(--ink-soft);
+  opacity: 0.45;
+}
+
+/* Shared link / button styling. The home icon link, the "…" back
+   button, and the current page span all sit on the same baseline
+   typographically. */
+.breadcrumbs__link {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border-radius: 4px;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+.breadcrumbs__link:hover {
+  opacity: 0.6;
+}
+
+.breadcrumbs__link:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Home icon is the brand mark in miniature — render it at full ink
+   so it reads as the "anchor" of the trail. */
+.breadcrumbs__home {
+  color: var(--ink);
+}
+
+.breadcrumbs__back {
+  /* The "…" button keeps the same baseline as the surrounding mono
+     text — letter-spacing nudged slightly so the ellipsis dots
+     breathe. */
+  font-family: var(--font-mono);
+  font-size: inherit;
+  letter-spacing: 0.15em;
+  line-height: 1;
+}
+
+/* Current-page label — full ink (vs the muted siblings) so the
+   user immediately sees "where you are". */
+.breadcrumbs__item--current {
+  color: var(--ink);
+  padding: 2px 0;
+}
+
+.section {
+  padding: 64px 0;
+}
+
+@media (min-width: 900px) {
+  .section {
+    padding: 96px 0;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+.grid-2 {
+  grid-template-columns: 1fr;
+}
+
+.grid-3 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* -------- Site Chrome -------- */
+.site {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* Allow full-bleed children (e.g. the hero marquee) to escape the
+     1440 canvas without producing a horizontal page scrollbar. */
+  overflow-x: clip;
+}
+
+.site-main {
+  flex: 1;
+  padding-top: 64px;
+}
+
+/* Sticky header with a frosted-glass effect.
+   - 60% white background so the page color shows through subtly.
+   - backdrop-filter blurs whatever content is scrolling underneath,
+     which is what produces the frosted look — the effect is naturally
+     dormant at the top of the page (nothing behind the bar yet) and
+     becomes visible as content slides under it.
+   - Thin, near-invisible bottom border separates the bar from the
+     content on any background. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+}
+
+[data-theme='dark'] .site-header {
+  background: rgba(14, 14, 14, 0.72);
+  border-bottom-color: rgba(237, 237, 237, 0.08);
+}
+
+/* Fallback: in the (now rare) browsers without backdrop-filter,
+   bump the opacity so the bar remains readable instead of see-through. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .site-header {
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  [data-theme='dark'] .site-header {
+    background: rgba(14, 14, 14, 0.94);
+  }
+}
+
+/* 3-column grid: logo | centered content | right-side actions.
+   The 1fr | auto | 1fr pattern keeps the middle element centered on
+   the page regardless of how wide the logo or the action cluster
+   become as more buttons are added later. */
+.site-header__inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px var(--gutter);
+}
+
+@media (min-width: 900px) {
+  .site-header__inner {
+    padding: 22px var(--gutter-lg);
+  }
+}
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink);
+  justify-self: start;
+  /* Explicit grid placement so siblings disappearing (e.g. .live-time
+     hidden on mobile) doesn't let auto-flow shift the other items out
+     of their lanes. */
+  grid-column: 1;
+}
+
+/* Positioning wrapper — pinned to the right of the grid. Contains
+   either the horizontal desktop nav OR the +/× toggle button. Only one
+   is rendered visible at a time (see breakpoint media queries below).
+   `grid-column: 3` is explicit so when .live-time is hidden (mobile)
+   the auto-flow doesn't slide actions into column 2 and break the
+   "right edge" anchor. */
+.site-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  justify-self: end;
+  grid-column: 3;
+}
+
+/* Desktop horizontal nav — visible by default. Hidden ≤ 1024px. */
+.site-header__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.site-header__link {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--ink);
+  transition: opacity var(--transition);
+}
+
+.site-header__link:hover {
+  opacity: 0.6;
+}
+
+.site-header__link.active {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* +/× toggle — hidden on desktop. The icon is a plain "+" SVG that
+   rotates 45deg when the menu opens, which is exactly how a + becomes
+   an × visually. transition handles the smooth tween. */
+.site-header__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--ink);
+  border-radius: 8px;
+}
+
+.site-header__toggle svg {
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-header__toggle.is-open svg {
+  transform: rotate(45deg);
+}
+
+.site-header__toggle:hover {
+  background: rgba(10, 10, 10, 0.04);
+}
+
+[data-theme='dark'] .site-header__toggle:hover {
+  background: rgba(237, 237, 237, 0.06);
+}
+
+/* ----------------------------------------------------------------------
+   Theme toggle button — sun / moon / monitor.
+   Same 32 × 32 chip and hover treatment as .site-header__toggle so the
+   two controls feel like a pair when both are visible (≤ 1024 px). The
+   SVG inside is stroke-only at 20 px, slightly smaller than the +/×
+   icon so the cycle button reads as the secondary control of the two.
+---------------------------------------------------------------------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--ink);
+  border-radius: 8px;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover {
+  background: rgba(10, 10, 10, 0.04);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+  background: rgba(237, 237, 237, 0.06);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+
+/* Subtle "spin" cue on the icon when the user clicks through modes —
+   the icon swap is handled by React, but a tiny rotation makes the
+   change feel intentional rather than abrupt. */
+.theme-toggle svg {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.theme-toggle[data-mode='dark'] svg {
+  transform: rotate(-12deg);
+}
+
+.theme-toggle[data-mode='system'] svg {
+  transform: rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle svg {
+    transition: none;
+  }
+}
+
+/* Drawer — full-viewport sheet that slides down from above the header.
+   - position: fixed + inset:0 means it occupies the whole viewport.
+   - z-index 49 sits it just under the header (50) so the frosted bar
+     stays on top while the drawer slides through behind it.
+   - transform translateY(-100%) parks it above the viewport when closed;
+     transitioning to 0 reveals it. The cubic-bezier is the same curve
+     iOS uses for sheet presentations (decelerate-out).
+   - display:none by default means it's completely inert on desktop and
+     contributes no layout. Re-enabled at ≤ 1024px below. */
+[data-theme='dark'] .site-drawer {
+  background: rgba(14, 14, 14, 0.92);
+  border-bottom-color: rgba(237, 237, 237, 0.08);
+}
+
+.site-drawer {
+  display: none;
+  position: fixed;
+  /* Pinned to top + horizontal edges only; the bottom is left to
+     `auto` so the drawer shrinks to fit its content rather than
+     covering the full viewport. translateY(-100%) still parks it
+     above the viewport by its OWN height (which is now small),
+     producing a tighter, faster-feeling slide. */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 49;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  /* Closes the drawer off with the same hairline used on the header,
+     so it reads as a continuation of the same surface. */
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+  transform: translateY(-100%);
+  transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
+  align-items: center;
+  justify-content: center;
+  /* Top: 60 px clears the sticky header that sits on top of the
+     drawer (z-index 50 vs 49), then 48 px of breathing room above
+     "About" — matching the 48 px below "Contact" so the link stack
+     reads as visually centered between header and bottom border. */
+  padding: 108px 32px 48px;
+}
+
+.site-drawer.is-open {
+  transform: translateY(0);
+}
+
+.site-drawer__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.site-drawer__link {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  color: var(--ink);
+  transition: opacity var(--transition);
+}
+
+.site-drawer__link:hover,
+.site-drawer__link:focus-visible {
+  opacity: 0.6;
+}
+
+.site-drawer__link.active {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+
+/* Tablet + mobile (≤ 1024px): swap horizontal nav for the toggle,
+   and let the drawer participate in layout (so transform animates it
+   into view when .is-open is added). */
+@media (max-width: 1024px) {
+  .site-header__nav {
+    display: none;
+  }
+
+  .site-header__toggle {
+    display: inline-flex;
+  }
+
+  .site-drawer {
+    display: flex;
+  }
+}
+
+/* Mobile only (≤ 767px): hide the entire LightPullString portal
+   (rope + pendant + "Spark the interest" hint). The rope would
+   overlap the typewriter at narrow widths and the hint runs off-
+   screen. 768px is left as the tablet floor (iPad portrait) so
+   tablets still get the rope.
+   The matching `.live-time` rule lives below the base `.live-time`
+   declaration (source order matters at equal specificity). */
+@media (max-width: 767px) {
+  .light-pull-portal {
+    display: none;
+  }
+}
+
+/* Respect prefers-reduced-motion — drop the slide so the drawer just
+   appears/disappears instead of animating. */
+@media (prefers-reduced-motion: reduce) {
+  .site-header__toggle svg,
+  .site-drawer {
+    transition: none;
+  }
+}
+
+/* -------- Hero / Brand block -------- */
+.brand-hero {
+  text-align: center;
+  padding: 72px 0 48px;
+}
+
+.brand-hero__title {
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.brand-hero__sub {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* -------- Landing section (left-aligned headline + right-side media) --------
+   Two-column hero. Left column carries the lead "Hris is", the giant
+   rotating Typewriter word (using brand-hero__title for size), and the
+   "Based in Eindhoven" subtitle. Right column is a placeholder tile
+   that an image/video will drop into later.
+
+   On viewports < 900px the columns stack (text first, media below)
+   so the layout still reads on tablet portrait + mobile. */
+/* Landing — full-width single block. No grid, no media tile, no
+   flex anchor: the rotating headline simply reserves a minimum of
+   2 line-heights of vertical space (.landing__title) so short words
+   don't pull the subtitle below upward when they rotate. */
+.landing {
+  padding: 72px 0 48px;
+}
+
+.landing__text {
+  text-align: left;
+}
+
+/* "Hris is a" — uses default h2 sizing (clamp(2rem, 4vw, 3rem)).
+   Slightly lighter weight so it reads as a setup line, not competing
+   with the rotating headline below. */
+.landing__lead {
+  font-weight: 500;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* Override brand-hero__title's centered alignment and reserve 2 lines
+   of vertical space so the rotating typewriter can swap between
+   1-line short words and 2-line wrapped phrases without the subtitle
+   below jumping up or down. min-height: 2lh is the floor — longer
+   content (e.g. the "Jack of all trades…" entry) can still expand
+   the block beyond 2 lines if it needs to wrap further. */
+.landing__title {
+  text-align: left;
+  margin-top: 8px;
+  /* 3lh floor instead of 2 so the longest entry — "Jack of all
+     trades, mastering them all." (~40 chars, wraps to 3 lines at the
+     brand-hero__title font size) — fits without pushing the subtitle
+     down, while shorter words still hold the same reserved space. */
+  min-height: 3lh;
+}
+
+/* Normal flow margin now that the subtitle no longer needs to anchor
+   to the bottom of a stretched flex column. */
+.landing__sub {
+  margin-top: 18px;
+}
+
+/* Subtle "← Spark the / interest" hint next to the LightPullString
+   cord. Typography mirrors .brand-hero__sub (DM Mono via --font-mono,
+   0.8rem, --ink-soft) so it reads as part of the same monospaced
+   layer as the "Born in Sofia / Based in Eindhoven" subtitle.
+
+   Layout is a flex row with the arrow as one item and the two-line
+   text block as the other — `align-items: center` vertically centers
+   the arrow against the multi-line text, satisfying the "arrow lines
+   up with the middle of the text" requirement. Positioned by inline
+   styles in LightPullString.jsx — this rule only handles typography,
+   the flex alignment, the vertical-centering trick on `top`, and the
+   small-viewport hide. */
+.light-string-hint {
+  position: absolute;
+  transform: translateY(-50%); /* center vertically on the `top` value */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  opacity: 0.75;
+  pointer-events: none;
+  user-select: none;
+}
+
+.light-string-hint__arrow {
+  /* Arrow is its own flex item so align-items: center on the parent
+     can vertically center it against the taller text block. */
+  flex: none;
+}
+
+.light-string-hint__text {
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Hide on small viewports where there isn't horizontal room next to
+   the cord for the text without overlapping page content or running
+   off-screen. */
+@media (max-width: 600px) {
+  .light-string-hint {
+    display: none;
+  }
+}
+
+/* Rotating word — soft vertical slide-and-fade replacement for the
+   previous typewriter+cursor effect.
+
+   - Default state (no .is-visible): opacity 0, shifted 12px upward.
+     This is both the "before mount" and "fading out" state.
+   - .is-visible: opacity 1, translateY(0). The element animates here
+     when the class is added.
+
+   The chosen easing — cubic-bezier(0.16, 1, 0.3, 1) — is a smooth
+   ease-out-expo: fast initial movement that settles very gently into
+   place. Pairs well with a long 500ms duration for the "premium,
+   premium" feel the design is going for.
+
+   transform is GPU-composited (no layout reflow); opacity is also
+   GPU-composited. So the animation stays smooth even on weaker
+   hardware. */
+.rotating-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(-12px);
+  /* All rotating words share the same font size + weight (inherited
+     from brand-hero__title). text-wrap: balance distributes the long
+     phrase ("Jack of all trades, on a path to master them all.") into
+     evenly-sized lines instead of one long + one short. Short roles
+     ("Designer.", etc.) ignore it — there's nothing to balance on
+     one line. */
+  text-wrap: balance;
+  /* Padding gives the element box enough vertical and horizontal
+     headroom for descenders ('g', 'y') and the drop-shadow filter to
+     paint without being clipped. brand-hero__title sets line-height
+     to 0.95 (deliberately tight for the headline), which would
+     otherwise leave the rotating-word's inline-block box flush with
+     the text cap → descenders + 28px filter blur end up outside the
+     box and get cut. */
+  padding: 0.05em 0.06em 0.2em;
+  /* Gold gradient is permanently clipped to the text. It's invisible
+     by default because -webkit-text-fill-color paints solid ink on
+     top. When .is-lit toggles the fill to transparent, the gradient
+     shows through — and because text-fill-color can interpolate (rgba
+     to transparent), the swap animates smoothly. */
+  background: linear-gradient(
+    135deg,
+    #f5d472 0%,
+    #d4a53a 45%,
+    #a87820 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: var(--ink);
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    -webkit-text-fill-color 600ms ease-out,
+    color 600ms ease-out,
+    filter 600ms ease-out;
+  will-change: opacity, transform;
+}
+
+.rotating-word.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* "Lit" state — toggled by the pull-string. Making the text fill
+   transparent reveals the gold gradient clipped underneath; the
+   drop-shadow filter adds a warm ambient glow that works on the
+   gradient (text-shadow doesn't, because the text itself is now
+   transparent). */
+.rotating-word.is-lit {
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 28px rgba(220, 170, 40, 0.45));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotating-word {
+    transition: none;
+    /* For reduced-motion users, just snap straight to visible — no
+       slide, no fade. The HOLD/FADE timing in JS still cycles content,
+       so the word still changes, just instantly. */
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -------- Live local time (horizontal — used in the navbar) -------- */
+.live-time {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  user-select: none;
+  /* Sits in the middle grid cell — pinned explicitly for symmetry with
+     the logo (col 1) and actions (col 3) so the header lanes stay put
+     regardless of which siblings are hidden. */
+  grid-column: 2;
+  justify-self: center;
+}
+
+/* Hide the live-time on phones only (≤ 767px) — placed AFTER the
+   base .live-time declaration so source order wins at equal
+   specificity. iPad portrait (768px) keeps the clock. */
+@media (max-width: 767px) {
+  .live-time {
+    display: none;
+  }
+}
+
+/* -------- Hero marquee (full-bleed auto-scrolling carousel) --------
+   Lives as a direct child of .page-reveal (which sits in .site-main,
+   alongside but OUTSIDE the centered .container blocks). Because it is
+   no longer constrained by .container.page-canvas, the previous
+   100vw + negative-margin "breakout" hack is gone — `width: 100%`
+   naturally fills .site-main, and the edge masks at left:0 / right:0
+   sit exactly on the site-main borders.
+   The track holds two copies of the slide set so translateX(-50%)
+   loops seamlessly. */
+.hero-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Edge "mist" masks — gradual frosted-glass on the left and right of
+   the marquee so slides emerge from / dissolve into a soft veil at the
+   viewport edges instead of being clipped abruptly.
+   - background: 75% white veil (same opacity as the navbar) fading to
+     transparent toward the center.
+   - backdrop-filter: same blur recipe as the navbar (20px + 180% sat).
+   - mask-image: makes BOTH the veil AND the blur fall off together;
+     without the mask, the blur would form a hard 240px band even where
+     the veil itself is transparent. */
+.hero-marquee::before,
+.hero-marquee::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Mask runway scales with the viewport so the unmasked centre keeps
+     a generous "full-page" feel at every desktop and laptop width.
+     - Floor 220 px: keeps a meaningful soft dissolve even at narrow
+       tablets (~1000 px).
+     - 22 vw mid-band: roughly one tile-width of fade at typical
+       1280–1600 viewports.
+     - Cap 600 px: matches the previous fixed value so ultra-wide
+       monitors don't get an excessively long fade strip.
+     Mobile (≤ 767 px) still hits the existing `display: none` rule
+     a few rules down — the cards extend to the viewport edge there. */
+  width: clamp(220px, 22vw, 600px);
+  z-index: 2;
+  pointer-events: none;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Radial fade — curved iso-lines hide tile corners earlier than the
+   middle, so a card slides out through a soft "doorway" rather than a
+   hard vertical wipe. The gradient is centered at the INNER edge
+   (the marquee-facing side) so distance-from-center grows toward the
+   page edge → tiles get more opaque as they move outward, then
+   dissolve completely at the outer edge.
+   The mask-image uses the same radial shape so backdrop-filter blur
+   is clipped to the same curved region — otherwise the blur would
+   leak across the visible centre of the marquee. */
+.hero-marquee::before {
+  left: 0;
+  background: radial-gradient(
+    ellipse 100% 130% at 100% 50%,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 100% 130% at 100% 50%,
+    transparent 0%,
+    transparent 15%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 100% 130% at 100% 50%,
+    transparent 0%,
+    transparent 15%,
+    #000 100%
+  );
+}
+
+.hero-marquee::after {
+  right: 0;
+  background: radial-gradient(
+    ellipse 100% 130% at 0% 50%,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 100% 130% at 0% 50%,
+    transparent 0%,
+    transparent 15%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 100% 130% at 0% 50%,
+    transparent 0%,
+    transparent 15%,
+    #000 100%
+  );
+}
+
+/* Dark mode mirrors the same radial geometry so the dissolve feel is
+   symmetric — only the paint colour changes (dark page background).
+   Mask-image is inherited from the base rule above; we only need to
+   swap the radial bg here. */
+[data-theme='dark'] .hero-marquee::before {
+  background: radial-gradient(
+    ellipse 100% 130% at 100% 50%,
+    rgba(14, 14, 14, 0) 0%,
+    rgba(14, 14, 14, 0.5) 45%,
+    rgba(14, 14, 14, 1) 100%
+  );
+}
+
+[data-theme='dark'] .hero-marquee::after {
+  background: radial-gradient(
+    ellipse 100% 130% at 0% 50%,
+    rgba(14, 14, 14, 0) 0%,
+    rgba(14, 14, 14, 0.5) 45%,
+    rgba(14, 14, 14, 1) 100%
+  );
+}
+
+/* Mobile only (≤ 767px): drop the edge masks entirely so the marquee
+   items never get clipped on a phone — there isn't enough horizontal
+   room for the 480px veil to feel like a fade rather than a hard wipe.
+   Applies to both themes. */
+@media (max-width: 767px) {
+  .hero-marquee::before,
+  .hero-marquee::after {
+    display: none;
+  }
+}
+
+.hero-marquee__track {
+  display: flex;
+  /* Gap doubled with the slide width so the chain-link rhythm
+     (rounded shoulder → small gap → rounded shoulder) stays
+     proportional. */
+  gap: 24px;
+  width: max-content;
+  /* Bumped from 60s → 120s now that each tile carries real content
+     (icon + title + caption). The slower scroll gives a visitor
+     enough time to read a tile before it slides off-screen. */
+  animation: hero-marquee-scroll 120s linear infinite;
+  will-change: transform;
+}
+
+.hero-marquee__slide {
+  /* Tile dimensions and chain-link border-radius preserved from the
+     original placeholder layout — the brief was explicit about
+     keeping the existing border-radius. Only the visual treatment
+     swaps from "checker placeholder" to "service-card-front" so the
+     marquee + services section read as the same family. */
+  flex: 0 0 360px;
+  aspect-ratio: 5 / 7;
+  /* Default radius (48px) — safety net; the --a / --b variants
+     immediately below override with the diagonal chain-link pattern.
+     Desktop sits at 48 px, mobile at 24 px (see the breakpoint
+     below) — tighter shoulders than the original 72 / 52, so the
+     tiles read crisper without losing the chain-link rhythm. */
+  border-radius: 48px;
+  /* Card-front layout: header up top, icon centred, body at the
+     bottom. Padding is intentionally roomier than the .service-card
+     face (40 × 30 vs 28 × 24) — the marquee tiles read better with
+     more whitespace around each content cluster, since the viewer
+     has only a few seconds per tile as the track scrolls past. */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 30px;
+  overflow: hidden;
+  /* Text always reads on the pastel surface regardless of theme. */
+  color: var(--frozen-ink);
+  /* Default pastel — the [data-color] selectors below pick the
+     real accent per tile. Fallback handles a tile rendered without
+     a data-color (shouldn't happen, but safe). */
+  background: var(--accent-purple);
+}
+
+/* Pastel per tile — same four accents the service cards use. */
+.hero-marquee__slide[data-color='purple'] { background: var(--accent-purple); }
+.hero-marquee__slide[data-color='green']  { background: var(--accent-green); }
+.hero-marquee__slide[data-color='pink']   { background: var(--accent-pink); }
+.hero-marquee__slide[data-color='yellow'] { background: var(--accent-yellow); }
+
+/* Slide variants — alternating A/B produces the chain-link rhythm.
+   A is rounded on the LEFT (vertical edge that faces an outward gap).
+   B is rounded on the RIGHT (its outward-facing vertical edge).
+   When laid out A B A B …, each pair's straight inner edges butt
+   together while the outer corners curve away. */
+.hero-marquee__slide--a {
+  /* TL TR BR BL — clockwise from top-left.
+     Rounded on the ↘ diagonal: top-left and bottom-right curve. */
+  border-radius: 48px 0 48px 0;
+}
+
+.hero-marquee__slide--b {
+  /* Mirror of A — rounded on the ↙ diagonal: top-right and bottom-left. */
+  border-radius: 0 48px 0 48px;
+}
+
+@keyframes hero-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Phone breakpoint — slides shrink from 360 → 260 (not all the way
+   to 180 as in the placeholder days). With real card content inside
+   (number + icon + title + caption), 180px would force fonts so
+   small the tile reads as decoration. 260 keeps the title legible
+   and the icon at 64px still proportional. Radius scales with the
+   width so the chain-link rhythm proportions stay the same. */
+@media (max-width: 768px) {
+  .hero-marquee__track {
+    gap: 16px;
+  }
+
+  .hero-marquee__slide {
+    flex: 0 0 260px;
+    border-radius: 24px;
+    /* Slight bump on phone padding too so the breathing room scales
+       proportionally with the desktop 40 × 30. */
+    padding: 30px 22px;
+  }
+
+  .hero-marquee__slide--a {
+    border-radius: 24px 0 24px 0;
+  }
+
+  .hero-marquee__slide--b {
+    border-radius: 0 24px 0 24px;
+  }
+
+  /* Mist mask halved alongside the smaller slides. */
+  .hero-marquee::before,
+  .hero-marquee::after {
+    width: 240px;
+  }
+}
+
+/* Honor users who prefer no motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-marquee__track {
+    animation: none;
+  }
+}
+
+/* -------- Section header (eyebrow + heading + side text) -------- */
+.section-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 40px;
+}
+
+.section-head h2 {
+  max-width: 18ch;
+}
+
+.section-head__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+@media (min-width: 900px) {
+  .section-head {
+    grid-template-columns: 2fr 1fr;
+  }
+  .section-head__aside {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 16px 0 0;
+}
+
+/* -------- Card / Tile primitives -------- */
+.tile {
+  border-radius: var(--radius-lg);
+  background: var(--placeholder);
+  background-image:
+    linear-gradient(45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--placeholder-2) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--placeholder-2) 75%);
+  background-size: 24px 24px;
+  background-position:
+    0 0,
+    0 12px,
+    12px -12px,
+    -12px 0;
+}
+
+.tile--dark {
+  background: var(--ink);
+  background-image: none;
+  color: var(--invert-fg);
+}
+
+.tile-pair {
+  display: grid;
+  /* minmax(0, 1fr) instead of 1fr so the tracks can shrink below
+     the children's intrinsic content size — important now that
+     .tile--quote + .tile--slideshow are pinned to aspect-ratio: 1/1.
+     Without it, the long quote paragraph's min-content forces the
+     track wider than the viewport at mobile and the square tiles
+     overflow the page horizontally. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 800px) {
+  .tile-pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.tile--quote {
+  padding: 36px;
+  display: flex;
+  align-items: center;
+}
+
+/* Tile-pair tiles render as 1:1 squares at every breakpoint so the
+   slideshow photos get more vertical room and the quote tile reads as
+   a matching companion. Scoped to `.tile-pair > *` so the standalone
+   .tile-aspect placeholder used elsewhere (e.g. Works page) keeps its
+   own 5:4 ratio. */
+.tile-pair > .tile--slideshow,
+.tile-pair > .tile--quote {
+  aspect-ratio: 1 / 1;
+}
+
+/* Works-page lead pair: the quote sits beside a 5:4 visual placeholder
+   (.tile-aspect), not a 1:1 slideshow — so match that ratio instead of
+   forcing a square, keeping both columns the same height. */
+.tile-pair--lead > .tile--quote {
+  aspect-ratio: 5 / 4;
+}
+
+.tile--quote p {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  max-width: 30ch;
+}
+
+.tile-aspect {
+  aspect-ratio: 5 / 4;
+}
+
+/* Works-page lead montage: fill the .tile-aspect placeholder with the cover
+   image, clipped to the tile's rounded corners. Scoped to the lead pair so
+   other .tile-aspect uses (the About image, slideshows) are untouched. */
+.tile-pair--lead .tile-aspect {
+  overflow: hidden;
+}
+.tile-pair--lead .tile-aspect > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ----------------------------------------------------------------------
+   .tile--slideshow — host tile for the SlideShow component. Strips the
+   placeholder checker pattern so the photos read as the sole surface,
+   and clips the contents to the tile's rounded corners.
+---------------------------------------------------------------------- */
+.tile--slideshow {
+  background: transparent;
+  background-image: none;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* (Removed the desktop `aspect-ratio: auto` override that used to let
+   the slideshow stretch to match the quote tile's content height.
+   The tile-pair scope above now pins both children to 1:1 at every
+   breakpoint, which gives the photos more vertical room.) */
+
+/* ----------------------------------------------------------------------
+   SlideShow component
+   - Crossfade stack: all slides absolutely positioned, only the active
+     one is opacity 1. The fade duration is the only motion, so the
+     viewer's eye lands on each photo cleanly.
+   - Controls float over the photo. On desktop they fade in on hover;
+     on ≤ 1024px they're always visible (no hover concept on touch).
+   - object-fit: cover scales each photo to fill the 5:4 tile,
+     cropping evenly from each side. Per the brief.
+---------------------------------------------------------------------- */
+.slideshow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  user-select: none;
+}
+
+.slideshow__stack {
+  position: absolute;
+  inset: 0;
+}
+
+.slideshow__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  /* Long-enough crossfade for a soft transition without dragging out
+     the dwell time. Curve is a flat ease-in-out for the smoothest
+     centre — no acceleration jolt. */
+  transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-user-drag: none;
+}
+
+.slideshow__image.is-active {
+  opacity: 1;
+}
+
+/* Prev / Next arrow buttons. Sit inside the tile with a small inset
+   so they don't kiss the edge — feels lighter and matches the dot
+   pagination's bottom inset for visual rhythm. */
+.slideshow__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #111;
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 280ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 200ms ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.slideshow__arrow--left {
+  left: 16px;
+}
+
+.slideshow__arrow--right {
+  right: 16px;
+}
+
+.slideshow:hover .slideshow__arrow,
+.slideshow:focus-within .slideshow__arrow {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slideshow__arrow:hover {
+  background: rgba(255, 255, 255, 0.96);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.slideshow__arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.slideshow__arrow:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.6);
+  outline-offset: 2px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Dot pagination — centred bottom. Each dot is a small pill button,
+   active dot fills brightly + scales gently. */
+.slideshow__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+}
+
+.slideshow:hover .slideshow__dots,
+.slideshow:focus-within .slideshow__dots {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slideshow__dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition:
+    background-color 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    width 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.slideshow__dot:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.slideshow__dot.is-active {
+  background: #ffffff;
+  /* Slight elongation on the active dot — classic carousel cue without
+     changing the height (so the row doesn't jump). */
+  width: 22px;
+}
+
+.slideshow__dot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 2px;
+}
+
+/* Tablet + mobile (≤ 1024 px): no hover concept, so controls stay
+   visible by default. The component itself handles touch-swipe in JS. */
+@media (max-width: 1024px) {
+  .slideshow__arrow,
+  .slideshow__dots {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Honour reduced-motion: instant transitions, no carousel auto-anim. */
+@media (prefers-reduced-motion: reduce) {
+  .slideshow__image,
+  .slideshow__arrow,
+  .slideshow__dots,
+  .slideshow__dot {
+    transition: none;
+  }
+}
+
+/* -------- Project Cards (grid items with name/date) -------- */
+.project-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .project-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.project-card {
+  display: block;
+  color: inherit;
+}
+
+.project-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  aspect-ratio: 5 / 4;
+  background: var(--placeholder);
+  background-image:
+    linear-gradient(45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--placeholder-2) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--placeholder-2) 75%);
+  background-size: 24px 24px;
+  background-position:
+    0 0,
+    0 12px,
+    12px -12px,
+    -12px 0;
+  transition: transform var(--transition);
+}
+
+/* Case-study hero used as the tile thumbnail. Sits over the checkered
+   placeholder, which stays visible until the image decodes. */
+.project-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: inherit;
+  transition: transform var(--transition);
+}
+
+.project-card:hover .project-card__media {
+  transform: translateY(-4px);
+}
+
+.project-card:hover .project-card__media img {
+  transform: scale(1.03);
+}
+
+.project-card__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+/* -------- Services Cards (colored) -------- */
+.services {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .services {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .services {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Service card — flippable.
+   Layout responsibilities are split between three elements:
+     .service-card        → positioning context, perspective, focus ring,
+                            click target. Stays transparent — no padding,
+                            no background of its own.
+     .service-card__inner → the 3D wrapper. transform-style: preserve-3d
+                            keeps the two child faces in 3D space; the
+                            rotateY transform on .is-flipped flips both
+                            of them together.
+     .service-card__face  → either the front or back rectangle. Both
+                            sit in the same CSS-grid cell (grid-template-
+                            areas: 'stack') so the inner naturally sizes
+                            to whichever face has more content. */
+.service-card {
+  position: relative;
+  perspective: 1200px;
+  cursor: pointer;
+  border-radius: var(--radius-xl);
+  /* 460 px — comfortable card height that still feels substantial
+     against the project tiles above, but tightens the cards back
+     up from the previous 540 px so they don't run with too much
+     empty space inside. */
+  min-height: 460px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  /* display: flex (column) is the new piece — it lets the inner
+     element use `flex: 1` to fill the article's full height. Without
+     this, the inner was a block element sized to its content (the
+     taller face) and not to the article's min-height, so the colored
+     face surface ended below the article's bottom edge. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile — proportional reduction from desktop (~460 × 0.83 = 380).
+   Still tall enough to hold the worst-case back face (UX/UI Design,
+   7 rows, with a couple of sub-skill rows wrapping at narrow widths). */
+@media (max-width: 699px) {
+  .service-card {
+    min-height: 380px;
+  }
+}
+
+.service-card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.service-card__inner {
+  width: 100%;
+  /* `flex: 1` lets the inner fill the article's full height (set by
+     min-height on the article). Combined with `grid-template-rows: 1fr`
+     below, this is what makes the faces stretch to the full card
+     height — not just to the height of the taller face's content. */
+  flex: 1;
+  display: grid;
+  /* Both faces share this single cell so they overlap exactly.
+     Without `grid-template-rows: 1fr` the row would auto-size to the
+     taller face's content; with it the row fills the inner, the cell
+     fills the row, and the faces (default align-self: stretch) fill
+     the cell — so the colored surface covers the whole card. */
+  grid-template-areas: 'stack';
+  grid-template-rows: 1fr;
+  transform-style: preserve-3d;
+  transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.service-card.is-flipped .service-card__inner {
+  transform: rotateY(180deg);
+}
+
+.service-card__face {
+  grid-area: stack;
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Pin to the frozen ink so dark-theme doesn't paint white text on the
+     pastel surfaces (which would be unreadable). The cards stay light
+     in both themes per the brief. */
+  color: var(--frozen-ink);
+}
+
+.service-card__face--front {
+  justify-content: space-between;
+}
+
+.service-card__face--back {
+  /* The back face is pre-rotated 180deg so when the parent flips,
+     this face ends up facing the user. */
+  transform: rotateY(180deg);
+  /* space-between (matching the front face) — pushes the number to
+     the top and the sub-skill list to the bottom of the card, so both
+     sides share the same "top-left index, bottom-left content" rhythm
+     instead of stacking everything at the top. */
+  justify-content: space-between;
+}
+
+/* Color tokens move from the card itself onto the faces, so both
+   the front AND back share the same accent. */
+.service-card[data-color='purple'] .service-card__face {
+  background: var(--accent-purple);
+}
+.service-card[data-color='green'] .service-card__face {
+  background: var(--accent-green);
+}
+.service-card[data-color='pink'] .service-card__face {
+  background: var(--accent-pink);
+}
+.service-card[data-color='yellow'] .service-card__face {
+  background: var(--accent-yellow);
+}
+
+/* Sub-skill rows on the back face. Each row is now a two-line stack:
+   the bold skill name on the first line, the project link(s) on the
+   second. 12 px sits between rows (the user-requested item padding). */
+.service-card__sublinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Each sub-skill becomes a small flex column so its name and project
+   links stack vertically. The line-height inside the children handles
+   the small spacing between name → projects without needing an extra
+   gap. */
+.service-card__subskill {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+/* Skill name — matches the front-face title weight (h4 = 600) so the
+   two faces feel like one consistent type system. */
+.service-card__subskill-name {
+  font-weight: 600;
+}
+
+/* Separators (" → " between skill & projects, " / " between projects)
+   are decorative — slightly muted so the eye lands on the bold skill
+   name and the underlined project links. */
+.service-card__subskill-sep {
+  color: var(--ink-soft);
+  opacity: 0.55;
+}
+
+/* Project link sized down to match the sub-skill row, and explicitly
+   normal weight so it contrasts with the bold skill name beside it. */
+.service-card__subskill .inline-link {
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding-bottom: 1px;
+}
+
+/* -------- Card header (num + "Click to flip" hint) --------------
+   Both ServiceCard and TestimonialCard wrap their <header> in this
+   row so the number sits on the left and a flip-affordance hint
+   (label + circular-arrow SVG) sits on the right. Replaces the
+   previous direct .service-card__num as the header element. */
+
+.service-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* The hint uses the EXACT same font family, size and weight as
+   .service-card__num so it reads as part of the same typographic
+   layer — just slightly more muted opacity to keep the number as
+   the primary mark. */
+.service-card__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+/* Rotation glyph (↺) next to the hint label. Sized slightly larger
+   than the surrounding mono text so the arrow shape reads clearly,
+   with line-height: 1 so it doesn't pad the row vertically. */
+.service-card__hint-icon {
+  display: inline-block;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* On narrow cards (e.g. the 4-col desktop grid at ~280 px wide), the
+   full "Read more" label can crowd the number. Hide the label below
+   1100 px and let the icon carry the affordance alone — the
+   surrounding hover/focus state and `aria-pressed` still communicate
+   the interaction to keyboard + screen-reader users. */
+@media (max-width: 1100px) {
+  .service-card__hint-label {
+    display: none;
+  }
+}
+
+/* -------- Testimonial card additions ----------------------------
+   TestimonialCard reuses .service-card (flip, colors, size). These
+   rules add the front-face three-row layout (title / person / meta)
+   and the responsive back-face quote sizing. Placed AFTER the
+   .service-card rules so document-order overrides win where
+   specificity ties. */
+
+.testimonial-card__body {
+  /* Title row → person row → meta row. */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Top row — theme title at h2-equivalent sizing. clamp keeps it
+   readable on the 4-col desktop cards (~280 px wide) by capping
+   slightly below the page-level h2 max. */
+.testimonial-card__title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* Middle row — round placeholder avatar to the left, name to the
+   right. align-items: center keeps the name vertically centered
+   against the avatar's circular bounds. */
+.testimonial-card__person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial-card__name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+/* Avatar — solid ink-soft fill with monospaced initials. `flex: none`
+   stops it shrinking when the name wraps next to it. */
+.testimonial-card__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  color: var(--invert-fg);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Bottom row — role/company/location caption. Smaller and muted so
+   the hierarchy reads title → name → meta. */
+.testimonial-card__meta {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* Back-face quote — sized so the text-block's height-to-width ratio
+   stays consistent across breakpoints.
+   The previous version scaled UP at desktop, but the 4-col grid at
+   ≥ 1024px gives cards a NARROWER content area than the 2-col tablet
+   layout, so a bigger font there produced a much taller text block
+   (more lines per card). Now the desktop range shares the same scale
+   as tablet — the font doesn't grow when the cards shrink, so the
+   number of chars-per-line and the resulting text-block aspect ratio
+   line up between tablet and desktop/ultrawide. */
+.testimonial-card__quote {
+  margin: 0;
+  /* Mobile (< 700 px) — 1-col, full-width cards. */
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
+@media (min-width: 700px) {
+  .testimonial-card__quote {
+    /* Tablet through ultrawide — single scale across the
+       2-col-tablet → 4-col-desktop transition keeps the
+       chars-per-line ratio steady. clamp(min, vw, max) gives a
+       gentle ramp but caps so the font never overgrows a
+       narrower card. */
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    line-height: 1.3;
+  }
+}
+
+/* Honor prefers-reduced-motion — instant flip instead of the 700ms
+   smooth rotation. */
+@media (prefers-reduced-motion: reduce) {
+  .service-card__inner {
+    transition: none;
+  }
+}
+
+.service-card__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+/* Service-card icon slot. The dot-pattern background-image has been
+   replaced with a flex container that hosts an inline SVG icon
+   (rendered by ICONS in ServiceCard.jsx). color: var(--ink) is
+   inherited by the SVG via stroke="currentColor". Scaled up to 64×64
+   so the icon reads as a clear focal point in the middle of the card
+   rather than a small badge. */
+.service-card__icon {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--ink);
+}
+
+.service-card__icon svg {
+  display: block;
+}
+
+/* Card-body container — flex column with a small gap, replacing the
+   previous h4 margin-bottom. With the bigger h4 (now matching the
+   testimonial title), the gap between title and caption is controlled
+   on the parent so titles + paragraphs stay in lockstep. */
+.service-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* H4 promoted visually to match .testimonial-card__title — same
+   clamp size, weight, line-height, letter-spacing — so the two card
+   rows have a unified title scale. The element stays an h4 for
+   heading hierarchy (h2 is reserved for section headings). */
+.service-card__body h4 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.service-card__body p {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+/* (Old .service-card[data-color='…'] background rules removed —
+   replaced by the face-targeted versions above so both front and
+   back sides of the flip share the same accent color.) */
+
+/* -------- Stats Row -------- */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 36px;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat__value {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.stat__label {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  max-width: 24ch;
+}
+
+/* -------- FAQ -------- */
+.faq {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 900px) {
+  .faq {
+    grid-template-columns: 1fr 1.5fr;
+    gap: 64px;
+  }
+}
+
+.faq__intro h2 {
+  margin-bottom: 12px;
+}
+
+.faq__intro p {
+  color: var(--muted);
+  max-width: 36ch;
+  font-size: 0.92rem;
+}
+
+.faq__list {
+  display: flex;
+  flex-direction: column;
+  /* Reset UA defaults — the FAQ visuals come from .faq__trigger /
+     .faq__panel only. Bullets and the 40px UL inset would otherwise
+     leak through everywhere this list is used (About → .codex made
+     them obvious; the Home → .faq grid layout was hiding them). */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq__trigger {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  font-size: 0.95rem;
+  gap: 16px;
+}
+
+.faq__trigger[aria-expanded='true'] {
+  font-weight: 600;
+}
+
+.faq__chevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  /* Match the panel animation timing/curve so the chevron rotation
+     and the panel expansion read as one synchronized motion (same
+     easing used by the nav drawer for consistency across the site). */
+  transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.faq__trigger[aria-expanded='true'] .faq__chevron {
+  transform: rotate(180deg);
+}
+
+/* Panel open/close — the grid 0fr → 1fr trick.
+   The wrapper is a single-row grid container; switching the row track
+   between 0fr and 1fr animates the row's height between "0" and "the
+   natural content height" smoothly. No JS height measurement needed.
+   `min-height: 0` on the inner panel is required so the grid item is
+   allowed to shrink below its content size (default min-height: auto
+   would prevent the row from fully collapsing). */
+.faq__panel-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 380ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.faq__panel-wrapper.is-open {
+  grid-template-rows: 1fr;
+}
+
+.faq__panel {
+  /* overflow hides the answer text while the row collapses to 0;
+     min-height: 0 lets the grid row actually reach 0 height. */
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 0 18px;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: 60ch;
+  /* Soft fade on the content itself so text doesn't pop in/out. The
+     slightly shorter duration (relative to the row height) means
+     content is already fading in as the row expands, giving the
+     interaction a layered feel. */
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.faq__panel-wrapper.is-open .faq__panel {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq__chevron,
+  .faq__panel-wrapper,
+  .faq__panel {
+    transition: none;
+  }
+}
+
+/* -------- Contact / Forms -------- */
+.contact-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .contact-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+  }
+}
+
+/* Contact: profile + document links beside the form. DOM order puts the
+   links first, so on tablet/phone (the single-column row) they sit ABOVE
+   the form in a horizontal, left-to-right row. On desktop the grid moves
+   them into the right column where they stack vertically, with the form
+   held in the left column. Scoped to the --with-links row so the footer's
+   form/grid is untouched. */
+.contact-links {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 14px 24px;
+}
+
+@media (min-width: 900px) {
+  .contact-row--with-links .contact-form {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .contact-row--with-links .contact-links {
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.contact-form h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.contact-form__sub {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: -6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field input,
+.field textarea {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--muted);
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-bottom-color: var(--ink);
+}
+
+.field--invert input,
+.field--invert textarea {
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+  color: var(--invert-fg);
+}
+
+.field--invert input::placeholder,
+.field--invert textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.field--invert input:focus,
+.field--invert textarea:focus {
+  border-bottom-color: var(--invert-fg);
+}
+
+/* -------- Contact form validation state ----------------------------- */
+/* Error palette — local to the form, but exposed as tokens so the
+   colour is consistent if we ever surface form errors anywhere else.
+   Two values so the red still pops against the dark footer. */
+.contact-form {
+  --field-error: #c44949;
+  --field-error-invert: #ff8a8a;
+}
+
+.field--invalid input,
+.field--invalid textarea {
+  border-bottom-color: var(--field-error);
+}
+
+.field--invert.field--invalid input,
+.field--invert.field--invalid textarea {
+  border-bottom-color: var(--field-error-invert);
+}
+
+/* Foot row sits under the textarea — hint or error on the left, the
+   live character counter pinned right. Keeps the form rhythm tight
+   without a heavy block of meta below each field. */
+.field__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+
+.field__error {
+  margin-top: 6px;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  color: var(--field-error);
+}
+
+.field--invert .field__error {
+  color: var(--field-error-invert);
+}
+
+.field__hint {
+  color: var(--muted);
+}
+
+.field--invert .field__hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.field__counter {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.field--invert .field__counter {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Warn before the user hits the cap (last 100 chars) and call it out
+   when they've gone over. */
+.field__counter--low {
+  color: #b78b1f;
+}
+.field--invert .field__counter--low {
+  color: #ffd779;
+}
+.field__counter--over {
+  color: var(--field-error);
+  font-weight: 600;
+}
+.field--invert .field__counter--over {
+  color: var(--field-error-invert);
+  font-weight: 600;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.btn--dark {
+  background: var(--ink);
+  color: var(--invert-fg);
+}
+
+.btn--dark:hover {
+  /* In light theme this lightens the near-black "dark" button on hover.
+     In dark mode --ink is light, so the hover tint needs to go the other
+     way (a hair darker) to read as a hover state instead of a glare. */
+  background: #222;
+}
+
+[data-theme='dark'] .btn--dark:hover {
+  background: #cfcfcf;
+}
+
+.btn--light {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.btn--light:hover {
+  background: var(--placeholder);
+}
+
+/* The site footer stays dark in both themes (it's pinned to the
+   frozen tokens). In dark mode, .btn--light inside the footer would
+   otherwise resolve to background: var(--bg) [dark] + color: var(--ink)
+   [also frozen dark via the footer's scoped override] — i.e. a dark
+   pill on the dark footer with dark text. Force the button back to
+   white-on-dark inside this subtree. */
+[data-theme='dark'] .site-footer .btn--light {
+  background: var(--frozen-invert-fg);
+  color: var(--frozen-ink);
+}
+
+[data-theme='dark'] .site-footer .btn--light:hover {
+  /* Hair darker than --frozen-invert-fg so the hover still reads as
+     a hover instead of glaring brighter on the dark surface. */
+  background: #d8d8d8;
+}
+
+/* ----------------------------------------------------------------------
+   Toast — floating confirmation / error pop-in.
+   Rendered via portal to <body>, so position: fixed resolves against
+   the viewport regardless of which contact form (footer vs page)
+   triggered it. Top-centred, fixed below the sticky header. Auto-
+   dismisses after 5s via the component, can also be closed with × or
+   the ESC key.
+
+   Accent colours stay readable in both themes: the left-edge accent
+   bar carries the success/error tone, the body uses theme tokens
+   (var(--bg) / var(--ink)) so the toast surface matches the page.
+---------------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  top: 84px; /* clears the 64px header padding-top + ~20px breathing room */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.06);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-width: calc(100vw - 32px);
+  width: max-content;
+  /* Soft slide-in from above + fade. The cubic-bezier matches the
+     drawer animation so the motion language stays consistent. */
+  animation: toast-in 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.toast__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  /* Tinted disc behind the icon — light enough to keep contrast with
+     the icon stroke, strong enough to register the toast's tone. */
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .toast__icon {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toast--success .toast__icon {
+  color: #2a9d3f;
+}
+
+.toast--error .toast__icon {
+  color: #c44949;
+}
+
+[data-theme='dark'] .toast--error .toast__icon {
+  color: #ff8a8a;
+}
+
+.toast__message {
+  flex: 1;
+  min-width: 0;
+  padding-right: 4px;
+  max-width: 56ch;
+}
+
+.toast__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.toast__close:hover,
+.toast__close:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink);
+  outline: none;
+}
+
+[data-theme='dark'] .toast__close:hover,
+[data-theme='dark'] .toast__close:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile: pin to a narrow band at the top, full-width-ish. */
+@media (max-width: 600px) {
+  .toast {
+    top: 80px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Respect reduced motion — no slide, no scale, just fade. */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--ghost {
+  border: 1px solid currentColor;
+}
+
+/* -------- Inline link / "Let's Talk +" -------- */
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+/* -------- Footer (dark) -------- */
+.site-footer {
+  /* Pin to frozen tokens so the footer stays its always-dark self even
+     when the rest of the page is in dark theme (per the brief: "For the
+     footer, in dark mode, keep it as it is"). */
+  background: var(--frozen-ink);
+  color: var(--frozen-invert-fg);
+  padding: 56px 0 28px;
+  margin-top: 80px;
+}
+
+.site-footer__top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+
+@media (min-width: 900px) {
+  .site-footer__top {
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+  }
+}
+
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.site-footer__brand-text {
+  font-size: 0.92rem;
+  max-width: 28ch;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.site-footer__email {
+  font-size: 1rem;
+  display: inline-block;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  padding-bottom: 4px;
+  width: max-content;
+}
+
+.site-footer__bottom {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.footer-nav {
+  display: flex;
+  gap: 22px;
+}
+
+.footer-nav a {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.footer-nav a.active {
+  text-decoration: underline;
+}
+
+/* -------- Page-level helpers -------- */
+.page-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: end;
+  padding: 32px 0 24px;
+}
+
+@media (min-width: 900px) {
+  .page-head {
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+  }
+}
+
+.page-head h1 {
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  max-width: 18ch;
+}
+
+.page-head__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-head__aside p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  max-width: 32ch;
+}
+
+/* -------- Project page specifics -------- */
+.project-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+  margin-top: 24px;
+  font-size: 0.85rem;
+}
+
+.project-meta dt {
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.project-meta dd {
+  margin: 0;
+}
+
+.project-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.project-stack .tile {
+  aspect-ratio: 4 / 3;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #def7e0;
+  color: #176c2a;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}
+
+.status-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2a9d3f;
+}
+
+/* -------- About page specifics -------- */
+.bio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 900px) {
+  .bio {
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+}
+
+.bio p {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.testimonial {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.testimonial__quote {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.testimonial__person {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.testimonial__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--placeholder-2);
+}
+
+.testimonial__person h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.testimonial__person p {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ----------------------------------------------------------------------
+   About → "Codes to live by" (replaces the old .testimonial block).
+   Container is a vertical stack like .testimonial was, so the FAQ list
+   sits flush under the heading. The heading itself is bumped from h4 to
+   h3 and given a viewport-responsive size via clamp() — small phones
+   land at ~1.1rem, desktop at ~1.5rem, scaling fluidly between them.
+---------------------------------------------------------------------- */
+.codex {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.codex__title {
+  margin: 0 0 4px;
+  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.gear {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+  padding: 64px 0;
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 900px) {
+  .gear {
+    grid-template-columns: 1fr 2fr;
+    gap: 64px;
+  }
+}
+
+.gear__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gear__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+.gear__row:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+/* Labs page only: drop the first row's top rule so the list reads cleanly
+   under the .gear section divider. The .gear__row styles are shared with
+   the About page, which keeps its leading rule. */
+.gear--labs .gear__row:first-child {
+  border-top: 0;
+}
+
+@media (min-width: 600px) {
+  .gear__row {
+    grid-template-columns: 1fr 2fr;
+    gap: 32px;
+  }
+}
+
+.gear__row dd {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (min-width: 600px) {
+  .gear__row dd {
+    text-align: right;
+  }
+}
+
+/* -------- More Projects scroller (colored cards) -------- */
+.more-projects {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+@media (min-width: 1024px) {
+  .more-projects {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.more-card {
+  border-radius: var(--radius-xl);
+  padding: 24px 22px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Same rationale as .service-card__face — keep text dark over the
+     pastel surfaces in both themes. */
+  color: var(--frozen-ink);
+}
+
+.more-card[data-color='purple'] {
+  background: var(--accent-purple);
+}
+.more-card[data-color='green'] {
+  background: var(--accent-green);
+}
+.more-card[data-color='pink'] {
+  background: var(--accent-pink);
+}
+.more-card[data-color='yellow'] {
+  background: var(--accent-yellow);
+}
+
+.more-card__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.more-card__icon {
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  background-image: radial-gradient(var(--ink) 30%, transparent 32%);
+  background-size: 7px 7px;
+}
+
+.more-card__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.more-card__desc {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+.more-card__meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  margin-top: 12px;
+}
+
+/* -------- More-projects carousel (project pages) --------
+   Horizontal, scroll-snapping row of the Work-page ProjectCard tile,
+   scaled down to roughly the old .more-card footprint. Ordered by
+   tag-similarity in Project.jsx (most similar first). */
+.project-carousel {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 2px 4px 12px;
+  margin: 0 -4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-2) transparent;
+}
+
+.project-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+.project-carousel::-webkit-scrollbar-thumb {
+  background: var(--muted-2);
+  border-radius: 999px;
+}
+.project-carousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.project-carousel__item {
+  flex: 0 0 auto;
+  width: 232px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 700px) {
+  .project-carousel__item {
+    width: 264px;
+  }
+}
+
+/* -------- Closing CTA block --------
+   A single floating card the full width of its column — white surface,
+   generous radius, no backdrop. The block carries bottom padding so the
+   drop shadow has room to fade out fully before the dark footer — without
+   it the shadow gets clipped at the section seam and the card looks cut
+   off. The shadow itself is kept tight enough to read clearly on white
+   without sprawling. Dark mode keeps the card a step lighter than the page. */
+.closing-cta {
+  text-align: center;
+  padding-bottom: clamp(32px, 5vw, 60px);
+}
+
+.closing-cta h2 {
+  margin-bottom: 14px;
+}
+
+.closing-cta p {
+  color: var(--muted);
+  margin: 0 auto 24px;
+  max-width: 38ch;
+  font-size: 0.92rem;
+}
+
+.closing-cta__frame {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  padding: clamp(48px, 7vw, 88px) clamp(32px, 5vw, 64px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 20px 48px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='dark'] .closing-cta__frame {
+  background: var(--placeholder);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 20px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* -------- Misc -------- */
+.route-fallback {
+  min-height: 60vh;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ====================================================================
+   PROJECT CASE STUDY TEMPLATE
+   Shell layout + section primitives + presentation components for the
+   /projects/:slug pages. All scoped under .project-* so nothing here
+   leaks into other surfaces.
+==================================================================== */
+
+/* ---------- Shell: sidebar + main grid ---------- */
+.project-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  padding: 32px 0 64px;
+}
+
+@media (min-width: 900px) {
+  .project-shell {
+    /* Narrow fixed sidebar, then a wider main column that's still
+       capped so long lines of body copy stay comfortable. */
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 64px;
+  }
+}
+
+.project-sidebar {
+  position: sticky;
+  /* Clears the 64 px sticky header padding-top + a small gutter. */
+  top: 88px;
+  align-self: start;
+  z-index: 1;
+}
+
+@media (max-width: 899px) {
+  .project-sidebar {
+    /* On narrow viewports the sidebar becomes a horizontal scrollable
+       pill nav pinned just under the site header. */
+    top: 64px;
+    padding: 8px 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 699px) {
+  /* Phones: hide the on-this-page nav entirely — the page scrolls fine
+     without it and the horizontal strip crowds small screens. */
+  .project-sidebar {
+    display: none;
+  }
+}
+
+.project-sidebar__heading {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+@media (max-width: 899px) {
+  .project-sidebar__heading {
+    display: none;
+  }
+}
+
+.project-sidebar__nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 899px) {
+  .project-sidebar__nav ul {
+    flex-direction: row;
+    gap: 18px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .project-sidebar__nav ul::-webkit-scrollbar { display: none; }
+  /* Horizontal mode: the heading is hidden and items sit in a row, so drop
+     the -10px vertical-alignment offset — otherwise it cancels out the gap.
+     Scoped under `.project-sidebar__nav ul` to outweigh the base rule below,
+     since media queries don't add specificity. */
+  .project-sidebar__nav ul .project-sidebar__link {
+    margin-left: 0;
+  }
+}
+
+.project-sidebar__link {
+  display: block;
+  padding: 6px 10px;
+  margin-left: -10px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--muted);
+  border-radius: 6px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms ease;
+  white-space: nowrap;
+}
+
+.project-sidebar__link:hover {
+  color: var(--ink);
+  background: var(--placeholder);
+}
+
+.project-sidebar__link.is-active {
+  color: var(--ink);
+  font-weight: 600;
+  background: var(--placeholder);
+}
+
+/* ---------- Section primitives ---------- */
+.project-main {
+  /* Each section gets its own vertical rhythm. The cap keeps long
+     paragraphs in a comfortable measure on ultrawide. */
+  display: flex;
+  flex-direction: column;
+  gap: 88px;
+  max-width: 880px;
+}
+
+.project-section {
+  scroll-margin-top: 96px; /* matches sidebar smooth-scroll offset */
+}
+
+.project-section__title {
+  margin: 0 0 16px;
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.project-section__subtitle {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.project-section__body {
+  margin: 0 0 16px;
+  max-width: 60ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.project-section__lead {
+  margin-top: 28px;
+  max-width: 60ch;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ---------- Project hero (top of every project page) ---------- */
+.project-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+
+.project-hero__text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.project-hero__title {
+  margin: 4px 0 0;
+  font-size: clamp(1.85rem, 4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.project-hero__tagline {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.project-hero__visual {
+  margin-top: 16px;
+}
+
+/* ---------- Meta grid (Role / Year / Scope ...) ---------- */
+.project-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 32px;
+  margin: 24px 0 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (min-width: 720px) {
+  .project-meta-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.project-meta-grid__cell dt {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.project-meta-grid__cell dd {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+/* ---------- Device frame (minimal browser / phone chrome) ---------- */
+.device-frame {
+  --device-radius: 14px;
+  --device-border: 1px solid var(--line);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.device-frame__body {
+  border: var(--device-border);
+  border-radius: var(--device-radius);
+  overflow: hidden;
+  background: var(--bg);
+  transition: box-shadow 220ms ease;
+}
+
+.device-frame--desktop .device-frame__body {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .device-frame--desktop .device-frame__body {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.device-frame__chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 12px;
+  border-bottom: var(--device-border);
+  background: var(--placeholder-2);
+}
+
+[data-theme='dark'] .device-frame__chrome {
+  background: var(--placeholder);
+}
+
+.device-frame__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+
+.device-frame__screen {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  background: var(--placeholder);
+  overflow: hidden;
+}
+
+.device-frame__screen > img,
+.device-frame__screen > picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Mobile variant — no chrome bar, taller portrait aspect, capped width. */
+.device-frame--mobile {
+  max-width: 260px;
+  width: 100%;
+}
+
+.device-frame--mobile .device-frame__body {
+  --device-radius: 28px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .device-frame--mobile .device-frame__body {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.device-frame--mobile .device-frame__screen {
+  aspect-ratio: 9 / 19;
+}
+
+.device-frame__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Placeholder block (until real screenshots land) ---------- */
+.project-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--placeholder);
+  background-image:
+    linear-gradient(45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--placeholder-2) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--placeholder-2) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--placeholder-2) 75%);
+  background-size: 24px 24px;
+  background-position:
+    0 0,
+    0 12px,
+    12px -12px,
+    -12px 0;
+}
+
+.project-placeholder__label {
+  display: inline-block;
+  padding: 6px 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ---------- Layout helpers: rows of items ---------- */
+.project-grid-row {
+  display: grid;
+  gap: 16px;
+}
+
+.project-grid-row--two {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .project-grid-row--two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.project-grid-row--three {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .project-grid-row--three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.project-grid-row--mobile-trio {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+@media (min-width: 720px) {
+  .project-grid-row--mobile-trio {
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+  }
+}
+
+/* ---------- Outcome stat row ---------- */
+.project-stat-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (min-width: 720px) {
+  .project-stat-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.project-stat {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.project-stat__value {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.project-stat__label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ---------- Lightbox (click image to expand) ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 24px;
+  animation: lightbox-in 200ms ease-out;
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.lightbox__close:hover {
+  background: #fff;
+  transform: scale(1.05);
+}
+
+.lightbox__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ---------- Annotated image (numbered hotspots) ---------- */
+.annotated-image {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.annotated-image__media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.annotated-image__media > img,
+.annotated-image__media > .project-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.annotated-image__hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--invert-fg);
+  border: 2px solid var(--bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.annotated-image__hotspot:hover,
+.annotated-image__hotspot.is-open {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.annotated-image__hotspot:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.annotated-image__hotspot-num {
+  /* Decorative — the aria-label on the button already carries the
+     number for AT. */
+  pointer-events: none;
+}
+
+.annotated-image__hotspot-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  z-index: 3;
+}
+
+.annotated-image__hotspot-body {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+/* ---------- Screen switcher (tabbed image swap) ---------- */
+.screen-switcher {
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-switcher__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--placeholder-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.screen-switcher__tabs::-webkit-scrollbar { display: none; }
+
+[data-theme='dark'] .screen-switcher__tabs {
+  background: var(--placeholder);
+}
+
+.screen-switcher__tab {
+  flex: none;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.screen-switcher__tab:hover {
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.screen-switcher__tab.is-active {
+  color: var(--ink);
+  background: var(--bg);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.screen-switcher__stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--placeholder);
+  overflow: hidden;
+}
+
+.screen-switcher__panel {
+  position: absolute;
+  inset: 0;
+}
+
+.screen-switcher__panel > img,
+.screen-switcher__panel > .project-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Scroll viewport (pinned tall mockup) ---------- */
+.scroll-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background: var(--placeholder);
+}
+
+.scroll-viewport__inner {
+  width: 100%;
+  position: relative;
+  will-change: transform;
+}
+
+.scroll-viewport__inner > img,
+.scroll-viewport__inner > .project-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scroll-viewport__inner--static {
+  height: 100%;
+  overflow-y: auto;
+}
+
