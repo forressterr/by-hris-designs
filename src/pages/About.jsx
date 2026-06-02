@@ -19,7 +19,9 @@ export default function About() {
           <div>
             <span className="eyebrow">ABOUT THE DESIGNER</span>
             <h1 style={{ marginTop: 16 }}>
-              Hristian Goretsov — multi-disciplinary experience designer.
+              Hristian Goretsov
+              <br />
+              multi-disciplinary experience designer.
             </h1>
           </div>
           <div className="page-head__aside">
