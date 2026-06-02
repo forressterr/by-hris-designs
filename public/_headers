@@ -1,0 +1,10 @@
+# Baseline security headers — Netlify / Cloudflare Pages.
+# (Vercel reads headers from vercel.json instead; other hosts set these at
+# the CDN/server level.) A Content-Security-Policy is intentionally left out
+# here because the inline theme-bootstrap script in index.html would need a
+# matching hash/nonce — add it deliberately when you lock the deploy down.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
