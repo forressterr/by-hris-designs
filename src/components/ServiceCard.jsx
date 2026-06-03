@@ -123,12 +123,16 @@ export default function ServiceCard({ service }) {
   // Hover lift only when the card is in its resting (front) state — a
   // hover transform on a flipped card would compound with the 180° Y
   // rotation and look weird.
-  const hoverMotion = isFlipped || prefersReducedMotion
-    ? {}
-    : {
-        whileHover: { y: -4, transition: { type: 'spring', stiffness: 300, damping: 22 } },
-        whileTap: { scale: 0.995, transition: { duration: 0.1 } },
-      };
+  const hoverMotion =
+    isFlipped || prefersReducedMotion
+      ? {}
+      : {
+          whileHover: {
+            y: -4,
+            transition: { type: 'spring', stiffness: 300, damping: 22 },
+          },
+          whileTap: { scale: 0.995, transition: { duration: 0.1 } },
+        };
 
   const toggleFlip = () => setIsFlipped((prev) => !prev);
 

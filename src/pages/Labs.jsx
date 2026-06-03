@@ -21,17 +21,15 @@ export default function Labs() {
           <div>
             <span className="eyebrow">LABS WORK</span>
             <h1 style={{ marginTop: 16 }}>
-              Pushing design into new tools, new patterns, and the
-              everyday problems it could still solve — with a handful
-              of spark.
+              Pushing design into new tools, new patterns, and the everyday
+              problems it could still solve — with a handful of spark.
             </h1>
           </div>
           <div className="page-head__aside">
             <p>
-              My family raised me to imagine first, find my own way
-              around obstacles, and never call anything a failure —
-              just the next lesson. Most of what lives in here started
-              from that instinct.
+              My family raised me to imagine first, find my own way around
+              obstacles, and never call anything a failure — just the next
+              lesson. Most of what lives in here started from that instinct.
             </p>
             <Link
               to="/contact"
@@ -60,8 +58,7 @@ export default function Labs() {
           <div>
             <span className="eyebrow">ABOUT LABS</span>
             <h2 style={{ marginTop: 12, fontSize: '1.75rem' }}>
-              Where the curiosity and imagination gives a start to new
-              horizons.
+              Where the curiosity and imagination gives a start to new horizons.
             </h2>
           </div>
           <dl className="gear__list">

@@ -74,7 +74,12 @@ const CloseIcon = () => (
   </svg>
 );
 
-export default function Toast({ kind = 'success', message, onClose, duration = 5000 }) {
+export default function Toast({
+  kind = 'success',
+  message,
+  onClose,
+  duration = 5000,
+}) {
   // Auto-dismiss timer. Resets whenever the message changes so a fresh
   // toast gets its full duration even if the previous one was mid-flight.
   useEffect(() => {

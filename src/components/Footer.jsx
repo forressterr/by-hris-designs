@@ -18,11 +18,14 @@ export default function Footer() {
           <div className="site-footer__brand">
             <Logo size="lg" />
             <p className="site-footer__brand-text">
-              I’d love to hear from you — whether you have a project in mind,
-              or just want to say hi. Always up for a coffee.
+              I’d love to hear from you — whether you have a project in mind, or
+              just want to say hi. Always up for a coffee.
             </p>
             {SHOW_MAILTO_FALLBACK && (
-              <a href="mailto:h.goretsov@gmail.com" className="site-footer__email">
+              <a
+                href="mailto:h.goretsov@gmail.com"
+                className="site-footer__email"
+              >
                 h.goretsov@gmail.com
               </a>
             )}

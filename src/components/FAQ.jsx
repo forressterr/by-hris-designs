@@ -47,7 +47,10 @@ export default function FAQ({ items, initialOpen = 0 }) {
   const triggerMotion = prefersReducedMotion
     ? {}
     : {
-        whileHover: { x: 2, transition: { type: 'spring', stiffness: 400, damping: 24 } },
+        whileHover: {
+          x: 2,
+          transition: { type: 'spring', stiffness: 400, damping: 24 },
+        },
         whileTap: { scale: 0.995, transition: { duration: 0.1 } },
       };
 
@@ -67,7 +70,11 @@ export default function FAQ({ items, initialOpen = 0 }) {
         const panelId = `faq-panel-${index}`;
         const triggerId = `faq-trigger-${index}`;
         return (
-          <motion.li className="faq__item" key={item.question} variants={itemMotion}>
+          <motion.li
+            className="faq__item"
+            key={item.question}
+            variants={itemMotion}
+          >
             <motion.button
               type="button"
               className="faq__trigger"
@@ -88,9 +95,7 @@ export default function FAQ({ items, initialOpen = 0 }) {
                 without having to measure it in JS. aria-hidden carries
                 the closed state for assistive tech. */}
             <div
-              className={`faq__panel-wrapper${
-                isOpen ? ' is-open' : ''
-              }`}
+              className={`faq__panel-wrapper${isOpen ? ' is-open' : ''}`}
               aria-hidden={!isOpen}
             >
               <div

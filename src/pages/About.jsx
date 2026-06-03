@@ -1,11 +1,5 @@
 import { Link } from 'react-router-dom';
-import {
-  bio,
-  codex,
-  skills,
-  tools,
-  achievements,
-} from '../data/projects.js';
+import { bio, codex, skills, tools, achievements } from '../data/projects.js';
 import FAQ from '../components/FAQ.jsx';
 import SlideShow from '../components/SlideShow.jsx';
 import Reveal from '../components/motion/Reveal.jsx';
@@ -26,8 +20,8 @@ export default function About() {
           </div>
           <div className="page-head__aside">
             <p>
-              Designing across product, web, and SaaS — and finishing an MSc
-              in Human-Computer Interaction at Utrecht University on the side.
+              Designing across product, web, and SaaS — and finishing an MSc in
+              Human-Computer Interaction at Utrecht University on the side.
             </p>
             <Link
               to="/contact"
@@ -83,10 +77,10 @@ export default function About() {
               <p>
                 Most of what I value as a designer I learned somewhere else
                 first — running a corner sharpie ‘tattoo shop’ as a kid,
-                soldering broken things in the garage with my dad, building
-                IKEA shelves badly and then better. The work is just the same
-                loop with more constraints: imagine, make, show someone, fix
-                it. Repeat.
+                soldering broken things in the garage with my dad, building IKEA
+                shelves badly and then better. The work is just the same loop
+                with more constraints: imagine, make, show someone, fix it.
+                Repeat.
               </p>
               <div style={{ marginTop: 24 }}>
                 <strong style={{ fontSize: 13 }}>Hristian Goretsov</strong>

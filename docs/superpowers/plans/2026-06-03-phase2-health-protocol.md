@@ -20,15 +20,18 @@
 ### Task 1: ESLint flat config + lint scripts
 
 **Files:**
+
 - Create: `eslint.config.js`
 - Modify: `package.json` (add `lint`, `lint:fix` scripts; devDependencies via npm)
 
 - [ ] **Step 1: Install ESLint dev dependencies**
 
 Run:
+
 ```bash
 npm i -D eslint @eslint/js eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh globals eslint-config-prettier
 ```
+
 Expected: packages added to `devDependencies`; no errors.
 
 - [ ] **Step 2: Create `eslint.config.js`**
@@ -74,6 +77,7 @@ export default [
 - [ ] **Step 3: Add lint scripts to `package.json`**
 
 Add to the `"scripts"` block:
+
 ```json
 "lint": "eslint .",
 "lint:fix": "eslint . --fix"
@@ -82,7 +86,7 @@ Add to the `"scripts"` block:
 - [ ] **Step 4: Run lint to capture the baseline**
 
 Run: `npm run lint`
-Expected: ESLint executes without a *config* error (it parses `eslint.config.js`). It will likely report some pre-existing findings (unused vars, hook-deps, react-refresh). Record the list — Task 2 resolves them. If instead it errors with a config/plugin-API problem (e.g. `react.configs.flat is undefined`), fix the config before continuing (check installed `eslint-plugin-react` ≥ 7.37 for flat support).
+Expected: ESLint executes without a _config_ error (it parses `eslint.config.js`). It will likely report some pre-existing findings (unused vars, hook-deps, react-refresh). Record the list — Task 2 resolves them. If instead it errors with a config/plugin-API problem (e.g. `react.configs.flat is undefined`), fix the config before continuing (check installed `eslint-plugin-react` ≥ 7.37 for flat support).
 
 - [ ] **Step 5: Commit (config only)**
 
@@ -96,6 +100,7 @@ git commit --author="h.goretsov <gorecov4@gmail.com>" -m "chore: add ESLint flat
 ### Task 2: Resolve ESLint findings (triage)
 
 **Files:**
+
 - Modify: whichever `src/**/*.{js,jsx}` files Task 1 Step 4 flagged
 - Possibly delete: `src/components/project/Lightbox.jsx` (dead code — see Step 3)
 
@@ -108,6 +113,7 @@ Expected: the auto-fixable issues (e.g. unused imports) are gone; only judgment-
 - [ ] **Step 2: Resolve remaining findings with fix-or-annotate**
 
 For each remaining finding, apply the matching rule (no blanket rule-disabling):
+
 - `no-unused-vars` (real unused var/param) → remove it, or prefix an intentionally-unused arg with `_`.
 - `react-hooks/exhaustive-deps` → add the missing dependency if safe; if adding it would change behavior, leave the code as-is and annotate the line:
   ```js
@@ -122,9 +128,11 @@ Re-run `npm run lint` after edits.
 `src/components/project/Lightbox.jsx` is imported nowhere (confirmed in HANDOVER.md). Recommended: delete it — this also closes a standing backlog item.
 
 **Gate:** confirm with the user before deleting. If approved:
+
 ```bash
 git rm src/components/project/Lightbox.jsx
 ```
+
 If the user wants to keep it, instead resolve any lint findings inside it per Step 2.
 
 - [ ] **Step 4: Verify lint is clean and build still works**
@@ -142,6 +150,7 @@ bundle graph.)
 git add -A
 git commit --author="h.goretsov <gorecov4@gmail.com>" -m "fix: resolve ESLint findings"
 ```
+
 (If no source changes were needed, skip this commit.)
 
 ---
@@ -149,6 +158,7 @@ git commit --author="h.goretsov <gorecov4@gmail.com>" -m "fix: resolve ESLint fi
 ### Task 3: Prettier config + format scripts
 
 **Files:**
+
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 - Modify: `package.json` (add `format`, `format:check` scripts; devDependency)
@@ -184,6 +194,7 @@ public/_redirects
 - [ ] **Step 4: Add format scripts to `package.json`**
 
 Add to `"scripts"`:
+
 ```json
 "format": "prettier --write .",
 "format:check": "prettier --check ."
@@ -206,6 +217,7 @@ git commit --author="h.goretsov <gorecov4@gmail.com>" -m "chore: add Prettier co
 ### Task 4: One-time format pass
 
 **Files:**
+
 - Modify: all Prettier-eligible files (mechanical reformat)
 
 - [ ] **Step 1: Format the codebase**
@@ -239,6 +251,7 @@ git commit --author="h.goretsov <gorecov4@gmail.com>" -m "style: format codebase
 ### Task 5: husky + lint-staged pre-commit hook
 
 **Files:**
+
 - Create: `.husky/pre-commit`
 - Modify: `package.json` (`prepare` script + `lint-staged` block; devDependencies)
 
@@ -255,6 +268,7 @@ Expected: creates `.husky/pre-commit` (default content `npm test`) and adds `"pr
 - [ ] **Step 3: Set the hook to run lint-staged**
 
 Overwrite `.husky/pre-commit` with exactly:
+
 ```sh
 npx lint-staged
 ```
@@ -262,6 +276,7 @@ npx lint-staged
 - [ ] **Step 4: Add the `lint-staged` block to `package.json`**
 
 Add at the top level of `package.json` (sibling of `"scripts"`):
+
 ```json
 "lint-staged": {
   "*.{js,jsx}": ["eslint --fix", "prettier --write"],
@@ -272,16 +287,20 @@ Add at the top level of `package.json` (sibling of `"scripts"`):
 - [ ] **Step 5: Test the hook auto-fixes a staged change**
 
 Create a temporary, deliberately mis-formatted file:
+
 ```bash
 printf 'const   x=1\nexport default x\n' > src/__hooktest.js
 git add src/__hooktest.js
 git commit --author="h.goretsov <gorecov4@gmail.com>" -m "test: verify pre-commit hook"
 ```
+
 Expected: the commit triggers `lint-staged`; `eslint --fix` + `prettier --write` reformat the file (to `const x = 1;` etc.) before the commit lands. Verify:
+
 ```bash
 git show HEAD:src/__hooktest.js
 ```
-Expected: shows the *formatted* content, proving the hook ran.
+
+Expected: shows the _formatted_ content, proving the hook ran.
 
 - [ ] **Step 6: Remove the test file and amend it out**
 
@@ -289,6 +308,7 @@ Expected: shows the *formatted* content, proving the hook ran.
 git rm src/__hooktest.js
 git commit --author="h.goretsov <gorecov4@gmail.com>" -m "chore: add husky + lint-staged pre-commit hook"
 ```
+
 (This commit removes the test file; the prior test commit + this one net to just the hook setup. Alternatively `git reset --soft HEAD~1 && git rm` to collapse — either is fine.)
 
 - [ ] **Step 7: Confirm `.husky/` and config are committed**
@@ -301,12 +321,14 @@ Expected: clean tree. `.husky/pre-commit`, the `prepare` script, and the `lint-s
 ### Task 6: `check` gate + PROTOCOL.md
 
 **Files:**
+
 - Modify: `package.json` (add `check` script)
 - Create: `PROTOCOL.md` (repo root)
 
 - [ ] **Step 1: Add the `check` script to `package.json`**
 
 Add to `"scripts"`:
+
 ```json
 "check": "npm run lint && npm run format:check && npm audit --audit-level=high && npm run build"
 ```
@@ -319,6 +341,7 @@ Add to `"scripts"`:
 Run before every deploy. The first three are automated via `npm run check`.
 
 ## Automated gate — `npm run check`
+
 1. **Lint** — `npm run lint` exits clean (no errors).
 2. **Format** — `npm run format:check` reports all files styled.
 3. **Audit** — `npm audit --audit-level=high` finds no high/critical.
@@ -327,6 +350,7 @@ Run before every deploy. The first three are automated via `npm run check`.
 4. **Build** — `npm run build` completes with no errors/warnings.
 
 ## Manual checks
+
 5. **Console-clean** — open the build preview; 0 warnings/errors in the browser
    console on each route (`/`, `/works`, `/about`, `/labs`, `/contact`, a
    `/projects/:slug`, and an unknown path for 404).
@@ -339,6 +363,7 @@ Run before every deploy. The first three are automated via `npm run check`.
    breaks AnimatePresence exit animations in dev).
 
 ## Pre-commit (automatic)
+
 A husky + lint-staged pre-commit hook runs `eslint --fix` + `prettier --write`
 on staged files, so most issues are fixed before they ever land.
 ```
@@ -378,11 +403,13 @@ Expected (newest first): check+PROTOCOL, husky+lint-staged, style:format, fix:ES
 ```bash
 git push origin main
 ```
+
 Pushes the whole Phase 2 set (spec + implementation). Confirm with the user first; a linked Vercel project will redeploy.
 
 ---
 
 ## Definition of Done
+
 - `npm run check` exits 0 (lint + format + audit-high + build).
 - Pre-commit hook auto-formats staged files (verified in Task 5).
 - `PROTOCOL.md` exists at repo root with the full checklist.

@@ -30,7 +30,7 @@ application/runtime behavior**.
   held back).
 - No app behavior, feature, or visual-design changes.
 - The known **2 moderate `npm audit` advisories** (esbuild via Vite, dev-server
-  only) are documented as *accepted*, not fixed — the only fix is a breaking
+  only) are documented as _accepted_, not fixed — the only fix is a breaking
   Vite major.
 
 ## Decisions

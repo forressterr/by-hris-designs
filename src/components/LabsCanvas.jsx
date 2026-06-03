@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
-import { Plus, Minus, Maximize, Lock, Unlock, Hand } from "lucide-react";
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { Plus, Minus, Maximize, Lock, Unlock, Hand } from 'lucide-react';
 
 /*
   LabsCanvas — "work in progress" overview for personal / side / hobby projects.
@@ -35,45 +35,80 @@ import { Plus, Minus, Maximize, Lock, Unlock, Hand } from "lucide-react";
 // Mapped to the By_Hris tokens (src/styles/index.css). var() references resolve
 // per-theme; `spark` is the single, theme-independent accent.
 const C = {
-  ink: "var(--ink)",
-  body: "var(--muted)",
-  faint: "var(--muted-2)",
-  hair: "var(--line)",
-  line: "var(--muted)", // resting edges: a clearly visible mid-gray so the wiring reads, not just the dots
-  card: "var(--bg)",
-  canvas: "var(--bg)",
-  grid: "var(--line)",
-  spark: "#e8763a", // warm "handful of spark" accent — the lone accent colour
+  ink: 'var(--ink)',
+  body: 'var(--muted)',
+  faint: 'var(--muted-2)',
+  hair: 'var(--line)',
+  line: 'var(--muted)', // resting edges: a clearly visible mid-gray so the wiring reads, not just the dots
+  card: 'var(--bg)',
+  canvas: 'var(--bg)',
+  grid: 'var(--line)',
+  spark: '#e8763a', // warm "handful of spark" accent — the lone accent colour
 };
 
 const NODES = [
-  { id: "wip", n: "01", title: "Work in progress",
-    body: "The half-built, the rough draft, the thing I’d usually keep off the portfolio until it was polished. Here it gets to exist anyway.",
-    x: -372, y: -150, depth: 1.0, phase: 0.0 },
-  { id: "side", n: "02", title: "Side quests",
-    body: "Personal explorations that don’t fit the day job — 3D, brand experiments, weekend builds, anything that lets the curiosity off the leash.",
-    x: 352, y: -178, depth: 0.8, phase: 1.4 },
-  { id: "principles", n: "03", title: "Principles I’m testing",
-    body: "New ways of thinking about a design problem — frameworks, instincts, and manners picked up recently and not yet fully formed.",
-    x: -410, y: 168, depth: 0.62, phase: 2.7 },
-  { id: "ai", n: "04", title: "AI × design",
-    body: "The ever-expanding horizon of what AI gives designers — what it changes, what it accelerates, and what it asks us to rethink.",
-    x: 430, y: 132, depth: 0.92, phase: 4.0 },
-  { id: "skills", n: "05", title: "Skills in flight",
-    body: "Tools, techniques, and disciplines I’m actively adding to the arsenal. Some land, some don’t — both end up in here.",
-    x: 64, y: 268, depth: 0.5, phase: 5.3 },
+  {
+    id: 'wip',
+    n: '01',
+    title: 'Work in progress',
+    body: 'The half-built, the rough draft, the thing I’d usually keep off the portfolio until it was polished. Here it gets to exist anyway.',
+    x: -372,
+    y: -150,
+    depth: 1.0,
+    phase: 0.0,
+  },
+  {
+    id: 'side',
+    n: '02',
+    title: 'Side quests',
+    body: 'Personal explorations that don’t fit the day job — 3D, brand experiments, weekend builds, anything that lets the curiosity off the leash.',
+    x: 352,
+    y: -178,
+    depth: 0.8,
+    phase: 1.4,
+  },
+  {
+    id: 'principles',
+    n: '03',
+    title: 'Principles I’m testing',
+    body: 'New ways of thinking about a design problem — frameworks, instincts, and manners picked up recently and not yet fully formed.',
+    x: -410,
+    y: 168,
+    depth: 0.62,
+    phase: 2.7,
+  },
+  {
+    id: 'ai',
+    n: '04',
+    title: 'AI × design',
+    body: 'The ever-expanding horizon of what AI gives designers — what it changes, what it accelerates, and what it asks us to rethink.',
+    x: 430,
+    y: 132,
+    depth: 0.92,
+    phase: 4.0,
+  },
+  {
+    id: 'skills',
+    n: '05',
+    title: 'Skills in flight',
+    body: 'Tools, techniques, and disciplines I’m actively adding to the arsenal. Some land, some don’t — both end up in here.',
+    x: 64,
+    y: 268,
+    depth: 0.5,
+    phase: 5.3,
+  },
 ];
 
 // hub edges carry a travelling signal dot; the last three only tease interconnection
 const EDGES = [
-  { a: "center", b: "wip", hub: true },
-  { a: "center", b: "side", hub: true },
-  { a: "center", b: "principles", hub: true },
-  { a: "center", b: "ai", hub: true },
-  { a: "center", b: "skills", hub: true },
-  { a: "side", b: "ai", hub: false },
-  { a: "principles", b: "skills", hub: false },
-  { a: "wip", b: "principles", hub: false },
+  { a: 'center', b: 'wip', hub: true },
+  { a: 'center', b: 'side', hub: true },
+  { a: 'center', b: 'principles', hub: true },
+  { a: 'center', b: 'ai', hub: true },
+  { a: 'center', b: 'skills', hub: true },
+  { a: 'side', b: 'ai', hub: false },
+  { a: 'principles', b: 'skills', hub: false },
+  { a: 'wip', b: 'principles', hub: false },
 ];
 
 /* --------------------------------- engine -------------------------------- */
@@ -91,13 +126,15 @@ const HUB = EDGES.map((e, i) => ({ ...e, i })).filter((e) => e.hub);
 // can't clamp it (that reset shrank the old width:1 svg to ~0 and the lines
 // vanished). `toSvg` shifts centre-origin coords into the box (all positive) so
 // every endpoint lands INSIDE it — no reliance on overflow painting.
-const SVGW = 2400, SVGH = 1700;
+const SVGW = 2400,
+  SVGH = 1700;
 const OFF = { x: SVGW / 2, y: SVGH / 2 };
 const toSvg = (p) => ({ x: p.x + OFF.x, y: p.y + OFF.y });
 
 // curved connector between two centre-origin points
 function geom(a, b) {
-  const dx = b.x - a.x, dy = b.y - a.y;
+  const dx = b.x - a.x,
+    dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
   const off = Math.min(46, len * 0.12);
   const cx = (a.x + b.x) / 2 + (-dy / len) * off;
@@ -110,10 +147,17 @@ const bez = (p0, c, p1, t) => ({
 });
 
 // static fallback layout — guarantees lines are visible without the loop
-const POS_INIT = (id) => (id === "center" ? { x: 0, y: 0 } : { x: NODE_BY_ID[id].x, y: NODE_BY_ID[id].y });
-const BASE_D = EDGES.map((e) => geom(toSvg(POS_INIT(e.a)), toSvg(POS_INIT(e.b))).d);
+const POS_INIT = (id) =>
+  id === 'center'
+    ? { x: 0, y: 0 }
+    : { x: NODE_BY_ID[id].x, y: NODE_BY_ID[id].y };
+const BASE_D = EDGES.map(
+  (e) => geom(toSvg(POS_INIT(e.a)), toSvg(POS_INIT(e.b))).d,
+);
 const BASE_DOT = HUB.map((e) => {
-  const a = toSvg(POS_INIT(e.a)), b = toSvg(POS_INIT(e.b)), g = geom(a, b);
+  const a = toSvg(POS_INIT(e.a)),
+    b = toSvg(POS_INIT(e.b)),
+    g = geom(a, b);
   return bez(a, { x: g.cx, y: g.cy }, b, 0.5);
 });
 
@@ -132,8 +176,12 @@ export default function LabsCanvas() {
   const dotEls = useRef([]);
 
   const view = useRef({ tx: 0, ty: 0, k: 0.75 });
-  const base = useRef(Object.fromEntries(NODES.map((n) => [n.id, { x: n.x, y: n.y }])));
-  const live = useRef(Object.fromEntries(NODES.map((n) => [n.id, { x: n.x, y: n.y }])));
+  const base = useRef(
+    Object.fromEntries(NODES.map((n) => [n.id, { x: n.x, y: n.y }])),
+  );
+  const live = useRef(
+    Object.fromEntries(NODES.map((n) => [n.id, { x: n.x, y: n.y }])),
+  );
   const calm = useRef(Object.fromEntries(NODES.map((n) => [n.id, 1])));
   const para = useRef({ x: 0, y: 0 });
   const paraTarget = useRef({ x: 0, y: 0 });
@@ -145,16 +193,24 @@ export default function LabsCanvas() {
   const lockedRef = useRef(false);
   const drawRef = useRef(() => {});
 
-  useEffect(() => { hoverRef.current = hover; if (reduced.current) drawRef.current(performance.now()); }, [hover]);
-  useEffect(() => { lockedRef.current = locked; if (reduced.current) drawRef.current(performance.now()); }, [locked]);
+  useEffect(() => {
+    hoverRef.current = hover;
+    if (reduced.current) drawRef.current(performance.now());
+  }, [hover]);
+  useEffect(() => {
+    lockedRef.current = locked;
+    if (reduced.current) drawRef.current(performance.now());
+  }, [locked]);
 
   useLayoutEffect(() => {
-    reduced.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches || false;
-    const posOf = (id) => (id === "center" ? { x: 0, y: 0 } : live.current[id]);
+    reduced.current =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
+    const posOf = (id) => (id === 'center' ? { x: 0, y: 0 } : live.current[id]);
 
     const draw = (now) => {
       const v = view.current;
-      if (layerRef.current) layerRef.current.style.transform = `translate(${v.tx}px, ${v.ty}px) scale(${v.k})`;
+      if (layerRef.current)
+        layerRef.current.style.transform = `translate(${v.tx}px, ${v.ty}px) scale(${v.k})`;
       if (gridRef.current) {
         gridRef.current.style.backgroundSize = `${26 * v.k}px ${26 * v.k}px`;
         gridRef.current.style.backgroundPosition = `${v.tx}px ${v.ty}px`;
@@ -170,7 +226,8 @@ export default function LabsCanvas() {
       // nodes
       for (const node of NODES) {
         const b = base.current[node.id];
-        let x = b.x, y = b.y;
+        let x = b.x,
+          y = b.y;
         const dragging = dragNode.current && dragNode.current.id === node.id;
         if (!dragging) {
           const target = hoverRef.current === node.id ? 0.2 : 1;
@@ -194,7 +251,7 @@ export default function LabsCanvas() {
         const path = edgeEls.current[i];
         if (!path) continue;
         const g = geom(toSvg(posOf(e.a)), toSvg(posOf(e.b)));
-        path.setAttribute("d", g.d);
+        path.setAttribute('d', g.d);
       }
 
       // travelling signal dots: loop updates position ONLY
@@ -202,17 +259,24 @@ export default function LabsCanvas() {
         const e = HUB[j];
         const dot = dotEls.current[j];
         if (!dot) continue;
-        const a = toSvg(posOf(e.a)), b = toSvg(posOf(e.b)), g = geom(a, b);
-        const tt = reduced.current ? 0.5 : (((now * 0.00018 + j * 0.21) % 1) + 1) % 1;
+        const a = toSvg(posOf(e.a)),
+          b = toSvg(posOf(e.b)),
+          g = geom(a, b);
+        const tt = reduced.current
+          ? 0.5
+          : (((now * 0.00018 + j * 0.21) % 1) + 1) % 1;
         const p = bez(a, { x: g.cx, y: g.cy }, b, tt);
-        dot.setAttribute("cx", p.x);
-        dot.setAttribute("cy", p.y);
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', p.y);
       }
     };
 
     drawRef.current = draw;
     let raf = 0;
-    const loop = (now) => { draw(now); raf = requestAnimationFrame(loop); };
+    const loop = (now) => {
+      draw(now);
+      raf = requestAnimationFrame(loop);
+    };
     draw(performance.now());
     if (!reduced.current) raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
@@ -221,13 +285,22 @@ export default function LabsCanvas() {
   /* camera */
   const onBgDown = (e) => {
     if (locked) return;
-    pan.current = { sx: e.clientX, sy: e.clientY, tx: view.current.tx, ty: view.current.ty };
+    pan.current = {
+      sx: e.clientX,
+      sy: e.clientY,
+      tx: view.current.tx,
+      ty: view.current.ty,
+    };
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
   const onMove = (e) => {
     if (!locked) {
       const r = wrapRef.current?.getBoundingClientRect();
-      if (r) paraTarget.current = { x: ((e.clientX - r.left) / r.width - 0.5) * 2, y: ((e.clientY - r.top) / r.height - 0.5) * 2 };
+      if (r)
+        paraTarget.current = {
+          x: ((e.clientX - r.left) / r.width - 0.5) * 2,
+          y: ((e.clientY - r.top) / r.height - 0.5) * 2,
+        };
     }
     if (pan.current) {
       view.current.tx = pan.current.tx + (e.clientX - pan.current.sx);
@@ -235,8 +308,13 @@ export default function LabsCanvas() {
       if (reduced.current) drawRef.current(performance.now());
     }
   };
-  const endPan = () => { pan.current = null; };
-  const onLeave = () => { paraTarget.current = { x: 0, y: 0 }; endPan(); };
+  const endPan = () => {
+    pan.current = null;
+  };
+  const onLeave = () => {
+    paraTarget.current = { x: 0, y: 0 };
+    endPan();
+  };
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -244,16 +322,30 @@ export default function LabsCanvas() {
     const onWheel = (ev) => {
       if (lockedRef.current) return;
       ev.preventDefault();
-      view.current.k = clamp(view.current.k * (1 - ev.deltaY * 0.0012), 0.55, 1.6);
+      view.current.k = clamp(
+        view.current.k * (1 - ev.deltaY * 0.0012),
+        0.55,
+        1.6,
+      );
       setZoom(Math.round(view.current.k * 100));
       if (reduced.current) drawRef.current(performance.now());
     };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  const zoomBy = (d) => { if (locked) return; view.current.k = clamp(view.current.k + d, 0.55, 1.6); setZoom(Math.round(view.current.k * 100)); if (reduced.current) drawRef.current(performance.now()); };
-  const fit = () => { if (locked) return; view.current = { tx: 0, ty: 0, k: 0.75 }; setZoom(75); if (reduced.current) drawRef.current(performance.now()); };
+  const zoomBy = (d) => {
+    if (locked) return;
+    view.current.k = clamp(view.current.k + d, 0.55, 1.6);
+    setZoom(Math.round(view.current.k * 100));
+    if (reduced.current) drawRef.current(performance.now());
+  };
+  const fit = () => {
+    if (locked) return;
+    view.current = { tx: 0, ty: 0, k: 0.75 };
+    setZoom(75);
+    if (reduced.current) drawRef.current(performance.now());
+  };
 
   /* node drag */
   const onNodeDown = (e, id) => {
@@ -263,47 +355,95 @@ export default function LabsCanvas() {
     base.current[id] = { x: l.x, y: l.y };
     dragNode.current = { id, sx: e.clientX, sy: e.clientY, ox: l.x, oy: l.y };
     e.currentTarget.setPointerCapture?.(e.pointerId);
-    e.currentTarget.style.cursor = "grabbing";
+    e.currentTarget.style.cursor = 'grabbing';
   };
   const onNodeMove = (e, id) => {
     const d = dragNode.current;
     if (!d || d.id !== id) return;
     const k = view.current.k;
-    base.current[id] = { x: d.ox + (e.clientX - d.sx) / k, y: d.oy + (e.clientY - d.sy) / k };
+    base.current[id] = {
+      x: d.ox + (e.clientX - d.sx) / k,
+      y: d.oy + (e.clientY - d.sy) / k,
+    };
     if (reduced.current) drawRef.current(performance.now());
   };
-  const onNodeUp = (e, id) => { if (dragNode.current?.id === id) { dragNode.current = null; e.currentTarget.style.cursor = ""; } };
+  const onNodeUp = (e, id) => {
+    if (dragNode.current?.id === id) {
+      dragNode.current = null;
+      e.currentTarget.style.cursor = '';
+    }
+  };
 
-  const nodeCursor = locked ? "default" : moveNodes ? "grab" : "pointer";
+  const nodeCursor = locked ? 'default' : moveNodes ? 'grab' : 'pointer';
 
   return (
     <>
       <style>{CSS}</style>
 
       {/* ---------------- canvas ---------------- */}
-      <div ref={wrapRef} className="labs-canvas" style={{ ...S.canvas, cursor: locked ? "default" : "grab" }}
-        onPointerDown={onBgDown} onPointerMove={onMove} onPointerUp={endPan} onPointerCancel={endPan} onPointerLeave={onLeave}>
-        <div ref={gridRef} style={{ ...S.gridLayer, backgroundSize: "24px 24px", backgroundPosition: "0px 0px" }} />
+      <div
+        ref={wrapRef}
+        className="labs-canvas"
+        style={{ ...S.canvas, cursor: locked ? 'default' : 'grab' }}
+        onPointerDown={onBgDown}
+        onPointerMove={onMove}
+        onPointerUp={endPan}
+        onPointerCancel={endPan}
+        onPointerLeave={onLeave}
+      >
+        <div
+          ref={gridRef}
+          style={{
+            ...S.gridLayer,
+            backgroundSize: '24px 24px',
+            backgroundPosition: '0px 0px',
+          }}
+        />
         <div style={S.washTR} />
         <div style={S.washBL} />
 
         <div ref={layerRef} style={S.layer}>
           {/* EDGES — centre-origin svg, overflow visible, render-proof: static d + declarative colour (via style → theme-reactive) */}
-          <svg style={S.svg} width={SVGW} height={SVGH} viewBox={`0 0 ${SVGW} ${SVGH}`} overflow="visible">
+          <svg
+            style={S.svg}
+            width={SVGW}
+            height={SVGH}
+            viewBox={`0 0 ${SVGW} ${SVGH}`}
+            overflow="visible"
+          >
             {EDGES.map((e, i) => {
               const lit = hover && (e.a === hover || e.b === hover);
               return (
-                <path key={i} ref={(el) => (edgeEls.current[i] = el)} className="flow"
-                  d={BASE_D[i]} fill="none" strokeWidth={lit ? 1.8 : 1.6} strokeDasharray="5 6"
-                  style={{ stroke: lit ? C.spark : C.line, opacity: hover ? (lit ? 1 : 0.28) : 0.65, animationDuration: lit ? "0.9s" : "1.6s" }} />
+                <path
+                  key={i}
+                  ref={(el) => (edgeEls.current[i] = el)}
+                  className="flow"
+                  d={BASE_D[i]}
+                  fill="none"
+                  strokeWidth={lit ? 1.8 : 1.6}
+                  strokeDasharray="5 6"
+                  style={{
+                    stroke: lit ? C.spark : C.line,
+                    opacity: hover ? (lit ? 1 : 0.28) : 0.65,
+                    animationDuration: lit ? '0.9s' : '1.6s',
+                  }}
+                />
               );
             })}
             {HUB.map((e, j) => {
               const lit = hover && (e.a === hover || e.b === hover);
               return (
-                <circle key={j} ref={(el) => (dotEls.current[j] = el)}
-                  cx={BASE_DOT[j].x} cy={BASE_DOT[j].y} r={lit ? 3 : 2.2}
-                  style={{ fill: lit ? C.spark : C.faint, opacity: hover && !lit ? 0.25 : 0.9 }} />
+                <circle
+                  key={j}
+                  ref={(el) => (dotEls.current[j] = el)}
+                  cx={BASE_DOT[j].x}
+                  cy={BASE_DOT[j].y}
+                  r={lit ? 3 : 2.2}
+                  style={{
+                    fill: lit ? C.spark : C.faint,
+                    opacity: hover && !lit ? 0.25 : 0.9,
+                  }}
+                />
               );
             })}
           </svg>
@@ -311,9 +451,16 @@ export default function LabsCanvas() {
           {/* centre heart */}
           <div style={S.nodeWrap}>
             <div style={S.heart} onPointerDown={(e) => e.stopPropagation()}>
-              <div style={S.status}><span style={S.dot} /> Work in progress</div>
-              <div style={S.heartLine}>Where curiosity and imagination give a start to new horizons.</div>
-              <div style={S.heartSub}>The lab&rsquo;s still being wired up &mdash; peek in anytime to see what&rsquo;s cooking.</div>
+              <div style={S.status}>
+                <span style={S.dot} /> Work in progress
+              </div>
+              <div style={S.heartLine}>
+                Where curiosity and imagination give a start to new horizons.
+              </div>
+              <div style={S.heartSub}>
+                The lab&rsquo;s still being wired up &mdash; peek in anytime to
+                see what&rsquo;s cooking.
+              </div>
               <div style={S.heartMeta}>GRTSV &middot; Labs</div>
             </div>
           </div>
@@ -323,7 +470,14 @@ export default function LabsCanvas() {
             const on = hover === node.id;
             const dim = hover && !on;
             return (
-              <div key={node.id} ref={(el) => (nodeEls.current[node.id] = el)} style={{ ...S.nodeWrap, zIndex: on ? 30 : Math.round(node.depth * 10) }}>
+              <div
+                key={node.id}
+                ref={(el) => (nodeEls.current[node.id] = el)}
+                style={{
+                  ...S.nodeWrap,
+                  zIndex: on ? 30 : Math.round(node.depth * 10),
+                }}
+              >
                 <div
                   onPointerDown={(e) => onNodeDown(e, node.id)}
                   onPointerMove={(e) => onNodeMove(e, node.id)}
@@ -331,21 +485,45 @@ export default function LabsCanvas() {
                   onPointerCancel={(e) => onNodeUp(e, node.id)}
                   onMouseEnter={() => setHover(node.id)}
                   onMouseLeave={() => setHover(null)}
-                  onClick={() => { if (!dragNode.current) { setPulse(node.id); setTimeout(() => setPulse((p) => (p === node.id ? null : p)), 650); } }}
-                  className={pulse === node.id ? "ring" : ""}
+                  onClick={() => {
+                    if (!dragNode.current) {
+                      setPulse(node.id);
+                      setTimeout(
+                        () => setPulse((p) => (p === node.id ? null : p)),
+                        650,
+                      );
+                    }
+                  }}
+                  className={pulse === node.id ? 'ring' : ''}
                   style={{
-                    ...S.node, cursor: nodeCursor,
+                    ...S.node,
+                    cursor: nodeCursor,
                     transform: `scale(${on ? 1.04 : 1 - (1 - node.depth) * 0.06}) translateY(${on ? -6 : 0}px)`,
-                    opacity: dim ? 0.55 : 1, filter: dim ? "saturate(0.9)" : "none",
-                    boxShadow: on ? "0 18px 40px -16px rgba(20,20,25,0.22)" : "0 6px 20px -14px rgba(20,20,25,0.18)",
-                    borderColor: on ? "rgba(232,118,58,0.55)" : C.hair,
-                  }}>
+                    opacity: dim ? 0.55 : 1,
+                    filter: dim ? 'saturate(0.9)' : 'none',
+                    boxShadow: on
+                      ? '0 18px 40px -16px rgba(20,20,25,0.22)'
+                      : '0 6px 20px -14px rgba(20,20,25,0.18)',
+                    borderColor: on ? 'rgba(232,118,58,0.55)' : C.hair,
+                  }}
+                >
                   <div style={S.nodeTop}>
                     <span style={S.nodeNum}>{node.n}</span>
-                    <span style={S.soon}><Lock size={9} strokeWidth={2} /> soon</span>
+                    <span style={S.soon}>
+                      <Lock size={9} strokeWidth={2} /> soon
+                    </span>
                   </div>
                   <div style={S.nodeTitle}>{node.title}</div>
-                  <div style={{ ...S.nodeBody, maxHeight: on ? 120 : 0, opacity: on ? 1 : 0, marginTop: on ? 8 : 0 }}>{node.body}</div>
+                  <div
+                    style={{
+                      ...S.nodeBody,
+                      maxHeight: on ? 120 : 0,
+                      opacity: on ? 1 : 0,
+                      marginTop: on ? 8 : 0,
+                    }}
+                  >
+                    {node.body}
+                  </div>
                 </div>
               </div>
             );
@@ -354,14 +532,54 @@ export default function LabsCanvas() {
 
         {/* control island */}
         <div style={S.island} onPointerDown={(e) => e.stopPropagation()}>
-          <button style={{ ...S.isBtn, ...(moveNodes && !locked ? S.isOn : {}), ...(locked ? S.isOff : {}) }} onClick={() => !locked && setMoveNodes((v) => !v)} aria-label="Move nodes" title="Move nodes"><Hand size={15} strokeWidth={1.7} /></button>
-          <button style={{ ...S.isBtn, ...(locked ? S.isOn : {}) }} onClick={() => setLocked((v) => !v)} aria-label={locked ? "Unlock canvas" : "Lock canvas"} title={locked ? "Unlock canvas" : "Lock canvas"}>{locked ? <Lock size={14} strokeWidth={1.8} /> : <Unlock size={14} strokeWidth={1.8} />}</button>
+          <button
+            style={{
+              ...S.isBtn,
+              ...(moveNodes && !locked ? S.isOn : {}),
+              ...(locked ? S.isOff : {}),
+            }}
+            onClick={() => !locked && setMoveNodes((v) => !v)}
+            aria-label="Move nodes"
+            title="Move nodes"
+          >
+            <Hand size={15} strokeWidth={1.7} />
+          </button>
+          <button
+            style={{ ...S.isBtn, ...(locked ? S.isOn : {}) }}
+            onClick={() => setLocked((v) => !v)}
+            aria-label={locked ? 'Unlock canvas' : 'Lock canvas'}
+            title={locked ? 'Unlock canvas' : 'Lock canvas'}
+          >
+            {locked ? (
+              <Lock size={14} strokeWidth={1.8} />
+            ) : (
+              <Unlock size={14} strokeWidth={1.8} />
+            )}
+          </button>
           <span style={S.isDiv} />
-          <button style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }} onClick={() => zoomBy(-0.12)} aria-label="Zoom out"><Minus size={15} strokeWidth={1.8} /></button>
+          <button
+            style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }}
+            onClick={() => zoomBy(-0.12)}
+            aria-label="Zoom out"
+          >
+            <Minus size={15} strokeWidth={1.8} />
+          </button>
           <span style={S.isPct}>{zoom}%</span>
-          <button style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }} onClick={() => zoomBy(0.12)} aria-label="Zoom in"><Plus size={15} strokeWidth={1.8} /></button>
+          <button
+            style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }}
+            onClick={() => zoomBy(0.12)}
+            aria-label="Zoom in"
+          >
+            <Plus size={15} strokeWidth={1.8} />
+          </button>
           <span style={S.isDiv} />
-          <button style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }} onClick={fit} aria-label="Fit view"><Maximize size={14} strokeWidth={1.8} /></button>
+          <button
+            style={{ ...S.isBtn, ...(locked ? S.isOff : {}) }}
+            onClick={fit}
+            aria-label="Fit view"
+          >
+            <Maximize size={14} strokeWidth={1.8} />
+          </button>
         </div>
       </div>
     </>
@@ -377,35 +595,205 @@ const CSS = `
 `;
 
 // Global site fonts (loaded in index.html); resolve per element via the tokens.
-const mono = "var(--font-mono)";
-const sans = "var(--font-sans)";
+const mono = 'var(--font-mono)';
+const sans = 'var(--font-sans)';
 
 const S = {
   // canvas frame — fills the Labs <section> width, follows the page theme
-  canvas: { position: "relative", height: 640, fontFamily: sans, color: C.ink, borderRadius: "var(--radius-lg)", border: `1px solid ${C.hair}`, background: C.canvas, overflow: "hidden", touchAction: "none", userSelect: "none", WebkitFontSmoothing: "antialiased" },
-  gridLayer: { position: "absolute", inset: 0, backgroundImage: `radial-gradient(circle, ${C.grid} 1px, transparent 1px)` },
-  washTR: { position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(640px 460px at 92% -8%, rgba(240,160,96,0.26), rgba(240,160,96,0) 62%)" },
-  washBL: { position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(720px 560px at 6% 112%, rgba(150,160,232,0.30), rgba(150,160,232,0) 60%)" },
-  layer: { position: "absolute", left: "50%", top: "50%", transformOrigin: "0 0", willChange: "transform" },
+  canvas: {
+    position: 'relative',
+    height: 640,
+    fontFamily: sans,
+    color: C.ink,
+    borderRadius: 'var(--radius-lg)',
+    border: `1px solid ${C.hair}`,
+    background: C.canvas,
+    overflow: 'hidden',
+    touchAction: 'none',
+    userSelect: 'none',
+    WebkitFontSmoothing: 'antialiased',
+  },
+  gridLayer: {
+    position: 'absolute',
+    inset: 0,
+    backgroundImage: `radial-gradient(circle, ${C.grid} 1px, transparent 1px)`,
+  },
+  washTR: {
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+    background:
+      'radial-gradient(640px 460px at 92% -8%, rgba(240,160,96,0.26), rgba(240,160,96,0) 62%)',
+  },
+  washBL: {
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+    background:
+      'radial-gradient(720px 560px at 6% 112%, rgba(150,160,232,0.30), rgba(150,160,232,0) 60%)',
+  },
+  layer: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transformOrigin: '0 0',
+    willChange: 'transform',
+  },
   // fixed box centred on the layer origin; maxWidth:'none' beats the global `img,svg,video{max-width:100%}` reset
-  svg: { position: "absolute", left: -OFF.x, top: -OFF.y, width: SVGW, height: SVGH, maxWidth: "none", overflow: "visible", pointerEvents: "none" },
-  nodeWrap: { position: "absolute", left: 0, top: 0, willChange: "transform" },
-  node: { position: "absolute", left: 0, top: 0, transformOrigin: "center", marginLeft: -113, marginTop: -52, width: 226, padding: "14px 16px 16px", background: C.card, border: `1px solid ${C.hair}`, borderRadius: 16, transition: "transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s, opacity 0.3s, border-color 0.3s", willChange: "transform" },
-  nodeTop: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 },
-  nodeNum: { fontFamily: mono, fontSize: 11, color: C.faint, letterSpacing: "0.04em" },
-  soon: { display: "inline-flex", alignItems: "center", gap: 4, fontFamily: mono, fontSize: 9.5, color: C.body, background: "var(--placeholder-2)", border: `1px solid ${C.hair}`, borderRadius: 20, padding: "2px 7px 2px 6px", textTransform: "uppercase", letterSpacing: "0.06em" },
-  nodeTitle: { fontSize: 16.5, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.15, color: C.ink },
-  nodeBody: { fontSize: 12.5, lineHeight: 1.5, color: C.body, overflow: "hidden", transition: "max-height 0.34s ease, opacity 0.3s ease, margin-top 0.34s ease" },
-  heart: { position: "absolute", left: 0, top: 0, transform: "translate(-50%,-50%)", width: 296, padding: "20px 22px", textAlign: "center", background: "color-mix(in srgb, var(--bg) 86%, transparent)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.hair}`, borderRadius: 20, boxShadow: "0 22px 60px -28px rgba(20,20,25,0.30), 0 0 0 6px rgba(232,118,58,0.05)" },
-  status: { display: "inline-flex", alignItems: "center", gap: 7, fontFamily: mono, fontSize: 11, color: C.body, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 13 },
-  dot: { width: 7, height: 7, borderRadius: 8, background: C.spark, animation: "ring 1.8s ease-out infinite" },
-  heartLine: { fontSize: 19, fontWeight: 600, lineHeight: 1.26, letterSpacing: "-0.015em", color: C.ink },
+  svg: {
+    position: 'absolute',
+    left: -OFF.x,
+    top: -OFF.y,
+    width: SVGW,
+    height: SVGH,
+    maxWidth: 'none',
+    overflow: 'visible',
+    pointerEvents: 'none',
+  },
+  nodeWrap: { position: 'absolute', left: 0, top: 0, willChange: 'transform' },
+  node: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    transformOrigin: 'center',
+    marginLeft: -113,
+    marginTop: -52,
+    width: 226,
+    padding: '14px 16px 16px',
+    background: C.card,
+    border: `1px solid ${C.hair}`,
+    borderRadius: 16,
+    transition:
+      'transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s, opacity 0.3s, border-color 0.3s',
+    willChange: 'transform',
+  },
+  nodeTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 9,
+  },
+  nodeNum: {
+    fontFamily: mono,
+    fontSize: 11,
+    color: C.faint,
+    letterSpacing: '0.04em',
+  },
+  soon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    fontFamily: mono,
+    fontSize: 9.5,
+    color: C.body,
+    background: 'var(--placeholder-2)',
+    border: `1px solid ${C.hair}`,
+    borderRadius: 20,
+    padding: '2px 7px 2px 6px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+  },
+  nodeTitle: {
+    fontSize: 16.5,
+    fontWeight: 600,
+    letterSpacing: '-0.01em',
+    lineHeight: 1.15,
+    color: C.ink,
+  },
+  nodeBody: {
+    fontSize: 12.5,
+    lineHeight: 1.5,
+    color: C.body,
+    overflow: 'hidden',
+    transition:
+      'max-height 0.34s ease, opacity 0.3s ease, margin-top 0.34s ease',
+  },
+  heart: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    transform: 'translate(-50%,-50%)',
+    width: 296,
+    padding: '20px 22px',
+    textAlign: 'center',
+    background: 'color-mix(in srgb, var(--bg) 86%, transparent)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    border: `1px solid ${C.hair}`,
+    borderRadius: 20,
+    boxShadow:
+      '0 22px 60px -28px rgba(20,20,25,0.30), 0 0 0 6px rgba(232,118,58,0.05)',
+  },
+  status: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 7,
+    fontFamily: mono,
+    fontSize: 11,
+    color: C.body,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: 13,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 8,
+    background: C.spark,
+    animation: 'ring 1.8s ease-out infinite',
+  },
+  heartLine: {
+    fontSize: 19,
+    fontWeight: 600,
+    lineHeight: 1.26,
+    letterSpacing: '-0.015em',
+    color: C.ink,
+  },
   heartSub: { fontSize: 13, lineHeight: 1.5, color: C.body, marginTop: 10 },
-  heartMeta: { fontFamily: mono, fontSize: 10.5, color: C.faint, letterSpacing: "0.1em", marginTop: 14, textTransform: "uppercase" },
-  island: { position: "absolute", left: "50%", bottom: 20, transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 4, padding: "6px 8px", background: "color-mix(in srgb, var(--bg) 90%, transparent)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: `1px solid ${C.hair}`, borderRadius: 14, boxShadow: "0 10px 30px -16px rgba(20,20,25,0.30)" },
-  isBtn: { display: "grid", placeItems: "center", width: 30, height: 30, border: "none", background: "transparent", borderRadius: 9, color: C.ink, cursor: "pointer", transition: "background 0.2s, color 0.2s, opacity 0.2s" },
-  isOn: { background: "rgba(232,118,58,0.12)", color: C.spark },
-  isOff: { opacity: 0.32, cursor: "default" },
-  isPct: { fontFamily: mono, fontSize: 11.5, color: C.body, minWidth: 40, textAlign: "center" },
-  isDiv: { width: 1, height: 18, background: C.hair, margin: "0 3px" },
+  heartMeta: {
+    fontFamily: mono,
+    fontSize: 10.5,
+    color: C.faint,
+    letterSpacing: '0.1em',
+    marginTop: 14,
+    textTransform: 'uppercase',
+  },
+  island: {
+    position: 'absolute',
+    left: '50%',
+    bottom: 20,
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '6px 8px',
+    background: 'color-mix(in srgb, var(--bg) 90%, transparent)',
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
+    border: `1px solid ${C.hair}`,
+    borderRadius: 14,
+    boxShadow: '0 10px 30px -16px rgba(20,20,25,0.30)',
+  },
+  isBtn: {
+    display: 'grid',
+    placeItems: 'center',
+    width: 30,
+    height: 30,
+    border: 'none',
+    background: 'transparent',
+    borderRadius: 9,
+    color: C.ink,
+    cursor: 'pointer',
+    transition: 'background 0.2s, color 0.2s, opacity 0.2s',
+  },
+  isOn: { background: 'rgba(232,118,58,0.12)', color: C.spark },
+  isOff: { opacity: 0.32, cursor: 'default' },
+  isPct: {
+    fontFamily: mono,
+    fontSize: 11.5,
+    color: C.body,
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  isDiv: { width: 1, height: 18, background: C.hair, margin: '0 3px' },
 };

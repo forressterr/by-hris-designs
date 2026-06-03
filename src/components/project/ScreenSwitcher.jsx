@@ -74,7 +74,11 @@ export default function ScreenSwitcher({ tabs, defaultId }) {
 
       <div className="screen-switcher__stage" role="tabpanel">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={active.id} className="screen-switcher__panel" {...fade}>
+          <motion.div
+            key={active.id}
+            className="screen-switcher__panel"
+            {...fade}
+          >
             {active.children ||
               (active.src && <img src={active.src} alt={active.alt || ''} />)}
           </motion.div>

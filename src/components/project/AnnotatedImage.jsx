@@ -21,7 +21,12 @@ import { useState } from 'react';
  *                 placeholder block when no image is ready yet.
  */
 
-export default function AnnotatedImage({ src, alt = '', callouts = [], children }) {
+export default function AnnotatedImage({
+  src,
+  alt = '',
+  callouts = [],
+  children,
+}) {
   // -1 = no callout open
   const [openIndex, setOpenIndex] = useState(-1);
 
@@ -47,7 +52,11 @@ export default function AnnotatedImage({ src, alt = '', callouts = [], children 
             {openIndex === i && (
               <span className="annotated-image__hotspot-popover" role="tooltip">
                 <strong>{c.label}</strong>
-                {c.body && <span className="annotated-image__hotspot-body">{c.body}</span>}
+                {c.body && (
+                  <span className="annotated-image__hotspot-body">
+                    {c.body}
+                  </span>
+                )}
               </span>
             )}
           </button>

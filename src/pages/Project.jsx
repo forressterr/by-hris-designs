@@ -59,7 +59,8 @@ export default function Project() {
     .filter((p) => p.slug !== project.slug)
     .map((p) => ({
       p,
-      score: (p.tags || []).filter((t) => (project.tags || []).includes(t)).length,
+      score: (p.tags || []).filter((t) => (project.tags || []).includes(t))
+        .length,
     }))
     .sort((a, b) => b.score - a.score)
     .map((x) => x.p);
@@ -96,32 +97,43 @@ export default function Project() {
 
   const hotspots = cs?.hotspots || {
     callouts: [
-      { x: 18, y: 22, label: 'Primary CTA placement', body: 'Above the fold, single colour accent.' },
-      { x: 64, y: 38, label: 'Live availability chip', body: 'Reduces last-step abandonment.' },
-      { x: 36, y: 72, label: 'Progressive disclosure', body: 'Optional fields collapse by default.' },
+      {
+        x: 18,
+        y: 22,
+        label: 'Primary CTA placement',
+        body: 'Above the fold, single colour accent.',
+      },
+      {
+        x: 64,
+        y: 38,
+        label: 'Live availability chip',
+        body: 'Reduces last-step abandonment.',
+      },
+      {
+        x: 36,
+        y: 72,
+        label: 'Progressive disclosure',
+        body: 'Optional fields collapse by default.',
+      },
     ],
   };
 
-  const switcherTabs =
-    cs?.switcher ||
-    [
-      { id: 'home', label: 'Home' },
-      { id: 'goals', label: 'Goals' },
-      { id: 'profile', label: 'Profile' },
-      { id: 'settings', label: 'Settings' },
-    ];
+  const switcherTabs = cs?.switcher || [
+    { id: 'home', label: 'Home' },
+    { id: 'goals', label: 'Goals' },
+    { id: 'profile', label: 'Profile' },
+    { id: 'settings', label: 'Settings' },
+  ];
 
   const outcomeCopy =
     cs?.outcome?.copy ||
     'Placeholder for the outcome — what shipped, what changed, anything measurable. Two or three sentences plus a small stat row if the project has numbers to share.';
 
-  const outcomeStats =
-    cs?.outcome?.stats ||
-    [
-      { value: '+0%', label: 'Placeholder metric A' },
-      { value: '0', label: 'Placeholder metric B' },
-      { value: '—', label: 'Placeholder metric C' },
-    ];
+  const outcomeStats = cs?.outcome?.stats || [
+    { value: '+0%', label: 'Placeholder metric A' },
+    { value: '0', label: 'Placeholder metric B' },
+    { value: '—', label: 'Placeholder metric C' },
+  ];
 
   return (
     <div className="container page-canvas">
@@ -138,13 +150,21 @@ export default function Project() {
                 <ScreenSwitcher
                   tabs={heroThemes.map((t) => ({
                     ...t,
-                    children: t.src ? undefined : <Placeholder label={`${t.label} view`} />,
+                    children: t.src ? undefined : (
+                      <Placeholder label={`${t.label} view`} />
+                    ),
                   }))}
                 />
               </DeviceFrame>
             ) : (
-              <DeviceFrame variant="desktop" label={heroSlide?.label || 'Hero — desktop'}>
-                <ScreenImage slide={heroSlide} fallbackLabel="Hero screen · placeholder" />
+              <DeviceFrame
+                variant="desktop"
+                label={heroSlide?.label || 'Hero — desktop'}
+              >
+                <ScreenImage
+                  slide={heroSlide}
+                  fallbackLabel="Hero screen · placeholder"
+                />
               </DeviceFrame>
             )}
           </ProjectHero>
@@ -183,14 +203,16 @@ export default function Project() {
         <section id="screens" className="project-section">
           <h2 className="project-section__title">Key screens</h2>
           <p className="project-section__body">
-            The polished work. Tab across the top to move between the
-            finished screens — every surface in a single frame.
+            The polished work. Tab across the top to move between the finished
+            screens — every surface in a single frame.
           </p>
           <DeviceFrame variant="desktop" label="Key screens">
             <ScreenSwitcher
               tabs={switcherTabs.map((t) => ({
                 ...t,
-                children: t.src ? undefined : <Placeholder label={`${t.label} view`} />,
+                children: t.src ? undefined : (
+                  <Placeholder label={`${t.label} view`} />
+                ),
               }))}
             />
           </DeviceFrame>
@@ -200,8 +222,8 @@ export default function Project() {
         <section id="mobile" className="project-section">
           <h2 className="project-section__title">Mobile story</h2>
           <p className="project-section__body">
-            How the design holds up on a phone — home, browse, and a
-            product page across a small set of mobile frames.
+            How the design holds up on a phone — home, browse, and a product
+            page across a small set of mobile frames.
           </p>
           <div className="project-grid-row project-grid-row--mobile-trio">
             {mobileScreens.slice(0, 3).map((s, i) => (
@@ -218,8 +240,8 @@ export default function Project() {
         <section id="hotspots" className="project-section">
           <h2 className="project-section__title">Highlights</h2>
           <p className="project-section__body">
-            A single screen with numbered call-outs over specific
-            decisions. Each hotspot reveals a short note on hover or tap.
+            A single screen with numbered call-outs over specific decisions.
+            Each hotspot reveals a short note on hover or tap.
           </p>
           <DeviceFrame variant="desktop" label="Annotated screen">
             <AnnotatedImage
@@ -227,7 +249,9 @@ export default function Project() {
               alt={hotspots.alt || 'Annotated screen'}
               callouts={hotspots.callouts}
             >
-              {!hotspots.src && <Placeholder label="Annotated screen · placeholder" />}
+              {!hotspots.src && (
+                <Placeholder label="Annotated screen · placeholder" />
+              )}
             </AnnotatedImage>
           </DeviceFrame>
           {/* "Different views, one frame" switcher now lives in the Key
@@ -287,7 +311,10 @@ export default function Project() {
             <MotionLink
               to="/contact"
               className="btn btn--dark"
-              whileHover={{ y: -1, transition: { type: 'spring', stiffness: 380, damping: 24 } }}
+              whileHover={{
+                y: -1,
+                transition: { type: 'spring', stiffness: 380, damping: 24 },
+              }}
               whileTap={{ scale: 0.97, transition: { duration: 0.12 } }}
             >
               Let’s Talk →
