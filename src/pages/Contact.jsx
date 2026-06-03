@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import ContactForm from '../components/ContactForm.jsx';
 import FAQ from '../components/FAQ.jsx';
 import { homeFaqs } from '../data/projects.js';

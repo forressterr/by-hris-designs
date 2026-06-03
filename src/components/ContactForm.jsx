@@ -32,7 +32,7 @@ const MAX_MESSAGE_LENGTH = 1500;
 
 // Allow letters from any script (\p{L}) plus apostrophes and hyphens so
 // names like "O'Brien" and "Mary-Jane" pass.
-const NAME_PART_PATTERN = /^[\p{L}][\p{L}'\-]*$/u;
+const NAME_PART_PATTERN = /^[\p{L}][\p{L}'-]*$/u;
 
 // Pragmatic email check: at least one char before @, a domain with a dot,
 // and a 2+ char TLD. Doesn't try to match the full RFC 5321 grammar (no
