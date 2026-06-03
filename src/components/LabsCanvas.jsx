@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Plus, Minus, Maximize, Lock, Unlock, Hand } from "lucide-react";
 
 /*
