@@ -317,8 +317,7 @@ export default function LightPullString({ visibilityRef, onPull }) {
       // vertically between the anchor and a max pull-down.
       const offX = targetX - s.restX;
       const constrainedX =
-        s.restX
-        + Math.max(-MAX_H_OFFSET_PX, Math.min(MAX_H_OFFSET_PX, offX));
+        s.restX + Math.max(-MAX_H_OFFSET_PX, Math.min(MAX_H_OFFSET_PX, offX));
       const constrainedY = Math.max(
         0,
         Math.min(s.restY + MAX_PULL_DOWN_PX, targetY),

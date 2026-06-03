@@ -15,7 +15,10 @@ export default function Layout() {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' in window ? 'instant' : 'auto',
+    });
     // Per-route document title — keeps the browser tab + history accurate
     // and gives crawlers a distinct title per page.
     document.title = titleForPath(pathname);
@@ -31,9 +34,7 @@ export default function Layout() {
   const exit = prefersReducedMotion
     ? { opacity: 0 }
     : { opacity: 0, y: -10, transition: { duration: 0.2, ease: EASE } };
-  const initial = prefersReducedMotion
-    ? { opacity: 0 }
-    : { opacity: 0, y: 12 };
+  const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12 };
 
   return (
     <div className="site">

@@ -65,7 +65,8 @@ export default function ProjectShell({ sections, children, className = '' }) {
     if (!target) return;
     // Offset for the sticky site header (64 px padding) + a small gap.
     const headerOffset = 80;
-    const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - headerOffset;
     window.scrollTo({ top, behavior: 'smooth' });
     setActiveId(id);
   };

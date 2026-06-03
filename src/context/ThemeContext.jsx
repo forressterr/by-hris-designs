@@ -31,7 +31,9 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [mode, setModeState] = useState(() => getStoredMode());
-  const [effectiveTheme, setEffectiveTheme] = useState(() => resolveTheme(mode));
+  const [effectiveTheme, setEffectiveTheme] = useState(() =>
+    resolveTheme(mode),
+  );
 
   // Apply the current mode to the DOM whenever it changes (and on mount,
   // so we cover the path where React's mode disagrees with what the inline
@@ -80,7 +82,7 @@ export function ThemeProvider({ children }) {
 
   const value = useMemo(
     () => ({ mode, effectiveTheme, setMode, cycleMode }),
-    [mode, effectiveTheme, setMode, cycleMode]
+    [mode, effectiveTheme, setMode, cycleMode],
   );
 
   return (

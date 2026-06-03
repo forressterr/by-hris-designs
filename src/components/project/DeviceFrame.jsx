@@ -23,11 +23,9 @@ export default function DeviceFrame({
   className = '',
   children,
 }) {
-  const classes = [
-    'device-frame',
-    `device-frame--${variant}`,
-    className,
-  ].filter(Boolean).join(' ');
+  const classes = ['device-frame', `device-frame--${variant}`, className]
+    .filter(Boolean)
+    .join(' ');
 
   // Inline style override for non-default aspect ratios.
   const screenStyle = aspect ? { aspectRatio: aspect } : undefined;
@@ -46,7 +44,9 @@ export default function DeviceFrame({
           {children}
         </div>
       </div>
-      {label && <figcaption className="device-frame__label">{label}</figcaption>}
+      {label && (
+        <figcaption className="device-frame__label">{label}</figcaption>
+      )}
     </figure>
   );
 }

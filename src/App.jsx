@@ -10,7 +10,9 @@ const Labs = lazy(() => import('./pages/Labs.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
-const PageFallback = () => <div className="route-fallback" aria-hidden="true" />;
+const PageFallback = () => (
+  <div className="route-fallback" aria-hidden="true" />
+);
 
 export default function App() {
   return (

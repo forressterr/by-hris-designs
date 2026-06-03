@@ -957,12 +957,7 @@ h3 {
      top. When .is-lit toggles the fill to transparent, the gradient
      shows through — and because text-fill-color can interpolate (rgba
      to transparent), the swap animates smoothly. */
-  background: linear-gradient(
-    135deg,
-    #f5d472 0%,
-    #d4a53a 45%,
-    #a87820 100%
-  );
+  background: linear-gradient(135deg, #f5d472 0%, #d4a53a 45%, #a87820 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: var(--ink);
@@ -1207,10 +1202,18 @@ h3 {
 }
 
 /* Pastel per tile — same four accents the service cards use. */
-.hero-marquee__slide[data-color='purple'] { background: var(--accent-purple); }
-.hero-marquee__slide[data-color='green']  { background: var(--accent-green); }
-.hero-marquee__slide[data-color='pink']   { background: var(--accent-pink); }
-.hero-marquee__slide[data-color='yellow'] { background: var(--accent-yellow); }
+.hero-marquee__slide[data-color='purple'] {
+  background: var(--accent-purple);
+}
+.hero-marquee__slide[data-color='green'] {
+  background: var(--accent-green);
+}
+.hero-marquee__slide[data-color='pink'] {
+  background: var(--accent-pink);
+}
+.hero-marquee__slide[data-color='yellow'] {
+  background: var(--accent-yellow);
+}
 
 /* Slide variants — alternating A/B produces the chain-link rhythm.
    A is rounded on the LEFT (vertical edge that faces an outward gap).
@@ -2574,8 +2577,14 @@ h3 {
     max-width: none;
   }
   @keyframes toast-in {
-    from { opacity: 0; transform: translateY(-12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
@@ -3143,7 +3152,9 @@ h3 {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-  .project-sidebar__nav ul::-webkit-scrollbar { display: none; }
+  .project-sidebar__nav ul::-webkit-scrollbar {
+    display: none;
+  }
   /* Horizontal mode: the heading is hidden and items sit in a row, so drop
      the -10px vertical-alignment offset — otherwise it cancels out the gap.
      Scoped under `.project-sidebar__nav ul` to outweigh the base rule below,
@@ -3498,8 +3509,12 @@ h3 {
 }
 
 @keyframes lightbox-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .lightbox__image {
@@ -3524,7 +3539,9 @@ h3 {
   color: #111;
   border: 0;
   cursor: pointer;
-  transition: background-color 180ms ease, transform 180ms ease;
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
 }
 
 .lightbox__close:hover {
@@ -3575,7 +3592,9 @@ h3 {
   cursor: pointer;
   z-index: 2;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .annotated-image__hotspot:hover,
@@ -3639,7 +3658,9 @@ h3 {
   scrollbar-width: none;
 }
 
-.screen-switcher__tabs::-webkit-scrollbar { display: none; }
+.screen-switcher__tabs::-webkit-scrollbar {
+  display: none;
+}
 
 [data-theme='dark'] .screen-switcher__tabs {
   background: var(--placeholder);
@@ -3718,4 +3739,3 @@ h3 {
   height: 100%;
   overflow-y: auto;
 }
-

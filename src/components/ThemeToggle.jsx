@@ -57,7 +57,10 @@ export default function ThemeToggle() {
   const motionProps = prefersReducedMotion
     ? {}
     : {
-        whileHover: { rotate: -8, transition: { type: 'spring', stiffness: 320, damping: 18 } },
+        whileHover: {
+          rotate: -8,
+          transition: { type: 'spring', stiffness: 320, damping: 18 },
+        },
         whileTap: { scale: 0.9, transition: { duration: 0.12 } },
       };
 

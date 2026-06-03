@@ -8,7 +8,10 @@ const MotionLink = motion(Link);
 export default function NotFound() {
   return (
     <div className="container page-canvas">
-      <section className="section" style={{ textAlign: 'center', minHeight: '60vh' }}>
+      <section
+        className="section"
+        style={{ textAlign: 'center', minHeight: '60vh' }}
+      >
         <span className="eyebrow">404</span>
         <h1 style={{ marginTop: 16 }}>This page wandered off.</h1>
         <p className="muted" style={{ marginTop: 12 }}>
@@ -18,7 +21,10 @@ export default function NotFound() {
           to="/"
           className="btn btn--dark"
           style={{ marginTop: 28 }}
-          whileHover={{ y: -1, transition: { type: 'spring', stiffness: 380, damping: 24 } }}
+          whileHover={{
+            y: -1,
+            transition: { type: 'spring', stiffness: 380, damping: 24 },
+          }}
           whileTap={{ scale: 0.97, transition: { duration: 0.12 } }}
         >
           Back to home →

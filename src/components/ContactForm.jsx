@@ -110,7 +110,10 @@ export default function ContactForm({ variant = 'light' }) {
   const btnMotion = prefersReducedMotion
     ? {}
     : {
-        whileHover: { y: -1, transition: { type: 'spring', stiffness: 380, damping: 24 } },
+        whileHover: {
+          y: -1,
+          transition: { type: 'spring', stiffness: 380, damping: 24 },
+        },
         whileTap: { scale: 0.97, transition: { duration: 0.12 } },
       };
 
@@ -118,12 +121,20 @@ export default function ContactForm({ variant = 'light' }) {
   const [values, setValues] = useState({ name: '', email: '', message: '' });
 
   // Per-field error strings (null = valid / not yet validated).
-  const [errors, setErrors] = useState({ name: null, email: null, message: null });
+  const [errors, setErrors] = useState({
+    name: null,
+    email: null,
+    message: null,
+  });
 
   // Per-field "touched" — only show an error once the user has either
   // tabbed away from the field or tried to submit. Saves them from being
   // yelled at while they're still mid-typing.
-  const [touched, setTouched] = useState({ name: false, email: false, message: false });
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    message: false,
+  });
 
   // Floating toast — set on submit (success, validation fail, or API
   // failure). Cleared by the Toast component's onClose (auto-dismiss
@@ -291,7 +302,11 @@ export default function ContactForm({ variant = 'light' }) {
       aria-describedby="contact-form-sub"
       noValidate
     >
-      <h3>Let’s<br />Connect</h3>
+      <h3>
+        Let’s
+        <br />
+        Connect
+      </h3>
       <span id="contact-form-sub" className="contact-form__sub">
         Usually will respond within 1-2 business days.
       </span>
@@ -307,7 +322,9 @@ export default function ContactForm({ variant = 'light' }) {
           onChange={handleChange('name')}
           onBlur={handleBlur('name')}
           aria-invalid={errors.name && touched.name ? 'true' : 'false'}
-          aria-describedby={errors.name && touched.name ? 'contact-name-error' : undefined}
+          aria-describedby={
+            errors.name && touched.name ? 'contact-name-error' : undefined
+          }
         />
         {errors.name && touched.name && (
           <span id="contact-name-error" className="field__error" role="alert">
@@ -328,7 +345,9 @@ export default function ContactForm({ variant = 'light' }) {
           onChange={handleChange('email')}
           onBlur={handleBlur('email')}
           aria-invalid={errors.email && touched.email ? 'true' : 'false'}
-          aria-describedby={errors.email && touched.email ? 'contact-email-error' : undefined}
+          aria-describedby={
+            errors.email && touched.email ? 'contact-email-error' : undefined
+          }
         />
         {errors.email && touched.email && (
           <span id="contact-email-error" className="field__error" role="alert">
@@ -356,11 +375,17 @@ export default function ContactForm({ variant = 'light' }) {
         />
         <div className="field__foot">
           {errors.message && touched.message ? (
-            <span id="contact-message-error" className="field__error" role="alert">
+            <span
+              id="contact-message-error"
+              className="field__error"
+              role="alert"
+            >
               {errors.message}
             </span>
           ) : (
-            <span className="field__hint">Plain text only — no links or HTML.</span>
+            <span className="field__hint">
+              Plain text only — no links or HTML.
+            </span>
           )}
           <span
             id="contact-message-counter"

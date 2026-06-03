@@ -52,13 +52,7 @@ const HomeIcon = () => (
 );
 
 const ChevronIcon = () => (
-  <svg
-    width="9"
-    height="9"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="9" height="9" viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path
       d="M6 4 L 10 8 L 6 12"
       stroke="currentColor"
@@ -89,9 +83,7 @@ export default function Breadcrumbs() {
     // fall back to a Title-Cased slug if the lookup misses.
     currentLabel =
       project?.name ||
-      (slug
-        ? slug.charAt(0).toUpperCase() + slug.slice(1)
-        : 'Project');
+      (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'Project');
   } else {
     // Unknown route (e.g. 404). Skip breadcrumbs entirely.
     return null;

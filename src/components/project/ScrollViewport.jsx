@@ -1,5 +1,10 @@
 import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'framer-motion';
 
 /**
  * ScrollViewport — a fixed-height window that scrubs a tall mockup
@@ -47,11 +52,7 @@ export default function ScrollViewport({
   const y = useTransform(scrollYProgress, [0, 1], [0, -maxShift]);
 
   return (
-    <div
-      ref={ref}
-      className="scroll-viewport"
-      style={{ height }}
-    >
+    <div ref={ref} className="scroll-viewport" style={{ height }}>
       {prefersReducedMotion ? (
         // Reduced motion: render full image static, allow vertical scroll
         // within the viewport using overflow rather than animating.

@@ -51,7 +51,8 @@ export default function Parallax({
 
   // Range, in px, that the element translates between progress 0 and 1.
   // speed=0.15 ≈ 60 px total movement on a 1080px viewport.
-  const distance = (typeof window !== 'undefined' ? window.innerHeight : 800) * speed;
+  const distance =
+    (typeof window !== 'undefined' ? window.innerHeight : 800) * speed;
   const dir = direction === 'down' ? 1 : -1;
   const rawY = useTransform(
     scrollYProgress,

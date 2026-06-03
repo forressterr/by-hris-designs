@@ -155,9 +155,7 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
             key={slide.src}
             src={slide.src}
             alt={slide.alt}
-            className={`slideshow__image${
-              i === index ? ' is-active' : ''
-            }`}
+            className={`slideshow__image${i === index ? ' is-active' : ''}`}
             draggable="false"
             // Eager-load the first image so the initial paint isn't a
             // blank tile. Other slides are lazy.
@@ -171,9 +169,7 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
             // shifted (e.g. group shots where a person sits near an
             // edge).
             style={
-              slide.position
-                ? { objectPosition: slide.position }
-                : undefined
+              slide.position ? { objectPosition: slide.position } : undefined
             }
           />
         ))}
@@ -197,11 +193,7 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
         <ChevronRight />
       </button>
 
-      <div
-        className="slideshow__dots"
-        role="tablist"
-        aria-label="Choose photo"
-      >
+      <div className="slideshow__dots" role="tablist" aria-label="Choose photo">
         {slides.map((slide, i) => (
           <button
             key={slide.src}

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 /*
   LabsCover — Home-page cover for the Labs section.
@@ -17,23 +17,33 @@ import { Link } from "react-router-dom";
 
 const GLASS = { blur: 11, hoverBlur: 9, disp: 26, tint: 0.107 };
 
-const BG_W = 520, BG_H = 440, BC = { x: 260, y: 220 };
+const BG_W = 520,
+  BG_H = 440,
+  BC = { x: 260, y: 220 };
 const BN = [
-  { id: "wip", x: 104, y: 157, ph: 0.0 },
-  { id: "side", x: 408, y: 145, ph: 1.4 },
-  { id: "principles", x: 88, y: 291, ph: 2.7 },
-  { id: "ai", x: 441, y: 275, ph: 4.0 },
-  { id: "skills", x: 287, y: 333, ph: 5.3 },
+  { id: 'wip', x: 104, y: 157, ph: 0.0 },
+  { id: 'side', x: 408, y: 145, ph: 1.4 },
+  { id: 'principles', x: 88, y: 291, ph: 2.7 },
+  { id: 'ai', x: 441, y: 275, ph: 4.0 },
+  { id: 'skills', x: 287, y: 333, ph: 5.3 },
 ];
 const BB = Object.fromEntries(BN.map((n) => [n.id, n]));
 const BE = [
-  ["c", "wip", 1], ["c", "side", 1], ["c", "principles", 1], ["c", "ai", 1], ["c", "skills", 1],
-  ["side", "ai", 0], ["principles", "skills", 0],
+  ['c', 'wip', 1],
+  ['c', 'side', 1],
+  ['c', 'principles', 1],
+  ['c', 'ai', 1],
+  ['c', 'skills', 1],
+  ['side', 'ai', 0],
+  ['principles', 'skills', 0],
 ];
-const base = (id) => (id === "c" ? { x: BC.x, y: BC.y } : { x: BB[id].x, y: BB[id].y });
+const base = (id) =>
+  id === 'c' ? { x: BC.x, y: BC.y } : { x: BB[id].x, y: BB[id].y };
 
 function curve(a, b) {
-  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+  const dx = b.x - a.x,
+    dy = b.y - a.y,
+    len = Math.hypot(dx, dy) || 1;
   const off = Math.min(40, len * 0.12);
   const cx = (a.x + b.x) / 2 + (-dy / len) * off;
   const cy = (a.y + b.y) / 2 + (dx / len) * off;
@@ -47,10 +57,11 @@ const bez = (p0, c, p1, t) => ({
 function useReduced() {
   const [r, setR] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const f = () => setR(mq.matches); f();
-    mq.addEventListener?.("change", f);
-    return () => mq.removeEventListener?.("change", f);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const f = () => setR(mq.matches);
+    f();
+    mq.addEventListener?.('change', f);
+    return () => mq.removeEventListener?.('change', f);
   }, []);
   return r;
 }
@@ -59,12 +70,16 @@ function ConstellationBG({ reduced }) {
   const nodeEls = useRef({});
   const edgeEls = useRef([]);
   const dotEls = useRef([]);
-  const live = useRef(Object.fromEntries(BN.map((n) => [n.id, { x: n.x, y: n.y }])));
+  const live = useRef(
+    Object.fromEntries(BN.map((n) => [n.id, { x: n.x, y: n.y }])),
+  );
 
   useEffect(() => {
-    const posOf = (id) => (id === "c" ? { x: BC.x, y: BC.y } : live.current[id]);
+    const posOf = (id) =>
+      id === 'c' ? { x: BC.x, y: BC.y } : live.current[id];
     const draw = (now) => {
-      const t = now * 0.001, m = reduced ? 0 : 1;
+      const t = now * 0.001,
+        m = reduced ? 0 : 1;
       for (const n of BN) {
         const x = n.x + Math.sin(t * 0.55 + n.ph) * 7 * m;
         const y = n.y + Math.cos(t * 0.47 + n.ph * 1.3) * 6 * m;
@@ -74,19 +89,25 @@ function ConstellationBG({ reduced }) {
       }
       BE.forEach(([a, b], i) => {
         const p = edgeEls.current[i];
-        if (p) p.setAttribute("d", curve(posOf(a), posOf(b)).d);
+        if (p) p.setAttribute('d', curve(posOf(a), posOf(b)).d);
       });
       BE.filter((e) => e[2]).forEach((e, j) => {
         const dot = dotEls.current[j];
         if (!dot) return;
-        const a = posOf(e[0]), b = posOf(e[1]), g = curve(a, b);
+        const a = posOf(e[0]),
+          b = posOf(e[1]),
+          g = curve(a, b);
         const tt = reduced ? 0.5 : (((now * 0.00016 + j * 0.21) % 1) + 1) % 1;
         const p = bez(a, { x: g.cx, y: g.cy }, b, tt);
-        dot.setAttribute("cx", p.x); dot.setAttribute("cy", p.y);
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', p.y);
       });
     };
     let raf = 0;
-    const loop = (now) => { draw(now); raf = requestAnimationFrame(loop); };
+    const loop = (now) => {
+      draw(now);
+      raf = requestAnimationFrame(loop);
+    };
     draw(performance.now());
     if (!reduced) raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
@@ -94,15 +115,36 @@ function ConstellationBG({ reduced }) {
 
   let hub = -1;
   return (
-    <svg className="lc-bg" viewBox={`0 0 ${BG_W} ${BG_H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <svg
+      className="lc-bg"
+      viewBox={`0 0 ${BG_W} ${BG_H}`}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
       {BE.map(([a, b], i) => (
-        <path key={i} ref={(el) => (edgeEls.current[i] = el)} d={curve(base(a), base(b)).d} className="lc-wire" />
+        <path
+          key={i}
+          ref={(el) => (edgeEls.current[i] = el)}
+          d={curve(base(a), base(b)).d}
+          className="lc-wire"
+        />
       ))}
       {BE.map((e, i) => {
-        if (!e[2]) return null; hub++;
-        const g = curve(base(e[0]), base(e[1])); const p = bez(base(e[0]), { x: g.cx, y: g.cy }, base(e[1]), 0.5);
+        if (!e[2]) return null;
+        hub++;
+        const g = curve(base(e[0]), base(e[1]));
+        const p = bez(base(e[0]), { x: g.cx, y: g.cy }, base(e[1]), 0.5);
         const j = hub;
-        return <circle key={"d" + i} ref={(el) => (dotEls.current[j] = el)} cx={p.x} cy={p.y} r="4.5" className="lc-dot" />;
+        return (
+          <circle
+            key={'d' + i}
+            ref={(el) => (dotEls.current[j] = el)}
+            cx={p.x}
+            cy={p.y}
+            r="4.5"
+            className="lc-dot"
+          />
+        );
       })}
       {BN.map((n) => (
         <g key={n.id} ref={(el) => (nodeEls.current[n.id] = el)}>
@@ -135,10 +177,29 @@ export default function LabsCover() {
       {/* refraction filter for the backdrop (Chromium); Safari falls back to blur */}
       <svg className="lc-defs" aria-hidden="true">
         <filter id="lc-liquid" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="7" result="n">
-            {!reduced && <animate attributeName="baseFrequency" dur="22s" values="0.009 0.013;0.012 0.010;0.009 0.013" repeatCount="indefinite" />}
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.009 0.013"
+            numOctaves="2"
+            seed="7"
+            result="n"
+          >
+            {!reduced && (
+              <animate
+                attributeName="baseFrequency"
+                dur="22s"
+                values="0.009 0.013;0.012 0.010;0.009 0.013"
+                repeatCount="indefinite"
+              />
+            )}
           </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale={GLASS.disp} xChannelSelector="R" yChannelSelector="G" />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="n"
+            scale={GLASS.disp}
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
         </filter>
       </svg>
 
@@ -155,12 +216,16 @@ export default function LabsCover() {
         }}
       >
         <span className="lc-gloss" />
-        <span className={"lc-sheen" + (reduced ? " lc-still" : "")} />
+        <span className={'lc-sheen' + (reduced ? ' lc-still' : '')} />
         <span className="lc-rim" />
       </span>
 
-      <span className="lc-eyebrow"><i className="lc-eyeDot" /> LABS</span>
-      <span className={"lc-cta" + (hover ? " lc-on" : "")}>Still cooking — peek in <b>→</b></span>
+      <span className="lc-eyebrow">
+        <i className="lc-eyeDot" /> LABS
+      </span>
+      <span className={'lc-cta' + (hover ? ' lc-on' : '')}>
+        Still cooking — peek in <b>→</b>
+      </span>
     </Link>
   );
 }

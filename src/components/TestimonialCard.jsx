@@ -36,13 +36,7 @@ const ICONS = {
     >
       <circle cx="6" cy="16" r="2.5" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="24" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-      <circle
-        cx="24"
-        cy="24"
-        r="2.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
+      <circle cx="24" cy="24" r="2.5" stroke="currentColor" strokeWidth="1.5" />
       <path
         d="M8.5 16 L14 16 L21.5 9"
         stroke="currentColor"
@@ -69,20 +63,8 @@ const ICONS = {
       aria-hidden="true"
     >
       <circle cx="9" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5" />
-      <circle
-        cx="23"
-        cy="10"
-        r="3.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <circle
-        cx="16"
-        cy="22"
-        r="3.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
+      <circle cx="23" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="16" cy="22" r="3.5" stroke="currentColor" strokeWidth="1.5" />
       <path d="M12.5 11 L19.5 11" stroke="currentColor" strokeWidth="1.5" />
       <path d="M11 13 L14 19" stroke="currentColor" strokeWidth="1.5" />
       <path d="M21 13 L18 19" stroke="currentColor" strokeWidth="1.5" />
@@ -198,9 +180,7 @@ export default function TestimonialCard({ testimonial }) {
           aria-hidden={isFlipped}
         >
           <header className="service-card__header">
-            <span className="service-card__num">
-              ( {testimonial.num} )
-            </span>
+            <span className="service-card__num">( {testimonial.num} )</span>
             <span className="service-card__hint" aria-hidden="true">
               <span className="service-card__hint-label">Read more</span>
               <span className="service-card__hint-icon">↺</span>
@@ -212,16 +192,12 @@ export default function TestimonialCard({ testimonial }) {
           {/* Three-row body: theme title (h2-sized), avatar+name on
               the middle row, role/company/location below. */}
           <div className="service-card__body testimonial-card__body">
-            <h2 className="testimonial-card__title">
-              {testimonial.title}
-            </h2>
+            <h2 className="testimonial-card__title">{testimonial.title}</h2>
             <div className="testimonial-card__person">
               <div className="testimonial-card__avatar" aria-hidden="true">
                 {testimonial.initials}
               </div>
-              <span className="testimonial-card__name">
-                {testimonial.name}
-              </span>
+              <span className="testimonial-card__name">{testimonial.name}</span>
             </div>
             <p className="testimonial-card__meta">
               {testimonial.role}, {testimonial.company}
@@ -236,9 +212,7 @@ export default function TestimonialCard({ testimonial }) {
           aria-hidden={!isFlipped}
         >
           <header className="service-card__header">
-            <span className="service-card__num">
-              ( {testimonial.num} )
-            </span>
+            <span className="service-card__num">( {testimonial.num} )</span>
             <span className="service-card__hint" aria-hidden="true">
               <span className="service-card__hint-label">Read more</span>
               <span className="service-card__hint-icon">↺</span>

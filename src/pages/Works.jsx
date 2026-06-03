@@ -7,8 +7,14 @@ import { projects, homeFaqs } from '../data/projects.js';
 // (the 2-digit `date`, e.g. "_25" → 25) so the grid reads descending exactly
 // as labelled; ties break on the most recent year in `year` (so a 2024–2025
 // project beats a 2024 one).
-const chipYear = (p) => { const m = (p.date || '').match(/\d+/); return m ? Number(m[0]) : 0; };
-const yearMax = (p) => { const ys = (p.year || '').match(/\d{4}/g); return ys ? Math.max(...ys.map(Number)) : 0; };
+const chipYear = (p) => {
+  const m = (p.date || '').match(/\d+/);
+  return m ? Number(m[0]) : 0;
+};
+const yearMax = (p) => {
+  const ys = (p.year || '').match(/\d{4}/g);
+  return ys ? Math.max(...ys.map(Number)) : 0;
+};
 const projectsByRecency = [...projects].sort(
   (a, b) => chipYear(b) - chipYear(a) || yearMax(b) - yearMax(a),
 );
@@ -29,7 +35,11 @@ export default function Works() {
               Studio practice, in-house product work, and the occasional side
               project that wouldn’t leave me alone.
             </p>
-            <Link to="/contact" className="inline-link" style={{ alignSelf: 'flex-end' }}>
+            <Link
+              to="/contact"
+              className="inline-link"
+              style={{ alignSelf: 'flex-end' }}
+            >
               Let’s Talk +
             </Link>
           </div>
@@ -42,9 +52,9 @@ export default function Works() {
           <div className="tile tile--dark tile--quote">
             <div>
               <p>
-                Designing storefronts and product platforms end to end —
-                Surge, Cipher, Altitude and Floret on the commerce side;
-                Daily Dojo and Fundedr on the product side.
+                Designing storefronts and product platforms end to end — Surge,
+                Cipher, Altitude and Floret on the commerce side; Daily Dojo and
+                Fundedr on the product side.
               </p>
               <div style={{ marginTop: 24 }}>
                 <strong style={{ fontSize: 13 }}>
@@ -76,8 +86,8 @@ export default function Works() {
           <div className="faq__intro">
             <h2>FAQ.</h2>
             <p>
-              The most common things people ask before reaching out. If
-              anything else is on your mind, the contact form is always open.
+              The most common things people ask before reaching out. If anything
+              else is on your mind, the contact form is always open.
             </p>
           </div>
           <FAQ items={homeFaqs} />
