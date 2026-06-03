@@ -2,5 +2,4 @@
 User-agent: *
 Allow: /
 
-# After you set the production domain, deploy sitemap.xml and uncomment:
-# Sitemap: https://YOUR-DOMAIN/sitemap.xml
+Sitemap: https://www.byhris.cc/sitemap.xml
