@@ -5,6 +5,7 @@ import Header from './Header.jsx';
 import Footer from './Footer.jsx';
 import Breadcrumbs from './Breadcrumbs.jsx';
 import { titleForPath } from '../lib/pageTitle.js';
+import { applyCanonical } from '../lib/seo.js';
 
 // Easing tuned to match the rest of the motion vocabulary (Reveal +
 // Parallax use the same curve).
@@ -22,6 +23,8 @@ export default function Layout() {
     // Per-route document title — keeps the browser tab + history accurate
     // and gives crawlers a distinct title per page.
     document.title = titleForPath(pathname);
+    // Keep <link rel="canonical"> self-referential per route (see seo.js).
+    applyCanonical(pathname);
   }, [pathname]);
 
   // Reduced-motion: no transform / fade, no exit hold — AnimatePresence
