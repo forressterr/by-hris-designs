@@ -26,9 +26,7 @@ rate limiter on enquiries; a Redis DB to manage/answer incoming enquiries.
 
 **Why now / context:** the contact form (`src/components/ContactForm.tsx`) currently
 POSTs **client-side** straight to FormSubmit.co — there is no server. Phase 1 added
-the Next.js server foundation, so this is now unblocked. There's already a honeypot
-
-- client-side validation to build on.
+the Next.js server foundation, so this is now unblocked. There's already a honeypot and client-side validation to build on.
 
 **Scope / suggested approach (all server-side, in a Next API route):**
 
