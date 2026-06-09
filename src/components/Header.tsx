@@ -34,7 +34,7 @@ export default function Header() {
   // ESC closes the drawer.
   useEffect(() => {
     if (!isOpen) return undefined;
-    const onKey = (event) => {
+    const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsOpen(false);
     };
     document.addEventListener('keydown', onKey);

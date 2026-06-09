@@ -33,7 +33,7 @@ export default function LiveTime() {
   const [parts, setParts] = useState(readNow);
 
   useEffect(() => {
-    let intervalId;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
     // Align the first tick to the next real minute boundary
     // so the display flips at the moment the clock actually changes.

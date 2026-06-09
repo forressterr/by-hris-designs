@@ -1,15 +1,26 @@
+import type { ReactNode } from 'react';
+
 /**
  * ProjectMeta — small label/value chip-list shown near the project
  * hero. Use for Role / Year / Scope / Team / Status — anything that
  * answers "context" at-a-glance without a paragraph.
  *
  * Pass `items` as an array of { label, value } pairs. Renders as a
- * <dl> so screen readers parse it as definitions, with monospace
- * labels stacking above each value (compact, readable, doesn't fight
- * the surrounding body type).
+ * <dl> so screen readers parse it as definitions.
  */
 
-export default function ProjectMeta({ items, className = '' }) {
+interface MetaItem {
+  label: string;
+  value: ReactNode;
+}
+
+export default function ProjectMeta({
+  items,
+  className = '',
+}: {
+  items: MetaItem[];
+  className?: string;
+}) {
   if (!items || !items.length) return null;
   return (
     <dl className={`project-meta-grid ${className}`}>

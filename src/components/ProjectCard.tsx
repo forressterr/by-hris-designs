@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import type { Project } from '../types/content';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project }: { project: Project }) {
   // Tile thumbnail: prefer the dedicated cover image, then fall back to the
   // case-study hero. Projects without either fall back to the checkered
   // placeholder.

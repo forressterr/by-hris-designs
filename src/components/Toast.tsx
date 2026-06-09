@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -79,6 +80,11 @@ export default function Toast({
   message,
   onClose,
   duration = 5000,
+}: {
+  kind?: 'success' | 'error';
+  message: ReactNode;
+  onClose: () => void;
+  duration?: number;
 }) {
   // Auto-dismiss timer. Resets whenever the message changes so a fresh
   // toast gets its full duration even if the previous one was mid-flight.
@@ -90,7 +96,7 @@ export default function Toast({
 
   // Dismiss on ESC for keyboard users.
   useEffect(() => {
-    const onKey = (event) => {
+    const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);

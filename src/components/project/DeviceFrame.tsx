@@ -1,20 +1,23 @@
+import type { ReactNode } from 'react';
+
 /**
  * DeviceFrame — minimal browser / phone chrome around a screen.
  *
- * Style intent (per the brief): minimal — thin rounded box with three
- * traffic-light dots in the corner. NO realistic phone notch / URL bar
- * etc. Just enough chrome to read as "this is a screen" without
- * competing with the screen itself.
- *
  * Two variants:
  *   desktop  → wide rectangle, thin top bar with 3 dots, default 16:10
- *   mobile   → narrow vertical, no chrome bar (mobile UIs have their own
- *              status bar baked into the screenshot), default 9:19
+ *   mobile   → narrow vertical, no chrome bar, default 9:19
  *
  * Children render inside `.device-frame__screen`. Pass any aspect-ratio
- * override via `aspect` prop. Pass `label` to render a small caption
- * underneath the frame (e.g. "Cipher — Product detail").
+ * override via `aspect`. Pass `label` to render a small caption.
  */
+
+interface DeviceFrameProps {
+  variant?: 'desktop' | 'mobile';
+  aspect?: string;
+  label?: ReactNode;
+  className?: string;
+  children?: ReactNode;
+}
 
 export default function DeviceFrame({
   variant = 'desktop',
@@ -22,7 +25,7 @@ export default function DeviceFrame({
   label,
   className = '',
   children,
-}) {
+}: DeviceFrameProps) {
   const classes = ['device-frame', `device-frame--${variant}`, className]
     .filter(Boolean)
     .join(' ');

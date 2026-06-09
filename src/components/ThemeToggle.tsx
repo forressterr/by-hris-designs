@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { MotionProps } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
 /**
@@ -57,7 +58,7 @@ export default function ThemeToggle() {
 
   // Motion props collapse to identity when the user prefers reduced
   // motion — the cycleMode click still works, just without bounce.
-  const motionProps = prefersReducedMotion
+  const motionProps: MotionProps = prefersReducedMotion
     ? {}
     : {
         whileHover: {
