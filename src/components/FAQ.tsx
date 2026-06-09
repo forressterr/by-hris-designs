@@ -45,7 +45,7 @@ export default function FAQ({
   items,
   initialOpen = 0,
 }: {
-  items: { question: ReactNode; answer: ReactNode }[];
+  items: { question: string; answer: ReactNode }[];
   initialOpen?: number;
 }) {
   const [open, setOpen] = useState(initialOpen);
@@ -64,7 +64,7 @@ export default function FAQ({
         whileTap: { scale: 0.995, transition: { duration: 0.1 } },
       };
 
-  const itemMotion = itemVariants(prefersReducedMotion);
+  const itemMotion = itemVariants(!!prefersReducedMotion);
 
   return (
     <motion.ul

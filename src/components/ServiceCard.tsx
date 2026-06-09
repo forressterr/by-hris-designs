@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { MotionProps } from 'framer-motion';
 
 /**
  * ServiceCard — a clickable card that flips on its Y-axis to reveal a
@@ -19,7 +21,7 @@ import { motion, useReducedMotion } from 'framer-motion';
  * just a data change + a new key here.
  */
 
-const ICONS = {
+const ICONS: Record<string, ReactNode> = {
   // 001 — Product Design: two offset rounded squares (layered surfaces).
   '001': (
     <svg
@@ -116,14 +118,27 @@ const ICONS = {
   ),
 };
 
-export default function ServiceCard({ service }) {
+interface SubSkill {
+  name: string;
+  projects?: string[];
+}
+
+interface Service {
+  num: string;
+  color?: string;
+  title: ReactNode;
+  desc: ReactNode;
+  subSkills?: SubSkill[];
+}
+
+export default function ServiceCard({ service }: { service: Service }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   // Hover lift only when the card is in its resting (front) state — a
   // hover transform on a flipped card would compound with the 180° Y
   // rotation and look weird.
-  const hoverMotion =
+  const hoverMotion: MotionProps =
     isFlipped || prefersReducedMotion
       ? {}
       : {
@@ -136,7 +151,7 @@ export default function ServiceCard({ service }) {
 
   const toggleFlip = () => setIsFlipped((prev) => !prev);
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       toggleFlip();
@@ -145,7 +160,7 @@ export default function ServiceCard({ service }) {
 
   // Sub-skill links stopPropagation so the parent card doesn't also
   // flip when a link is clicked.
-  const handleLinkClick = (event) => {
+  const handleLinkClick = (event: MouseEvent) => {
     event.stopPropagation();
   };
 
@@ -221,7 +236,7 @@ export default function ServiceCard({ service }) {
                         >
                           {project}
                         </Link>
-                        {i < skill.projects.length - 1 && (
+                        {i < (skill.projects?.length ?? 0) - 1 && (
                           <span
                             className="service-card__subskill-sep"
                             aria-hidden="true"

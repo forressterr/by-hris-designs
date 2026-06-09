@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { TouchEvent } from 'react';
 
 /**
  * SlideShow — soft crossfade carousel that fills its parent container.
@@ -57,13 +58,25 @@ const ChevronRight = () => (
   </svg>
 );
 
-export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
+interface Slide {
+  src: string;
+  alt?: string;
+  position?: string;
+}
+
+export default function SlideShow({
+  slides,
+  ariaLabel = 'Photo carousel',
+}: {
+  slides: Slide[];
+  ariaLabel?: string;
+}) {
   const [index, setIndex] = useState(0);
   // `paused` toggles auto-advance. Set during hover (desktop) or right
   // after a manual interaction (any device).
   const [paused, setPaused] = useState(false);
-  const touchStartXRef = useRef(null);
-  const resumeTimerRef = useRef(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const resumeTimerRef = useRef<number | null>(null);
   const prefersReducedMotion = useRef(
     typeof window !== 'undefined' &&
       window.matchMedia &&
@@ -71,7 +84,7 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
   );
 
   const goTo = useCallback(
-    (next) => {
+    (next: number) => {
       const n = slides.length;
       const safeNext = ((next % n) + n) % n;
       setIndex(safeNext);
@@ -111,11 +124,11 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
     [],
   );
 
-  const onTouchStart = (event) => {
+  const onTouchStart = (event: TouchEvent) => {
     touchStartXRef.current = event.touches[0]?.clientX ?? null;
   };
 
-  const onTouchEnd = (event) => {
+  const onTouchEnd = (event: TouchEvent) => {
     const startX = touchStartXRef.current;
     if (startX == null) return;
     const endX = event.changedTouches[0]?.clientX ?? startX;
@@ -127,13 +140,13 @@ export default function SlideShow({ slides, ariaLabel = 'Photo carousel' }) {
     else goPrev();
   };
 
-  const handleArrow = (direction) => () => {
+  const handleArrow = (direction: 'next' | 'prev') => () => {
     nudgePause();
     if (direction === 'next') goNext();
     else goPrev();
   };
 
-  const handleDot = (i) => () => {
+  const handleDot = (i: number) => () => {
     nudgePause();
     goTo(i);
   };
