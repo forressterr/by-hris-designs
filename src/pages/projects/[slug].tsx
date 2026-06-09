@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import { motion } from 'framer-motion';
 import { projects } from '../../data/projects';
+import type { Project as ProjectData } from '../../types/content';
 import Seo from '../../components/Seo';
 import ProjectCard from '../../components/ProjectCard';
 import ProjectShell from '../../components/project/ProjectShell';
@@ -13,6 +14,12 @@ import AnnotatedImage from '../../components/project/AnnotatedImage';
 import ScreenSwitcher from '../../components/project/ScreenSwitcher';
 
 const MotionLink = motion.create(Link);
+
+// Loose shapes for the optional `caseStudy` content the page maps over
+// (the data itself is typed `Record<string, any>` on Project.caseStudy).
+type ScreenTab = { id: string; label: string; src?: string; alt?: string };
+type Shot = { label?: string; src?: string; alt?: string };
+type Stat = { value?: string; label?: string };
 
 // Sections that appear in the sidebar nav, in order. Same `id`s are
 // used as anchor targets in the main content below.
@@ -65,7 +72,7 @@ function ScreenImage({
   return <Placeholder label={fallbackLabel} />;
 }
 
-export default function Project({ project }: { project: any }) {
+export default function Project({ project }: { project: ProjectData }) {
   // Other projects, ordered by tag-similarity to this one (most shared
   // tags first, least similar last) — feeds the "More projects" carousel.
   const relatedProjects = projects
@@ -162,7 +169,7 @@ export default function Project({ project }: { project: any }) {
             {heroThemes ? (
               <DeviceFrame variant="desktop" label="Home — light / dark">
                 <ScreenSwitcher
-                  tabs={heroThemes.map((t: any) => ({
+                  tabs={heroThemes.map((t: ScreenTab) => ({
                     ...t,
                     children: t.src ? undefined : (
                       <Placeholder label={`${t.label} view`} />
@@ -222,7 +229,7 @@ export default function Project({ project }: { project: any }) {
           </p>
           <DeviceFrame variant="desktop" label="Key screens">
             <ScreenSwitcher
-              tabs={switcherTabs.map((t: any) => ({
+              tabs={switcherTabs.map((t: ScreenTab) => ({
                 ...t,
                 children: t.src ? undefined : (
                   <Placeholder label={`${t.label} view`} />
@@ -240,7 +247,7 @@ export default function Project({ project }: { project: any }) {
             page across a small set of mobile frames.
           </p>
           <div className="project-grid-row project-grid-row--mobile-trio">
-            {mobileScreens.slice(0, 3).map((s: any, i: number) => (
+            {mobileScreens.slice(0, 3).map((s: Shot, i: number) => (
               <DeviceFrame key={i} variant="mobile" label={s.label}>
                 <ScreenImage slide={s} fallbackLabel={s.label} />
               </DeviceFrame>
@@ -277,7 +284,7 @@ export default function Project({ project }: { project: any }) {
           <h2 className="project-section__title">Outcome</h2>
           <p className="project-section__body">{outcomeCopy}</p>
           <div className="project-stat-row">
-            {outcomeStats.map((s: any, i: number) => (
+            {outcomeStats.map((s: Stat, i: number) => (
               <div key={i} className="project-stat">
                 <div className="project-stat__value">{s.value}</div>
                 <div className="project-stat__label">{s.label}</div>
@@ -345,7 +352,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
   fallback: false,
 });
 
-export const getStaticProps: GetStaticProps<{ project: any }> = ({
+export const getStaticProps: GetStaticProps<{ project: ProjectData }> = ({
   params,
 }) => {
   const project = projects.find((p) => p.slug === params?.slug) ?? null;
