@@ -1,5 +1,6 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { projects } from '../data/projects.js';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { projects } from '../data/projects';
 
 /**
  * Breadcrumbs — minimalist nav line that sits above the page-head on
@@ -64,8 +65,8 @@ const ChevronIcon = () => (
 );
 
 export default function Breadcrumbs() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = router.asPath.split(/[?#]/)[0];
 
   // Home page: no breadcrumbs.
   if (pathname === '/') return null;
@@ -94,7 +95,7 @@ export default function Breadcrumbs() {
       <ol className="breadcrumbs__list">
         <li className="breadcrumbs__item">
           <Link
-            to="/"
+            href="/"
             className="breadcrumbs__link breadcrumbs__home"
             aria-label="Home"
           >
@@ -111,7 +112,7 @@ export default function Breadcrumbs() {
               <button
                 type="button"
                 className="breadcrumbs__link breadcrumbs__back"
-                onClick={() => navigate(-1)}
+                onClick={() => router.back()}
                 aria-label="Go back one step"
               >
                 …

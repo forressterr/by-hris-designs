@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 
 /**
@@ -214,7 +214,7 @@ export default function ServiceCard({ service }) {
                     {skill.projects.map((project, i) => (
                       <span key={project}>
                         <Link
-                          to="/works"
+                          href="/works"
                           className="inline-link"
                           onClick={handleLinkClick}
                           tabIndex={isFlipped ? 0 : -1}

@@ -1,13 +1,15 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Seo from '../components/Seo';
 
 // motion(Link) once at module scope — creating it inside the component
 // would remount the link on every render and confuse Router.
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 export default function NotFound() {
   return (
     <div className="container page-canvas">
+      <Seo path="/404" />
       <section
         className="section"
         style={{ textAlign: 'center', minHeight: '60vh' }}
@@ -18,7 +20,7 @@ export default function NotFound() {
           Let’s get you back somewhere useful.
         </p>
         <MotionLink
-          to="/"
+          href="/"
           className="btn btn--dark"
           style={{ marginTop: 28 }}
           whileHover={{

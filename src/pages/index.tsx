@@ -1,16 +1,17 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import ProjectCard from '../components/ProjectCard.jsx';
-import FAQ from '../components/FAQ.jsx';
-import Typewriter from '../components/Typewriter.jsx';
-import ServiceCard from '../components/ServiceCard.jsx';
-import TestimonialCard from '../components/TestimonialCard.jsx';
-import LightPullString from '../components/LightPullString.jsx';
-import MarqueeSubSkillCard from '../components/MarqueeSubSkillCard.jsx';
-import SlideShow from '../components/SlideShow.jsx';
-import LabsCover from '../components/LabsCover.jsx';
-import Reveal from '../components/motion/Reveal.jsx';
-import Parallax from '../components/motion/Parallax.jsx';
+import Link from 'next/link';
+import Seo from '../components/Seo';
+import ProjectCard from '../components/ProjectCard';
+import FAQ from '../components/FAQ';
+import Typewriter from '../components/Typewriter';
+import ServiceCard from '../components/ServiceCard';
+import TestimonialCard from '../components/TestimonialCard';
+import LightPullString from '../components/LightPullString';
+import MarqueeSubSkillCard from '../components/MarqueeSubSkillCard';
+import SlideShow from '../components/SlideShow';
+import LabsCover from '../components/LabsCover';
+import Reveal from '../components/motion/Reveal';
+import Parallax from '../components/motion/Parallax';
 import {
   projects,
   services,
@@ -18,7 +19,7 @@ import {
   homeFaqs,
   labsStats,
   marqueeSubSkills,
-} from '../data/projects.js';
+} from '../data/projects';
 
 // Rotating roles for the landing headline. The article "a" lives in the
 // static lead line above ("Hris is a"), so each role here is just the
@@ -51,6 +52,7 @@ export default function Home() {
 
   return (
     <>
+      <Seo path="/" />
       {/* TOP CONTAINER — landing + any sections above the full-bleed
           marquee. The .container.page-canvas wrap is now owned by the
           page (not Layout) so the marquee section a few lines down can
@@ -223,7 +225,7 @@ export default function Home() {
               Projects.
             </h2>
             <div className="section-head__aside">
-              <Link to="/works" className="inline-link">
+              <Link href="/works" className="inline-link">
                 View all projects +
               </Link>
             </div>
@@ -274,7 +276,7 @@ export default function Home() {
               Labs.
             </h2>
             <div className="section-head__aside">
-              <Link to="/labs" className="inline-link">
+              <Link href="/labs" className="inline-link">
                 Take a peek +
               </Link>
             </div>

@@ -3,8 +3,10 @@
  * Pages pull from here so copy can be edited in one place.
  */
 
+import type { Project, Profile } from '../types/content';
+
 // ---------- Identity ----------
-export const profile = {
+export const profile: Profile = {
   name: 'Hristian Goretsov',
   brand: 'By_Hris Designs',
   title: 'Multi-Disciplinary Experience Designer',
@@ -21,7 +23,7 @@ export const profile = {
 // `title` → full title on the project detail page
 // `headline` → secondary heading used inside the project page
 // `description` → opening paragraph on the project detail page
-export const projects = [
+export const projects: Project[] = [
   // ─────────────────────────────────────────────────────────────────
   // SURGE — first project with a populated `caseStudy` field.
   // When `caseStudy` is present, Project.jsx renders real content into

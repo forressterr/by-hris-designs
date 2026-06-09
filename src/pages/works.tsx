@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
-import ProjectCard from '../components/ProjectCard.jsx';
-import FAQ from '../components/FAQ.jsx';
-import { projects, homeFaqs } from '../data/projects.js';
+import Link from 'next/link';
+import Seo from '../components/Seo';
+import ProjectCard from '../components/ProjectCard';
+import FAQ from '../components/FAQ';
+import { projects, homeFaqs } from '../data/projects';
 
 // Newest-first ordering for the grid. Primary key is the visible chip year
 // (the 2-digit `date`, e.g. "_25" → 25) so the grid reads descending exactly
@@ -22,6 +23,7 @@ const projectsByRecency = [...projects].sort(
 export default function Works() {
   return (
     <div className="container page-canvas">
+      <Seo path="/works" />
       <section>
         <div className="page-head">
           <div>
@@ -36,7 +38,7 @@ export default function Works() {
               project that wouldn’t leave me alone.
             </p>
             <Link
-              to="/contact"
+              href="/contact"
               className="inline-link"
               style={{ alignSelf: 'flex-end' }}
             >

@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useTheme } from '../context/ThemeContext.jsx';
+import { useTheme } from '../context/ThemeContext';
 
 /**
  * 3-state theme toggle.
@@ -49,7 +50,9 @@ const ICONS = {
 
 export default function ThemeToggle() {
   const { mode, cycleMode } = useTheme();
-  const icon = ICONS[mode] || ICONS.system;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const icon = ICONS[mounted ? mode : 'system'] || ICONS.system;
   const prefersReducedMotion = useReducedMotion();
 
   // Motion props collapse to identity when the user prefers reduced
@@ -71,7 +74,7 @@ export default function ThemeToggle() {
       aria-label={icon.label}
       title={icon.label}
       onClick={cycleMode}
-      data-mode={mode}
+      data-mode={mounted ? mode : 'system'}
       {...motionProps}
     >
       <svg

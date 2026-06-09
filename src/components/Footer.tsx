@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router-dom';
-import Logo from './Logo.jsx';
-import ContactForm from './ContactForm.jsx';
+import NavLink from './NavLink';
+import Logo from './Logo';
+import ContactForm from './ContactForm';
 
 /**
  * Mailto fallback toggle.
@@ -35,10 +35,10 @@ export default function Footer() {
 
         <div className="site-footer__bottom">
           <nav className="footer-nav" aria-label="Footer">
-            <NavLink to="/works">Work</NavLink>
-            <NavLink to="/about">About</NavLink>
-            <NavLink to="/labs">Labs</NavLink>
-            <NavLink to="/contact">Contact</NavLink>
+            <NavLink href="/works">Work</NavLink>
+            <NavLink href="/about">About</NavLink>
+            <NavLink href="/labs">Labs</NavLink>
+            <NavLink href="/contact">Contact</NavLink>
           </nav>
           <span>( ©26 By_Hris Designs )</span>
         </div>

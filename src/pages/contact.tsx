@@ -1,6 +1,7 @@
-import ContactForm from '../components/ContactForm.jsx';
-import FAQ from '../components/FAQ.jsx';
-import { homeFaqs } from '../data/projects.js';
+import Seo from '../components/Seo';
+import ContactForm from '../components/ContactForm';
+import FAQ from '../components/FAQ';
+import { homeFaqs } from '../data/projects';
 
 /**
  * Mailto fallback toggle — kept in sync with the same flag in Footer.jsx.
@@ -12,6 +13,7 @@ const SHOW_MAILTO_FALLBACK = false;
 export default function Contact() {
   return (
     <div className="container page-canvas">
+      <Seo path="/contact" />
       <section>
         <div className="page-head">
           <div>

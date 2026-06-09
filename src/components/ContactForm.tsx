@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import Toast from './Toast.jsx';
+import Toast from './Toast';
 
 /**
  * FormSubmit.co AJAX endpoint — no signup required.

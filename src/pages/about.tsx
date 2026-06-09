@@ -1,13 +1,15 @@
-import { Link } from 'react-router-dom';
-import { bio, codex, skills, tools, achievements } from '../data/projects.js';
-import FAQ from '../components/FAQ.jsx';
-import SlideShow from '../components/SlideShow.jsx';
-import Reveal from '../components/motion/Reveal.jsx';
-import Parallax from '../components/motion/Parallax.jsx';
+import Link from 'next/link';
+import Seo from '../components/Seo';
+import { bio, codex, skills, tools, achievements } from '../data/projects';
+import FAQ from '../components/FAQ';
+import SlideShow from '../components/SlideShow';
+import Reveal from '../components/motion/Reveal';
+import Parallax from '../components/motion/Parallax';
 
 export default function About() {
   return (
     <div className="container page-canvas">
+      <Seo path="/about" />
       <section>
         <div className="page-head">
           <div>
@@ -24,7 +26,7 @@ export default function About() {
               Human-Computer Interaction at Utrecht University on the side.
             </p>
             <Link
-              to="/contact"
+              href="/contact"
               className="inline-link"
               style={{ alignSelf: 'flex-end' }}
             >

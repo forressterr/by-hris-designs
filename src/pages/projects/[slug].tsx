@@ -1,15 +1,17 @@
-import { Link, useParams, Navigate } from 'react-router-dom';
+import Link from 'next/link';
+import type { GetStaticPaths, GetStaticProps } from 'next';
 import { motion } from 'framer-motion';
-import { projects } from '../data/projects.js';
-import ProjectCard from '../components/ProjectCard.jsx';
-import ProjectShell from '../components/project/ProjectShell.jsx';
-import ProjectHero from '../components/project/ProjectHero.jsx';
-import ProjectMeta from '../components/project/ProjectMeta.jsx';
-import DeviceFrame from '../components/project/DeviceFrame.jsx';
-import AnnotatedImage from '../components/project/AnnotatedImage.jsx';
-import ScreenSwitcher from '../components/project/ScreenSwitcher.jsx';
+import { projects } from '../../data/projects';
+import Seo from '../../components/Seo';
+import ProjectCard from '../../components/ProjectCard';
+import ProjectShell from '../../components/project/ProjectShell';
+import ProjectHero from '../../components/project/ProjectHero';
+import ProjectMeta from '../../components/project/ProjectMeta';
+import DeviceFrame from '../../components/project/DeviceFrame';
+import AnnotatedImage from '../../components/project/AnnotatedImage';
+import ScreenSwitcher from '../../components/project/ScreenSwitcher';
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 // Sections that appear in the sidebar nav, in order. Same `id`s are
 // used as anchor targets in the main content below.
@@ -48,10 +50,7 @@ function ScreenImage({ slide, fallbackLabel }) {
   return <Placeholder label={fallbackLabel} />;
 }
 
-export default function Project() {
-  const { slug } = useParams();
-  const project = projects.find((p) => p.slug === slug);
-  if (!project) return <Navigate to="/works" replace />;
+export default function Project({ project }: { project: any }) {
 
   // Other projects, ordered by tag-similarity to this one (most shared
   // tags first, least similar last) — feeds the "More projects" carousel.
@@ -137,6 +136,7 @@ export default function Project() {
 
   return (
     <div className="container page-canvas">
+      <Seo path={`/projects/${project.slug}`} />
       <ProjectShell sections={TEMPLATE_SECTIONS}>
         {/* ──────────── OVERVIEW ──────────── */}
         <section id="overview" className="project-section">
@@ -278,7 +278,7 @@ export default function Project() {
         <div className="section-head">
           <h2>More projects.</h2>
           <div className="section-head__aside">
-            <Link to="/contact" className="inline-link">
+            <Link href="/contact" className="inline-link">
               Get in touch +
             </Link>
           </div>
@@ -309,7 +309,7 @@ export default function Project() {
               or just want to say hi.
             </p>
             <MotionLink
-              to="/contact"
+              href="/contact"
               className="btn btn--dark"
               whileHover={{
                 y: -1,
@@ -325,3 +325,16 @@ export default function Project() {
     </div>
   );
 }
+
+export const getStaticPaths: GetStaticPaths = () => ({
+  paths: projects.map((p) => ({ params: { slug: p.slug } })),
+  fallback: false,
+});
+
+export const getStaticProps: GetStaticProps<{ project: any }> = ({
+  params,
+}) => {
+  const project = projects.find((p) => p.slug === params?.slug) ?? null;
+  if (!project) return { notFound: true };
+  return { props: { project } };
+};
