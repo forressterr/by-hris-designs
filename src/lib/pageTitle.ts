@@ -1,16 +1,15 @@
-import { profile, projects } from '../data/projects.js';
+import { profile, projects } from '../data/projects';
 
 /**
  * Resolve the document <title> for a given route.
  *
- * Keeps per-page titles in one place so the SPA updates the browser tab /
- * history entry on navigation (better SEO + clearer back-button stack)
- * without pulling in a head-management library. Layout calls this on every
- * route change.
+ * Keeps per-page titles in one place so the app sets a distinct browser tab /
+ * history entry per route (better SEO + clearer back-button stack). The <Seo>
+ * component calls this from each page via next/head.
  */
 const BRAND = profile.brand || 'By_Hris Designs';
 
-const STATIC_TITLES = {
+const STATIC_TITLES: Record<string, string> = {
   '/': `${BRAND} — ${profile.title}`,
   '/about': `About — ${BRAND}`,
   '/works': `Work — ${BRAND}`,
@@ -18,7 +17,7 @@ const STATIC_TITLES = {
   '/contact': `Contact — ${BRAND}`,
 };
 
-export function titleForPath(pathname) {
+export function titleForPath(pathname: string): string {
   // Normalise a trailing slash (except the root path).
   const path =
     pathname.length > 1 && pathname.endsWith('/')

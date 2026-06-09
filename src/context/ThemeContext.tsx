@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import type { ReactNode } from 'react';
 import {
   applyThemeToDom,
   getStoredMode,
@@ -13,7 +14,8 @@ import {
   persistMode,
   resolveTheme,
   subscribeToSystem,
-} from '../lib/theme.js';
+} from '../lib/theme';
+import type { ThemeMode, EffectiveTheme } from '../lib/theme';
 
 /**
  * ThemeContext keeps the user's mode choice in sync with:
@@ -27,11 +29,18 @@ import {
  * <head> script used, so React's first render matches what's already
  * painted — no hydration mismatch, no theme flicker.
  */
-const ThemeContext = createContext(null);
+interface ThemeContextValue {
+  mode: ThemeMode;
+  effectiveTheme: EffectiveTheme;
+  setMode: (next: ThemeMode) => void;
+  cycleMode: () => void;
+}
 
-export function ThemeProvider({ children }) {
-  const [mode, setModeState] = useState(() => getStoredMode());
-  const [effectiveTheme, setEffectiveTheme] = useState(() =>
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [mode, setModeState] = useState<ThemeMode>(() => getStoredMode());
+  const [effectiveTheme, setEffectiveTheme] = useState<EffectiveTheme>(() =>
     resolveTheme(mode),
   );
 
@@ -58,7 +67,7 @@ export function ThemeProvider({ children }) {
   // Cross-tab sync — if the user switches mode in tab A, tab B picks it
   // up via the storage event.
   useEffect(() => {
-    const onStorage = (event) => {
+    const onStorage = (event: StorageEvent) => {
       if (event.key && event.key !== 'theme-mode') return;
       const fresh = getStoredMode();
       setModeState(fresh);
@@ -67,7 +76,7 @@ export function ThemeProvider({ children }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const setMode = useCallback((next) => {
+  const setMode = useCallback((next: ThemeMode) => {
     persistMode(next);
     setModeState(next);
   }, []);
@@ -80,7 +89,7 @@ export function ThemeProvider({ children }) {
     });
   }, []);
 
-  const value = useMemo(
+  const value = useMemo<ThemeContextValue>(
     () => ({ mode, effectiveTheme, setMode, cycleMode }),
     [mode, effectiveTheme, setMode, cycleMode],
   );
@@ -90,7 +99,7 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
     throw new Error('useTheme must be used inside <ThemeProvider>');

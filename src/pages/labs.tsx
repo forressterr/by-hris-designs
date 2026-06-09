@@ -1,6 +1,11 @@
-import { Link } from 'react-router-dom';
-import LabsCanvas from '../components/LabsCanvas.jsx';
-import { labsAbout } from '../data/projects.js';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import { labsAbout } from '../data/projects';
+import Seo from '../components/Seo';
+
+const LabsCanvas = dynamic(() => import('../components/LabsCanvas'), {
+  ssr: false,
+});
 
 /**
  * Labs — gateway page for experiments, side projects, and
@@ -16,6 +21,7 @@ import { labsAbout } from '../data/projects.js';
 export default function Labs() {
   return (
     <div className="container page-canvas">
+      <Seo path="/labs" />
       <section>
         <div className="page-head">
           <div>
@@ -32,7 +38,7 @@ export default function Labs() {
               lesson. Most of what lives in here started from that instinct.
             </p>
             <Link
-              to="/contact"
+              href="/contact"
               className="inline-link"
               style={{ alignSelf: 'flex-end' }}
             >

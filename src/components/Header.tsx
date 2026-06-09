@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import Logo from './Logo.jsx';
-import LiveTime from './LiveTime.jsx';
-import ThemeToggle from './ThemeToggle.jsx';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
+import Logo from './Logo';
+import NavLink from './NavLink';
+import ThemeToggle from './ThemeToggle';
+
+const LiveTime = dynamic(() => import('./LiveTime'), { ssr: false });
 
 /**
  * Primary navigation items. Each one is a real top-level page in the
@@ -19,13 +23,13 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const { pathname } = useLocation();
+  const { asPath } = useRouter();
 
   // Close the drawer whenever the route changes (covers both NavLink
   // clicks inside the drawer and any external navigation).
   useEffect(() => {
     setIsOpen(false);
-  }, [pathname]);
+  }, [asPath]);
 
   // ESC closes the drawer.
   useEffect(() => {
@@ -63,7 +67,7 @@ export default function Header() {
       <header className="site-header">
         <div className="site-header__inner">
           <Link
-            to="/"
+            href="/"
             className="site-header__logo"
             aria-label="By_Hris Designs — Home"
           >
@@ -86,7 +90,7 @@ export default function Header() {
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.to}
-                  to={item.to}
+                  href={item.to}
                   className="site-header__link"
                 >
                   {item.label}
@@ -135,7 +139,7 @@ export default function Header() {
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
+              href={item.to}
               className="site-drawer__link"
               tabIndex={isOpen ? 0 : -1}
             >

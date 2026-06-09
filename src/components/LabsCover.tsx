@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 /*
   LabsCover — Home-page cover for the Labs section.
@@ -164,7 +164,7 @@ export default function LabsCover() {
 
   return (
     <Link
-      to="/labs"
+      href="/labs"
       className="lc-cover"
       aria-label="Labs — step inside the work in progress"
       onMouseEnter={() => setHover(true)}

@@ -13,34 +13,39 @@
  *   data-theme-mode  — the user's choice (what the UI button reflects)
  *
  * An identical no-deps version of this resolver runs as an inline
- * <script> in index.html before React mounts, so the page paints with
+ * <script> in _document.tsx before React mounts, so the page paints with
  * the right theme on first byte (no flash).
  */
 
-export const THEME_MODES = ['light', 'dark', 'system'];
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type EffectiveTheme = 'light' | 'dark';
+
+export const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
 export const STORAGE_KEY = 'theme-mode';
 
-export function getStoredMode() {
+export function getStoredMode(): ThemeMode {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return THEME_MODES.includes(stored) ? stored : 'system';
+    return stored && THEME_MODES.includes(stored as ThemeMode)
+      ? (stored as ThemeMode)
+      : 'system';
   } catch (_e) {
     return 'system';
   }
 }
 
-export function getSystemTheme() {
+export function getSystemTheme(): EffectiveTheme {
   if (typeof window === 'undefined' || !window.matchMedia) return 'light';
   return window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light';
 }
 
-export function resolveTheme(mode) {
+export function resolveTheme(mode: ThemeMode): EffectiveTheme {
   return mode === 'system' ? getSystemTheme() : mode;
 }
 
-export function applyThemeToDom(mode) {
+export function applyThemeToDom(mode: ThemeMode): EffectiveTheme {
   const effective = resolveTheme(mode);
   const root = document.documentElement;
   root.setAttribute('data-theme', effective);
@@ -48,7 +53,7 @@ export function applyThemeToDom(mode) {
   return effective;
 }
 
-export function persistMode(mode) {
+export function persistMode(mode: ThemeMode): void {
   try {
     localStorage.setItem(STORAGE_KEY, mode);
   } catch (_e) {
@@ -60,12 +65,15 @@ export function persistMode(mode) {
  * Subscribe to OS-level theme changes. Returns an unsubscribe fn.
  * The callback receives the new effective theme ('light' | 'dark').
  */
-export function subscribeToSystem(callback) {
+export function subscribeToSystem(
+  callback: (theme: EffectiveTheme) => void,
+): () => void {
   if (typeof window === 'undefined' || !window.matchMedia) {
     return () => {};
   }
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
-  const handler = (event) => callback(event.matches ? 'dark' : 'light');
+  const handler = (event: MediaQueryListEvent) =>
+    callback(event.matches ? 'dark' : 'light');
   // matchMedia.addEventListener is the modern API; older Safari needs addListener.
   if (mql.addEventListener) {
     mql.addEventListener('change', handler);
@@ -76,7 +84,7 @@ export function subscribeToSystem(callback) {
 }
 
 /** Cycles light → dark → system → light → … */
-export function nextMode(current) {
+export function nextMode(current: ThemeMode): ThemeMode {
   const index = THEME_MODES.indexOf(current);
   return THEME_MODES[(index + 1) % THEME_MODES.length];
 }

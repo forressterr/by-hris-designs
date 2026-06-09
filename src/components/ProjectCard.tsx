@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 export default function ProjectCard({ project }) {
   // Tile thumbnail: prefer the dedicated cover image, then fall back to the
@@ -6,7 +6,7 @@ export default function ProjectCard({ project }) {
   // placeholder.
   const thumb = project.cover || project.caseStudy?.overview?.hero?.src;
   return (
-    <Link to={`/projects/${project.slug}`} className="project-card">
+    <Link href={`/projects/${project.slug}`} className="project-card">
       <div className="project-card__media" aria-hidden="true">
         {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
       </div>
