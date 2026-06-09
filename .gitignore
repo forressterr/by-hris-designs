@@ -8,3 +8,8 @@ dist-ssr
 *.log
 .idea
 .vscode
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
