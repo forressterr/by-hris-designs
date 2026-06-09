@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ElementType, ReactNode } from 'react';
 import {
   motion,
@@ -37,6 +37,13 @@ export default function Parallax({
   const ref = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
+  // `distance` (below) reads window.innerHeight, which differs between the
+  // SSR fallback (800) and the real client viewport — binding the scroll
+  // transform during SSR/first paint would hydration-mismatch. Defer it to
+  // after mount; the parallax engages on the client, as in the old SPA.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
@@ -72,7 +79,7 @@ export default function Parallax({
   return (
     <MotionTag
       ref={ref}
-      style={{ ...style, y, willChange: 'transform' }}
+      style={mounted ? { ...style, y, willChange: 'transform' } : style}
       className={className}
       {...rest}
     >
