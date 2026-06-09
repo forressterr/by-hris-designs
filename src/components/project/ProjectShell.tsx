@@ -26,9 +26,7 @@ export default function ProjectShell({
   children?: ReactNode;
   className?: string;
 }) {
-  const [activeId, setActiveId] = useState<string | undefined>(
-    sections[0]?.id,
-  );
+  const [activeId, setActiveId] = useState<string | undefined>(sections[0]?.id);
   const mainRef = useRef<HTMLElement>(null);
 
   // Track which section is currently most-in-view via IntersectionObserver.

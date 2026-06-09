@@ -15,7 +15,7 @@ export interface Project {
   status?: string;
   tags?: string[];
   cover?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   caseStudy?: Record<string, any>;
   [key: string]: unknown;
 }

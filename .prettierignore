@@ -2,6 +2,8 @@ dist
 node_modules
 package-lock.json
 .claude
+.next
+next-env.d.ts
 *.html
 public/_headers
 public/_redirects

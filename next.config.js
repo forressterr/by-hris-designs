@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // TEMP (remove in Task 7): bypass type-checking during build so we can
-  // verify SSR/runtime parity before the full .jsx → .tsx typing pass.
-  typescript: { ignoreBuildErrors: true },
   async headers() {
     return [
       {

@@ -56,7 +56,7 @@ export default function Parallax({
 
   // motion[tag] is not indexable by an arbitrary string in TS; the cast
   // keeps the dynamic polymorphic tag while staying renderable.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const MotionTag = ((motion as any)[Component as string] ||
     motion.div) as ElementType;
   const Tag = Component;
