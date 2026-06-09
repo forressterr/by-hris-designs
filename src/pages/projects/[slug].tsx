@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import { motion } from 'framer-motion';
 import { projects } from '../../data/projects';
@@ -28,7 +29,15 @@ const TEMPLATE_SECTIONS = [
 // Placeholder block — used when a section has no `caseStudy` content
 // yet. Same striped pattern as the rest of the site's `.tile` so it
 // reads as deliberate WIP rather than broken.
-function Placeholder({ label, aspect, minHeight }) {
+function Placeholder({
+  label,
+  aspect,
+  minHeight,
+}: {
+  label?: ReactNode;
+  aspect?: string;
+  minHeight?: number | string;
+}) {
   const style = {
     aspectRatio: aspect || undefined,
     minHeight: minHeight || undefined,
@@ -43,7 +52,13 @@ function Placeholder({ label, aspect, minHeight }) {
 // Render an <img> if `slide.src` is set, otherwise a Placeholder.
 // Used by every visual slot — keeps the "real content OR placeholder"
 // branching in one helper.
-function ScreenImage({ slide, fallbackLabel }) {
+function ScreenImage({
+  slide,
+  fallbackLabel,
+}: {
+  slide?: { src?: string; alt?: string; label?: string } | null;
+  fallbackLabel?: ReactNode;
+}) {
   if (slide?.src) {
     return <img src={slide.src} alt={slide.alt || slide.label || ''} />;
   }
@@ -148,7 +163,7 @@ export default function Project({ project }: { project: any }) {
             {heroThemes ? (
               <DeviceFrame variant="desktop" label="Home — light / dark">
                 <ScreenSwitcher
-                  tabs={heroThemes.map((t) => ({
+                  tabs={heroThemes.map((t: any) => ({
                     ...t,
                     children: t.src ? undefined : (
                       <Placeholder label={`${t.label} view`} />
@@ -208,7 +223,7 @@ export default function Project({ project }: { project: any }) {
           </p>
           <DeviceFrame variant="desktop" label="Key screens">
             <ScreenSwitcher
-              tabs={switcherTabs.map((t) => ({
+              tabs={switcherTabs.map((t: any) => ({
                 ...t,
                 children: t.src ? undefined : (
                   <Placeholder label={`${t.label} view`} />
@@ -226,7 +241,7 @@ export default function Project({ project }: { project: any }) {
             page across a small set of mobile frames.
           </p>
           <div className="project-grid-row project-grid-row--mobile-trio">
-            {mobileScreens.slice(0, 3).map((s, i) => (
+            {mobileScreens.slice(0, 3).map((s: any, i: number) => (
               <DeviceFrame key={i} variant="mobile" label={s.label}>
                 <ScreenImage slide={s} fallbackLabel={s.label} />
               </DeviceFrame>
@@ -263,7 +278,7 @@ export default function Project({ project }: { project: any }) {
           <h2 className="project-section__title">Outcome</h2>
           <p className="project-section__body">{outcomeCopy}</p>
           <div className="project-stat-row">
-            {outcomeStats.map((s, i) => (
+            {outcomeStats.map((s: any, i: number) => (
               <div key={i} className="project-stat">
                 <div className="project-stat__value">{s.value}</div>
                 <div className="project-stat__label">{s.label}</div>
