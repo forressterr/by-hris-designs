@@ -1,0 +1,180 @@
+# By_Hris Designs — Rework Backlog / Roadmap
+
+> Forward plan for the "Big Changes" rework. **Phase 1 (Next.js + TypeScript) is
+> done** — on branch `feat/nextjs-typescript-migration`, PR #1
+> (https://github.com/forressterr/by-hris-designs/pull/1), pending visual review +
+> merge to `main`. Everything below is **not started**.
+>
+> **How to run each item:** one `superpowers` cycle per phase —
+> `brainstorming → writing-plans → executing-plans` (or subagent-driven) — with the
+> spec + plan saved under `docs/superpowers/{specs,plans}/`. Work on a branch per
+> phase, open a PR, and **don't merge until verified**. Commits authored
+> `h.goretsov <gorecov4@gmail.com>`, no AI co-author trailer, message describes only
+> the changes. Run `npm run check` (lint + format + typecheck + audit-high + build)
+> as the gate before every PR.
+>
+> **Hard dependency:** Phases 2 and 5 (anything server-side or framework-level)
+> need **Phase 1 merged to `main`** first. Phases 3 and 4 also assume the Next.js
+> base is live.
+
+---
+
+## Phase 2 — Contact-form integrity (server-side) + Redis enquiry store
+
+**Original asks:** Vercel hidden captcha (bot captcha + request-timer + "proxy"); a
+rate limiter on enquiries; a Redis DB to manage/answer incoming enquiries.
+
+**Why now / context:** the contact form (`src/components/ContactForm.tsx`) currently
+POSTs **client-side** straight to FormSubmit.co — there is no server. Phase 1 added
+the Next.js server foundation, so this is now unblocked. There's already a honeypot
+
+- client-side validation to build on.
+
+**Scope / suggested approach (all server-side, in a Next API route):**
+
+- **Proxy endpoint** — add `src/pages/api/contact.ts` (Pages-Router API route). The
+  form POSTs here instead of FormSubmit; the route forwards to the inbox. This hides
+  the email/endpoint from the client bundle (resolves the long-standing "FormSubmit
+  alias" item) and is where all the checks below live.
+- **Hidden captcha** — integrate **Vercel BotID** (`@vercel/botid`, invisible
+  challenge) and verify server-side in the route. (Cloudflare Turnstile is the
+  fallback if BotID isn't preferred.)
+- **Request-timer** — client stamps a "form rendered at" time; the route rejects
+  submissions that arrive implausibly fast (classic bot tell). Pairs with the honeypot.
+- **Rate limiter** — per-IP sliding-window limit via **`@upstash/ratelimit` + Upstash
+  Redis** in the route (e.g. N submits / 10 min).
+- **Redis enquiry store** — persist each enquiry to **Upstash Redis** (the same
+  instance backing the rate limiter) with a status field, and/or forward to email.
+  "Manage/answer" → at minimum store + email; a small admin view can be a follow-up.
+
+**Dependencies:** Phase 1 merged · Upstash Redis (REST URL + token as Vercel env
+vars) · Vercel BotID enabled on the project · decide email transport (keep proxied
+FormSubmit, or switch to Resend/email API).
+
+**Acceptance:** humans submit fine; bots blocked (BotID + honeypot + timer); rapid
+repeats rate-limited; enquiries land in Redis + reach the inbox; no email/endpoint in
+the client bundle.
+
+**Open questions for brainstorm:** keep FormSubmit (proxied) vs switch to Resend? ·
+Upstash confirmed as the Redis? · is "manage enquiries" just store+email, or a future
+admin UI?
+
+---
+
+## Phase 3 — Tailwind CSS
+
+**Original ask:** convert the hand-built CSS to **Tailwind**, _without changing how
+the app looks, works, or feels_.
+
+**Why now / context:** styling is a single **3,741-line** `src/styles/index.css`
+(global, BEM-ish classes + CSS custom-property design tokens like `--ink`, `--bg`,
+`--line`). A literal 1:1 rewrite to utilities is large and **high-risk for low
+user-visible payoff** given the "no visual change" constraint.
+
+**Scope — this is mainly a scoping decision (resolve in brainstorm):**
+
+- **Option A — Hybrid (recommended):** add Tailwind (v4), map the existing CSS
+  variables into the Tailwind theme as a token bridge, use Tailwind for _new/changed_
+  code, and migrate `index.css` opportunistically. Lowest risk to parity.
+- **Option B — Full 1:1 rewrite:** convert all ~45 components' classes to utilities
+  and delete `index.css`. Big, risky, mostly mechanical; needs per-route visual diffs.
+- Either way: Tailwind set up against the same tokens so colors/spacing/fonts are
+  identical; verify visual parity per route.
+
+**Dependencies:** Phase 1 merged.
+**Acceptance:** pixel parity across routes + dark mode + breakpoints; Tailwind
+available; (scope-dependent) `index.css` reduced or removed.
+**Open questions:** full vs hybrid? (the pivotal call) · Tailwind v4 config approach.
+
+---
+
+## Phase 4 — Headless CMS (Works · Projects · Labs)
+
+**Original ask:** a headless CMS for content edited often — Works, Projects, and the
+Labs sub-pages.
+
+**Why now / context:** content lives in **`src/data/projects.ts`** (~1,341 lines, the
+single source of truth). The per-project `caseStudy` field is still typed
+`Record<string, any>` (the last loose `any` from Phase 1) — a CMS schema retires it.
+
+**Scope / suggested approach:**
+
+- **Sanity** is the recommended CMS (first-class support in this environment — Sanity
+  MCP + skills available; see the `sanity:*` skills). Model schemas for `Project`
+  (slug, name, dates, the caseStudy sections), Labs nodes, and Works.
+- Migrate `projects.ts` → Sanity Content Lake; fetch in `getStaticProps` with **ISR**
+  so pages stay static/fast.
+- Run **Sanity TypeGen** to generate types → replaces `caseStudy: Record<string, any>`
+  with real types (tightens the last `any`).
+
+**Dependencies:** Phase 1 merged · Sanity project + dataset + env vars · decide which
+content moves to the CMS vs stays in code.
+**Acceptance:** content editable in Sanity Studio; pages render from the CMS (SSG/ISR);
+typed via TypeGen; **no visual change**.
+**Open questions:** Sanity vs Contentful/Payload? · which content sets migrate first? ·
+keep `projects.ts` as a fallback during migration?
+
+---
+
+## Phase 5 — Health & integrity: Sentry · E2E-in-CI · scheduled cron
+
+**Original asks:** Sentry to catch production errors; E2E checks run via Git daily; a
+CRON job scheduler with a **randomised start** for automated processes (the daily E2E).
+
+**Scope / suggested approach:**
+
+- **Sentry** — `@sentry/nextjs` (wizard sets up client + server + edge); capture API
+  route errors too; upload source maps; DSN as a Vercel env var.
+- **E2E** — **Playwright** smoke suite for the key flows (every route loads, nav +
+  active states, contact form submit, theme toggle no-flash, Labs canvas mounts). Run
+  in **GitHub Actions** on push/PR.
+- **Scheduled / randomised cron** — a GitHub Actions `schedule:` workflow runs the E2E
+  **daily**; add a **random jitter** (e.g. a first step that sleeps a randomised
+  offset, or randomise the cron minute) so runs don't fire at a fixed instant. (For
+  app-side scheduled jobs, **Vercel Cron** is the alternative.)
+
+**Dependencies:** Phase 1 merged · GitHub Actions enabled · Sentry account + DSN ·
+notification channel for failures.
+**Acceptance:** prod errors surface in Sentry; E2E runs on PRs + daily (randomised
+start) and fails loudly; the app has its first automated test coverage.
+**Open questions:** E2E scope (smoke vs broad)? · failure notifications (email/Slack)? ·
+GH Actions vs Vercel Cron for the "automated processes"?
+
+---
+
+## Fast-follows (small, low-risk — can be batched any time after Phase 1 merges)
+
+- **Nav-bar width = body width** (Medium change #8): match the header's inner
+  max-width to the content container so the nav lines up with the body on **desktop +
+  ultrawide**. Pure CSS; verify both breakpoints.
+- **Component-level perf lazy-load** (#4 remainder): beyond the route-level splitting
+  Next already does + the `ssr:false` widgets — defer any remaining heavy below-fold
+  components. Revisit after Tailwind.
+- **`next/image`**: adopt for the 11 `<img>` sites for image optimisation. Mind the
+  deliberate eager-load hero decision and avoid layout shift (needs width/height or
+  fill). Was intentionally deferred from the faithful port.
+- **Dependency currency**: bump Next/React/etc. to latest patches once Phase 1 is
+  merged + verified ("update to newer", the agreed post-merge step).
+
+---
+
+## Cross-cutting context (decisions already made — don't re-litigate)
+
+- **Stack:** Next.js 15 (Pages Router), React 19, TypeScript strict, framer-motion 12,
+  @xyflow/react 12, Vercel hosting. Dev: `npm run dev` (**port 5170** via the preview
+  launch config, or 3000 plain). Prod check: `npm run build && npm run start`.
+- **Pages Router** (not App Router) — chosen for the route-exit `AnimatePresence`
+  transition + the app being ~entirely client-interactive.
+- **Server foundation exists now** (Next API routes) → unblocks Phase 2 + Sentry-server.
+- **SSR gotchas pattern** (reuse for any new client-only/`window`/`Date` code):
+  `next/dynamic({ ssr: false })` for browser-only widgets, mounted-gate for
+  render output that depends on client-only values (see `Parallax`, `ThemeToggle`,
+  `LiveTime`).
+- **Pragmatic `any`s to retire:** polymorphic `motion[as]` cast in
+  `Parallax`/`Reveal` (low priority — framer limitation); `caseStudy: Record<string,
+any>` in `src/types/content.ts` (retire in Phase 4 via Sanity TypeGen).
+- **Dev-preview gotcha:** screenshots can be blank under React StrictMode +
+  AnimatePresence — verify via `next build` + HTML/console inspection, and prefer
+  manual visual passes over driving the browser.
+- **Suggested order:** merge Phase 1 → Phase 2 (the original anti-spam ask, highest
+  user value) → fast-follows / Phase 3 → Phase 4 → Phase 5.
