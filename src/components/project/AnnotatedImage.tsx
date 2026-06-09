@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * AnnotatedImage — a single image overlaid with numbered hotspots.
@@ -21,16 +22,28 @@ import { useState } from 'react';
  *                 placeholder block when no image is ready yet.
  */
 
+interface Callout {
+  x: number;
+  y: number;
+  label: ReactNode;
+  body?: ReactNode;
+}
+
 export default function AnnotatedImage({
   src,
   alt = '',
   callouts = [],
   children,
+}: {
+  src?: string;
+  alt?: string;
+  callouts?: Callout[];
+  children?: ReactNode;
 }) {
   // -1 = no callout open
   const [openIndex, setOpenIndex] = useState(-1);
 
-  const toggle = (i) => () => setOpenIndex((cur) => (cur === i ? -1 : i));
+  const toggle = (i: number) => () => setOpenIndex((cur) => (cur === i ? -1 : i));
 
   return (
     <div className="annotated-image">

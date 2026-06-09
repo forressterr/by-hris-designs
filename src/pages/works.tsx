@@ -3,16 +3,17 @@ import Seo from '../components/Seo';
 import ProjectCard from '../components/ProjectCard';
 import FAQ from '../components/FAQ';
 import { projects, homeFaqs } from '../data/projects';
+import type { Project } from '../types/content';
 
 // Newest-first ordering for the grid. Primary key is the visible chip year
 // (the 2-digit `date`, e.g. "_25" → 25) so the grid reads descending exactly
 // as labelled; ties break on the most recent year in `year` (so a 2024–2025
 // project beats a 2024 one).
-const chipYear = (p) => {
+const chipYear = (p: Project) => {
   const m = (p.date || '').match(/\d+/);
   return m ? Number(m[0]) : 0;
 };
-const yearMax = (p) => {
+const yearMax = (p: Project) => {
   const ys = (p.year || '').match(/\d{4}/g);
   return ys ? Math.max(...ys.map(Number)) : 0;
 };

@@ -27,14 +27,22 @@ import { useEffect, useState } from 'react';
 const HOLD = 2500; // ms each word stays fully visible
 const FADE = 500; // ms for the out-transition (in is the same, in CSS)
 
-export default function Typewriter({ words = [], className, lit = false }) {
+export default function Typewriter({
+  words = [],
+  className,
+  lit = false,
+}: {
+  words?: string[];
+  className?: string;
+  lit?: boolean;
+}) {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (!words.length) return undefined;
 
-    let swapTimer;
+    let swapTimer: ReturnType<typeof setTimeout> | undefined;
 
     const cycle = setInterval(() => {
       setVisible(false);

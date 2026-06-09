@@ -1,36 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 /**
  * ProjectShell — sidebar + main content shell for project case study pages.
  *
- * Layout: two-column grid at desktop (≥ 900 px):
- *   ┌──────────┬──────────────────────────────┐
- *   │ sidebar  │ main                         │
- *   │ (sticky) │ (each <section id> stacks)   │
- *   └──────────┴──────────────────────────────┘
- *
- * On narrow viewports the sidebar collapses into a horizontal pill nav
- * that sits above the content and stays sticky to the top so the
- * visitor can jump between sections on mobile too.
- *
- * Scroll-spy: a single IntersectionObserver tracks when each
- * <section id> in the main column crosses the top of the viewport,
- * and the active sidebar item updates to match. Clicking a sidebar
- * link smooth-scrolls to its section with `scrollIntoView`.
+ * Scroll-spy: a single IntersectionObserver tracks when each <section id>
+ * in the main column crosses the top of the viewport, and the active
+ * sidebar item updates to match. Clicking a sidebar link smooth-scrolls.
  *
  * Pass `sections` as the source of truth — same array drives both the
- * sidebar nav AND the expected section ids in `children`. Each entry:
- *   { id: 'overview', label: 'Overview' }
+ * sidebar nav AND the expected section ids in `children`.
  */
 
-export default function ProjectShell({ sections, children, className = '' }) {
-  const [activeId, setActiveId] = useState(sections[0]?.id);
-  const mainRef = useRef(null);
+interface Section {
+  id: string;
+  label: ReactNode;
+}
+
+export default function ProjectShell({
+  sections,
+  children,
+  className = '',
+}: {
+  sections: Section[];
+  children?: ReactNode;
+  className?: string;
+}) {
+  const [activeId, setActiveId] = useState<string | undefined>(
+    sections[0]?.id,
+  );
+  const mainRef = useRef<HTMLElement>(null);
 
   // Track which section is currently most-in-view via IntersectionObserver.
-  // rootMargin shifts the trigger zone to "top 30% of viewport" so the
-  // active item updates as a section heading approaches the top, not
-  // only when the whole section is in view.
   useEffect(() => {
     if (!mainRef.current) return undefined;
     const headings = mainRef.current.querySelectorAll('section[id]');
@@ -47,9 +48,6 @@ export default function ProjectShell({ sections, children, className = '' }) {
         }
       },
       {
-        // Trigger zone: shrink viewport so a section counts as "active"
-        // once its top crosses ~25% from the page top. The negative
-        // bottom-margin ensures only one section is "active" at a time.
         rootMargin: '-25% 0px -60% 0px',
         threshold: 0,
       },
@@ -59,7 +57,7 @@ export default function ProjectShell({ sections, children, className = '' }) {
     return () => observer.disconnect();
   }, [sections]);
 
-  const handleJump = (id) => (event) => {
+  const handleJump = (id: string) => (event: MouseEvent) => {
     event.preventDefault();
     const target = document.getElementById(id);
     if (!target) return;

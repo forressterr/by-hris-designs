@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { MotionProps, Variants } from 'framer-motion';
 
 const Chevron = () => (
   <svg
@@ -21,30 +23,38 @@ const Chevron = () => (
 // Stagger orchestration — parent <ul> cascades each <li> in turn as
 // the list scrolls into view. Tuned for ~50 ms per item so a 12-item
 // list still finishes in under a second.
-const listVariants = {
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const listVariants: Variants = {
   hidden: {},
   visible: {
     transition: { staggerChildren: 0.05, delayChildren: 0.05 },
   },
 };
 
-const itemVariants = (reduce) => ({
+const itemVariants = (reduce: boolean): Variants => ({
   hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 14 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: reduce ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: reduce ? 0 : 0.45, ease: EASE },
   },
 });
 
-export default function FAQ({ items, initialOpen = 0 }) {
+export default function FAQ({
+  items,
+  initialOpen = 0,
+}: {
+  items: { question: ReactNode; answer: ReactNode }[];
+  initialOpen?: number;
+}) {
   const [open, setOpen] = useState(initialOpen);
   const prefersReducedMotion = useReducedMotion();
 
   // Small horizontal nudge on hover — only on closed items so an open
   // panel doesn't appear to drift sideways when the cursor returns to
   // the trigger.
-  const triggerMotion = prefersReducedMotion
+  const triggerMotion: MotionProps = prefersReducedMotion
     ? {}
     : {
         whileHover: {

@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * App-level error boundary.
@@ -19,8 +20,11 @@ const CHUNK_ERROR =
   /dynamically imported module|Loading chunk|Importing a module script failed|error loading dynamically imported/i;
 const RELOAD_FLAG = 'bh-chunk-reloaded';
 
-export default class ErrorBoundary extends Component {
-  constructor(props) {
+export default class ErrorBoundary extends Component<
+  { children?: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children?: ReactNode }) {
     super(props);
     this.state = { hasError: false };
     this.handleReload = this.handleReload.bind(this);
@@ -30,7 +34,7 @@ export default class ErrorBoundary extends Component {
     return { hasError: true };
   }
 
-  componentDidCatch(error) {
+  componentDidCatch(error: Error) {
     const message = String((error && error.message) || error || '');
     if (CHUNK_ERROR.test(message)) {
       try {

@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import type { ReactNode } from 'react';
 import {
   motion,
   useReducedMotion,
@@ -34,8 +35,14 @@ export default function ScrollViewport({
   src,
   alt = '',
   children,
+}: {
+  height?: number;
+  innerHeight?: number;
+  src?: string;
+  alt?: string;
+  children?: ReactNode;
 }) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
   // Tie progress to the element's pass through the viewport — from

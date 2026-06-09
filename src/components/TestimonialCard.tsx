@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
 /**
  * TestimonialCard — reuses the .service-card flip pattern (front/back
@@ -23,7 +24,7 @@ import { useState } from 'react';
 // Bespoke SVG icons for the four praise themes. All built on the same
 // 32-unit viewBox + 1.5 px stroke recipe as the service icons, so the
 // two card rows feel like one matched set.
-const ICONS = {
+const ICONS: Record<string, ReactNode> = {
   // 001 — Decision making / organisation: a node fans into two paths
   // (the classic flowchart-style decision split).
   '001': (
@@ -147,12 +148,28 @@ const ICONS = {
   ),
 };
 
-export default function TestimonialCard({ testimonial }) {
+interface Testimonial {
+  num: string;
+  color?: string;
+  title: ReactNode;
+  initials: ReactNode;
+  name: ReactNode;
+  role: ReactNode;
+  company: ReactNode;
+  location: ReactNode;
+  quote: ReactNode;
+}
+
+export default function TestimonialCard({
+  testimonial,
+}: {
+  testimonial: Testimonial;
+}) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const toggleFlip = () => setIsFlipped((prev) => !prev);
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       toggleFlip();

@@ -20,7 +20,7 @@ import { projects } from '../data/projects';
  * came from).
  */
 
-const ROUTE_LABELS = {
+const ROUTE_LABELS: Record<string, string> = {
   '/about': 'About',
   '/works': 'Work',
   '/labs': 'Labs',

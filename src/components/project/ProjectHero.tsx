@@ -1,18 +1,26 @@
+import type { ReactNode } from 'react';
+
 /**
  * ProjectHero — opening block of every project case study.
  *
  * Layout: eyebrow / title / tagline stacked on the left, the hero
  * `children` slot (typically a DeviceFrame around the hero screen)
  * to the right or below.
- *
- * Props:
- *   - eyebrow   : short label above title ('STOREFRONT', 'DASHBOARD APP', etc.)
- *   - title     : project name
- *   - tagline   : one-liner under the title
- *   - children  : the hero visual (DeviceFrame + screen, or a single image)
  */
 
-export default function ProjectHero({ eyebrow, title, tagline, children }) {
+interface ProjectHeroProps {
+  eyebrow?: ReactNode;
+  title?: ReactNode;
+  tagline?: ReactNode;
+  children?: ReactNode;
+}
+
+export default function ProjectHero({
+  eyebrow,
+  title,
+  tagline,
+  children,
+}: ProjectHeroProps) {
   return (
     <header className="project-hero">
       <div className="project-hero__text">
