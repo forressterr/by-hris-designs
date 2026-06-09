@@ -22,6 +22,8 @@
  * accessible source of the same content.
  */
 
+import type { ReactNode } from 'react';
+
 const SVG_DEFAULTS = {
   width: 64,
   height: 64,
@@ -32,11 +34,11 @@ const SVG_DEFAULTS = {
   strokeLinecap: 'round',
   strokeLinejoin: 'round',
   'aria-hidden': true,
-};
+} as const;
 
 // Icon keys are kept in lock-step with the `icon` field on each
 // entry in data/projects.js → marqueeSubSkills.
-const ICONS = {
+const ICONS: Record<string, ReactNode> = {
   // --- Product Design ---
   'service-design': (
     <svg {...SVG_DEFAULTS}>
@@ -245,7 +247,19 @@ const ICONS = {
   ),
 };
 
-export default function MarqueeSubSkillCard({ card, variant = 'a' }) {
+export default function MarqueeSubSkillCard({
+  card,
+  variant = 'a',
+}: {
+  card: {
+    icon: string;
+    color?: string;
+    num: string;
+    title: ReactNode;
+    caption: ReactNode;
+  };
+  variant?: 'a' | 'b';
+}) {
   const icon = ICONS[card.icon] || null;
 
   return (

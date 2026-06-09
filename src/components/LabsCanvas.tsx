@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import { Plus, Minus, Maximize, Lock, Unlock, Hand } from 'lucide-react';
 
 /*
@@ -115,8 +116,10 @@ const EDGES = [
 // World coordinates are CENTRE-ORIGIN: (0,0) is the canvas centre = the heart.
 // The <svg> sits at that origin with overflow:visible, so negative coords paint.
 
-const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const lerp = (a, b, t) => a + (b - a) * t;
+type Pt = { x: number; y: number };
+
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 const NODE_BY_ID = Object.fromEntries(NODES.map((n) => [n.id, n]));
 const HUB = EDGES.map((e, i) => ({ ...e, i })).filter((e) => e.hub);
@@ -129,10 +132,10 @@ const HUB = EDGES.map((e, i) => ({ ...e, i })).filter((e) => e.hub);
 const SVGW = 2400,
   SVGH = 1700;
 const OFF = { x: SVGW / 2, y: SVGH / 2 };
-const toSvg = (p) => ({ x: p.x + OFF.x, y: p.y + OFF.y });
+const toSvg = (p: Pt) => ({ x: p.x + OFF.x, y: p.y + OFF.y });
 
 // curved connector between two centre-origin points
-function geom(a, b) {
+function geom(a: Pt, b: Pt) {
   const dx = b.x - a.x,
     dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
@@ -141,13 +144,13 @@ function geom(a, b) {
   const cy = (a.y + b.y) / 2 + (dx / len) * off;
   return { d: `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`, cx, cy };
 }
-const bez = (p0, c, p1, t) => ({
+const bez = (p0: Pt, c: Pt, p1: Pt, t: number) => ({
   x: (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * c.x + t * t * p1.x,
   y: (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * c.y + t * t * p1.y,
 });
 
 // static fallback layout — guarantees lines are visible without the loop
-const POS_INIT = (id) =>
+const POS_INIT = (id: string) =>
   id === 'center'
     ? { x: 0, y: 0 }
     : { x: NODE_BY_ID[id].x, y: NODE_BY_ID[id].y };
@@ -162,18 +165,18 @@ const BASE_DOT = HUB.map((e) => {
 });
 
 export default function LabsCanvas() {
-  const [hover, setHover] = useState(null);
-  const [pulse, setPulse] = useState(null);
+  const [hover, setHover] = useState<string | null>(null);
+  const [pulse, setPulse] = useState<string | null>(null);
   const [locked, setLocked] = useState(false); // start unlocked: live camera (pan / zoom / drag / parallax) — per request, as it was before the lock-on-load change
   const [moveNodes, setMoveNodes] = useState(true);
   const [zoom, setZoom] = useState(75);
 
-  const wrapRef = useRef(null);
-  const layerRef = useRef(null);
-  const gridRef = useRef(null);
-  const nodeEls = useRef({});
-  const edgeEls = useRef([]);
-  const dotEls = useRef([]);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const layerRef = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const nodeEls = useRef<Record<string, HTMLDivElement | null>>({});
+  const edgeEls = useRef<(SVGPathElement | null)[]>([]);
+  const dotEls = useRef<(SVGCircleElement | null)[]>([]);
 
   const view = useRef({ tx: 0, ty: 0, k: 0.75 });
   const base = useRef(
@@ -187,11 +190,19 @@ export default function LabsCanvas() {
   const paraTarget = useRef({ x: 0, y: 0 });
   const reduced = useRef(false);
 
-  const pan = useRef(null);
-  const dragNode = useRef(null);
-  const hoverRef = useRef(null);
+  const pan = useRef<{ sx: number; sy: number; tx: number; ty: number } | null>(
+    null,
+  );
+  const dragNode = useRef<{
+    id: string;
+    sx: number;
+    sy: number;
+    ox: number;
+    oy: number;
+  } | null>(null);
+  const hoverRef = useRef<string | null>(null);
   const lockedRef = useRef(false);
-  const drawRef = useRef(() => {});
+  const drawRef = useRef<(now: number) => void>(() => {});
 
   useEffect(() => {
     hoverRef.current = hover;
@@ -205,9 +216,10 @@ export default function LabsCanvas() {
   useLayoutEffect(() => {
     reduced.current =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
-    const posOf = (id) => (id === 'center' ? { x: 0, y: 0 } : live.current[id]);
+    const posOf = (id: string) =>
+      id === 'center' ? { x: 0, y: 0 } : live.current[id];
 
-    const draw = (now) => {
+    const draw = (now: number) => {
       const v = view.current;
       if (layerRef.current)
         layerRef.current.style.transform = `translate(${v.tx}px, ${v.ty}px) scale(${v.k})`;
@@ -266,14 +278,14 @@ export default function LabsCanvas() {
           ? 0.5
           : (((now * 0.00018 + j * 0.21) % 1) + 1) % 1;
         const p = bez(a, { x: g.cx, y: g.cy }, b, tt);
-        dot.setAttribute('cx', p.x);
-        dot.setAttribute('cy', p.y);
+        dot.setAttribute('cx', String(p.x));
+        dot.setAttribute('cy', String(p.y));
       }
     };
 
     drawRef.current = draw;
     let raf = 0;
-    const loop = (now) => {
+    const loop = (now: number) => {
       draw(now);
       raf = requestAnimationFrame(loop);
     };
@@ -283,7 +295,7 @@ export default function LabsCanvas() {
   }, []);
 
   /* camera */
-  const onBgDown = (e) => {
+  const onBgDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (locked) return;
     pan.current = {
       sx: e.clientX,
@@ -293,7 +305,7 @@ export default function LabsCanvas() {
     };
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
-  const onMove = (e) => {
+  const onMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!locked) {
       const r = wrapRef.current?.getBoundingClientRect();
       if (r)
@@ -319,7 +331,7 @@ export default function LabsCanvas() {
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const onWheel = (ev) => {
+    const onWheel = (ev: WheelEvent) => {
       if (lockedRef.current) return;
       ev.preventDefault();
       view.current.k = clamp(
@@ -334,7 +346,7 @@ export default function LabsCanvas() {
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  const zoomBy = (d) => {
+  const zoomBy = (d: number) => {
     if (locked) return;
     view.current.k = clamp(view.current.k + d, 0.55, 1.6);
     setZoom(Math.round(view.current.k * 100));
@@ -348,7 +360,7 @@ export default function LabsCanvas() {
   };
 
   /* node drag */
-  const onNodeDown = (e, id) => {
+  const onNodeDown = (e: ReactPointerEvent<HTMLDivElement>, id: string) => {
     if (locked || !moveNodes) return;
     e.stopPropagation();
     const l = live.current[id];
@@ -357,7 +369,7 @@ export default function LabsCanvas() {
     e.currentTarget.setPointerCapture?.(e.pointerId);
     e.currentTarget.style.cursor = 'grabbing';
   };
-  const onNodeMove = (e, id) => {
+  const onNodeMove = (e: ReactPointerEvent<HTMLDivElement>, id: string) => {
     const d = dragNode.current;
     if (!d || d.id !== id) return;
     const k = view.current.k;
@@ -367,7 +379,7 @@ export default function LabsCanvas() {
     };
     if (reduced.current) drawRef.current(performance.now());
   };
-  const onNodeUp = (e, id) => {
+  const onNodeUp = (e: ReactPointerEvent<HTMLDivElement>, id: string) => {
     if (dragNode.current?.id === id) {
       dragNode.current = null;
       e.currentTarget.style.cursor = '';
@@ -416,7 +428,9 @@ export default function LabsCanvas() {
               return (
                 <path
                   key={i}
-                  ref={(el) => (edgeEls.current[i] = el)}
+                  ref={(el) => {
+                    edgeEls.current[i] = el;
+                  }}
                   className="flow"
                   d={BASE_D[i]}
                   fill="none"
@@ -435,7 +449,9 @@ export default function LabsCanvas() {
               return (
                 <circle
                   key={j}
-                  ref={(el) => (dotEls.current[j] = el)}
+                  ref={(el) => {
+                    dotEls.current[j] = el;
+                  }}
                   cx={BASE_DOT[j].x}
                   cy={BASE_DOT[j].y}
                   r={lit ? 3 : 2.2}
@@ -472,7 +488,9 @@ export default function LabsCanvas() {
             return (
               <div
                 key={node.id}
-                ref={(el) => (nodeEls.current[node.id] = el)}
+                ref={(el) => {
+                  nodeEls.current[node.id] = el;
+                }}
                 style={{
                   ...S.nodeWrap,
                   zIndex: on ? 30 : Math.round(node.depth * 10),
@@ -598,7 +616,7 @@ const CSS = `
 const mono = 'var(--font-mono)';
 const sans = 'var(--font-sans)';
 
-const S = {
+const S: Record<string, CSSProperties> = {
   // canvas frame — fills the Labs <section> width, follows the page theme
   canvas: {
     position: 'relative',
