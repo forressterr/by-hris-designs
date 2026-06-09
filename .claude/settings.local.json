@@ -163,7 +163,23 @@
       "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; console.log\\('vite:',all.vite||'gone','| react-router-dom:',all['react-router-dom']||'gone','| next:',all.next,'| react:',all.react\\)\")",
       "Bash(curl -s http://localhost:5170/)",
       "Bash(gh auth *)",
-      "Bash(gh pr *)"
+      "Bash(gh pr *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__list_teams",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__list_projects",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_project",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__list_deployments",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_deployment_build_logs",
+      "Bash(curl -s -o /dev/null -w \"vercel alias : HTTP %{http_code}  \\(final %{url_effective}\\)\\\\n\" -L --max-time 20 https://by-hris-designs-by-hris-designs.vercel.app)",
+      "Bash(curl -s -o /dev/null -w \"www.byhris.cc: HTTP %{http_code}  \\(final %{url_effective}\\)\\\\n\" -L --max-time 20 https://www.byhris.cc)",
+      "Bash(curl -s -L --max-time 20 https://by-hris-designs-by-hris-designs.vercel.app)",
+      "Bash(curl -sI -L --max-time 20 https://www.byhris.cc)",
+      "Bash(curl -s -L --max-time 20 https://www.byhris.cc)",
+      "Bash(grep -vE '^\\\\s*$')",
+      "Bash(git cherry *)",
+      "Bash(git branch *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
