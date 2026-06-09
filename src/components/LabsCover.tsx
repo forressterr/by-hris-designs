@@ -28,7 +28,7 @@ const BN = [
   { id: 'skills', x: 287, y: 333, ph: 5.3 },
 ];
 const BB = Object.fromEntries(BN.map((n) => [n.id, n]));
-const BE = [
+const BE: [string, string, number][] = [
   ['c', 'wip', 1],
   ['c', 'side', 1],
   ['c', 'principles', 1],
@@ -37,10 +37,10 @@ const BE = [
   ['side', 'ai', 0],
   ['principles', 'skills', 0],
 ];
-const base = (id) =>
+const base = (id: string) =>
   id === 'c' ? { x: BC.x, y: BC.y } : { x: BB[id].x, y: BB[id].y };
 
-function curve(a, b) {
+function curve(a: { x: number; y: number }, b: { x: number; y: number }) {
   const dx = b.x - a.x,
     dy = b.y - a.y,
     len = Math.hypot(dx, dy) || 1;
@@ -49,7 +49,12 @@ function curve(a, b) {
   const cy = (a.y + b.y) / 2 + (dx / len) * off;
   return { d: `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`, cx, cy };
 }
-const bez = (p0, c, p1, t) => ({
+const bez = (
+  p0: { x: number; y: number },
+  c: { x: number; y: number },
+  p1: { x: number; y: number },
+  t: number,
+) => ({
   x: (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * c.x + t * t * p1.x,
   y: (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * c.y + t * t * p1.y,
 });
@@ -66,18 +71,18 @@ function useReduced() {
   return r;
 }
 
-function ConstellationBG({ reduced }) {
-  const nodeEls = useRef({});
-  const edgeEls = useRef([]);
-  const dotEls = useRef([]);
+function ConstellationBG({ reduced }: { reduced: boolean }) {
+  const nodeEls = useRef<Record<string, SVGGElement | null>>({});
+  const edgeEls = useRef<(SVGPathElement | null)[]>([]);
+  const dotEls = useRef<(SVGCircleElement | null)[]>([]);
   const live = useRef(
     Object.fromEntries(BN.map((n) => [n.id, { x: n.x, y: n.y }])),
   );
 
   useEffect(() => {
-    const posOf = (id) =>
+    const posOf = (id: string) =>
       id === 'c' ? { x: BC.x, y: BC.y } : live.current[id];
-    const draw = (now) => {
+    const draw = (now: number) => {
       const t = now * 0.001,
         m = reduced ? 0 : 1;
       for (const n of BN) {
@@ -99,12 +104,12 @@ function ConstellationBG({ reduced }) {
           g = curve(a, b);
         const tt = reduced ? 0.5 : (((now * 0.00016 + j * 0.21) % 1) + 1) % 1;
         const p = bez(a, { x: g.cx, y: g.cy }, b, tt);
-        dot.setAttribute('cx', p.x);
-        dot.setAttribute('cy', p.y);
+        dot.setAttribute('cx', String(p.x));
+        dot.setAttribute('cy', String(p.y));
       });
     };
     let raf = 0;
-    const loop = (now) => {
+    const loop = (now: number) => {
       draw(now);
       raf = requestAnimationFrame(loop);
     };
@@ -124,7 +129,9 @@ function ConstellationBG({ reduced }) {
       {BE.map(([a, b], i) => (
         <path
           key={i}
-          ref={(el) => (edgeEls.current[i] = el)}
+          ref={(el) => {
+            edgeEls.current[i] = el;
+          }}
           d={curve(base(a), base(b)).d}
           className="lc-wire"
         />
@@ -138,7 +145,9 @@ function ConstellationBG({ reduced }) {
         return (
           <circle
             key={'d' + i}
-            ref={(el) => (dotEls.current[j] = el)}
+            ref={(el) => {
+              dotEls.current[j] = el;
+            }}
             cx={p.x}
             cy={p.y}
             r="4.5"
@@ -147,7 +156,12 @@ function ConstellationBG({ reduced }) {
         );
       })}
       {BN.map((n) => (
-        <g key={n.id} ref={(el) => (nodeEls.current[n.id] = el)}>
+        <g
+          key={n.id}
+          ref={(el) => {
+            nodeEls.current[n.id] = el;
+          }}
+        >
           <circle cx={n.x} cy={n.y} r="11" className="lc-node" />
         </g>
       ))}

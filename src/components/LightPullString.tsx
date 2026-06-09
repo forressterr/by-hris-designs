@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -68,8 +69,14 @@ const FADE_DURATION_MS = 200;
 const NAVBAR_SELECTOR = '.site-header';
 const CONTAINER_SELECTOR = '.container.page-canvas';
 
+interface PointerSample {
+  x: number;
+  y: number;
+  t: number;
+}
+
 // Resolve per-viewport dimensions (cord length, pendant size, hit area).
-function specsFor(viewportWidth) {
+function specsFor(viewportWidth: number) {
   if (viewportWidth < 768) {
     return { cord: 90, rx: 8, ry: 14, stroke: 2.75, hit: 30 };
   }
@@ -79,7 +86,13 @@ function specsFor(viewportWidth) {
   return { cord: 120, rx: 6, ry: 11, stroke: 2.5, hit: 26 };
 }
 
-export default function LightPullString({ visibilityRef, onPull }) {
+export default function LightPullString({
+  visibilityRef,
+  onPull,
+}: {
+  visibilityRef: RefObject<Element | null>;
+  onPull: () => void;
+}) {
   // SSR guard — only render portal after mount on the client.
   const [mounted, setMounted] = useState(false);
 
@@ -95,8 +108,8 @@ export default function LightPullString({ visibilityRef, onPull }) {
   const [anchorX, setAnchorX] = useState(0);
   const [visible, setVisible] = useState(true);
 
-  const cordRef = useRef(null);
-  const pendantRef = useRef(null);
+  const cordRef = useRef<SVGPathElement | null>(null);
+  const pendantRef = useRef<SVGGElement | null>(null);
 
   // Mutable physics + measurement state. Updated by drag handlers,
   // resize, and the rAF loop. Never triggers re-render.
@@ -117,7 +130,7 @@ export default function LightPullString({ visibilityRef, onPull }) {
     // Drag state.
     dragging: false,
     pullDetected: false,
-    pointerHistory: [],
+    pointerHistory: [] as PointerSample[],
     // Idle state.
     resumeIdleAt: 0,
     idleStartTime: 0,
@@ -200,9 +213,9 @@ export default function LightPullString({ visibilityRef, onPull }) {
   useEffect(() => {
     if (!mounted) return undefined;
 
-    let rafId;
+    let rafId = 0;
 
-    const tick = (now) => {
+    const tick = (now: number) => {
       const s = stateRef.current;
       const cord = cordRef.current;
       const pendant = pendantRef.current;
@@ -280,14 +293,15 @@ export default function LightPullString({ visibilityRef, onPull }) {
     const pendant = pendantRef.current;
     if (!pendant) return undefined;
 
-    const getPointer = (event) => {
-      if (event.touches && event.touches.length > 0) {
-        return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    const getPointer = (event: MouseEvent | TouchEvent) => {
+      if ('touches' in event) {
+        const t = event.touches[0];
+        return { x: t ? t.clientX : 0, y: t ? t.clientY : 0 };
       }
       return { x: event.clientX, y: event.clientY };
     };
 
-    const onStart = (event) => {
+    const onStart = (event: MouseEvent | TouchEvent) => {
       const s = stateRef.current;
       const { x, y } = getPointer(event);
       s.dragging = true;
@@ -299,10 +313,10 @@ export default function LightPullString({ visibilityRef, onPull }) {
       if (event.cancelable) event.preventDefault();
     };
 
-    const onMove = (event) => {
+    const onMove = (event: MouseEvent | TouchEvent) => {
       const s = stateRef.current;
       if (!s.dragging) return;
-      if (event.touches && event.cancelable) event.preventDefault();
+      if ('touches' in event && event.cancelable) event.preventDefault();
 
       const { x, y } = getPointer(event);
       const now = performance.now();

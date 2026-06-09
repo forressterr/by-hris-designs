@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { MotionProps } from 'framer-motion';
 import Toast from './Toast';
 
 /**
@@ -28,6 +30,16 @@ const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/h.goretsov@gmail.com';
 // them. Pair with FormSubmit's spam filtering and the hidden honeypot.
 // ----------------------------------------------------------------------------
 
+type FieldName = 'name' | 'email' | 'message';
+type FormValues = { name: string; email: string; message: string };
+type FormErrors = {
+  name: string | null;
+  email: string | null;
+  message: string | null;
+};
+type FormTouched = { name: boolean; email: boolean; message: boolean };
+type ToastState = { kind: 'success' | 'error'; message: string };
+
 const MAX_MESSAGE_LENGTH = 1500;
 
 // Allow letters from any script (\p{L}) plus apostrophes and hyphens so
@@ -47,7 +59,7 @@ const DOMAIN_LIKE_PATTERN =
 const HTML_TAG_PATTERN = /<[^>\s][^>]*>/;
 const MARKDOWN_LINK_PATTERN = /\[[^\]]*]\([^)]+\)/;
 
-function validateName(raw) {
+function validateName(raw: string) {
   const value = raw.trim();
   if (!value) return 'Please enter your name.';
   const parts = value.split(/\s+/).filter(Boolean);
@@ -65,7 +77,7 @@ function validateName(raw) {
   return null;
 }
 
-function validateEmail(raw) {
+function validateEmail(raw: string) {
   const value = raw.trim();
   if (!value) return 'Please enter your email.';
   if (!EMAIL_PATTERN.test(value)) {
@@ -74,7 +86,7 @@ function validateEmail(raw) {
   return null;
 }
 
-function validateMessage(raw) {
+function validateMessage(raw: string) {
   const value = raw.trim();
   if (!value) return 'Please write a message.';
   if (value.length > MAX_MESSAGE_LENGTH) {
@@ -92,7 +104,7 @@ function validateMessage(raw) {
   return null;
 }
 
-function runAllValidations(values) {
+function runAllValidations(values: FormValues) {
   return {
     name: validateName(values.name || ''),
     email: validateEmail(values.email || ''),
@@ -104,10 +116,12 @@ function runAllValidations(values) {
 
 export default function ContactForm({ variant = 'light' }) {
   // 'idle' | 'sending' | 'sent' | 'error'
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>(
+    'idle',
+  );
   const isDark = variant === 'dark';
   const prefersReducedMotion = useReducedMotion();
-  const btnMotion = prefersReducedMotion
+  const btnMotion: MotionProps = prefersReducedMotion
     ? {}
     : {
         whileHover: {
@@ -118,10 +132,14 @@ export default function ContactForm({ variant = 'light' }) {
       };
 
   // Controlled values so we can validate live + show a character counter.
-  const [values, setValues] = useState({ name: '', email: '', message: '' });
+  const [values, setValues] = useState<FormValues>({
+    name: '',
+    email: '',
+    message: '',
+  });
 
   // Per-field error strings (null = valid / not yet validated).
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<FormErrors>({
     name: null,
     email: null,
     message: null,
@@ -130,7 +148,7 @@ export default function ContactForm({ variant = 'light' }) {
   // Per-field "touched" — only show an error once the user has either
   // tabbed away from the field or tried to submit. Saves them from being
   // yelled at while they're still mid-typing.
-  const [touched, setTouched] = useState({
+  const [touched, setTouched] = useState<FormTouched>({
     name: false,
     email: false,
     message: false,
@@ -139,8 +157,8 @@ export default function ContactForm({ variant = 'light' }) {
   // Floating toast — set on submit (success, validation fail, or API
   // failure). Cleared by the Toast component's onClose (auto-dismiss
   // timer or × button).
-  const [toast, setToast] = useState(null); // { kind, message } | null
-  const showToast = useCallback((kind, message) => {
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const showToast = useCallback((kind: 'success' | 'error', message: string) => {
     // Setting a fresh object (even if kind/message match) re-mounts the
     // Toast's auto-dismiss timer via the message dep — handy if the
     // visitor submits twice quickly with the same error.
@@ -156,7 +174,9 @@ export default function ContactForm({ variant = 'light' }) {
     return 'ok';
   }, [charsLeft]);
 
-  const handleChange = (field) => (event) => {
+  const handleChange =
+    (field: FieldName) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = event.target.value;
     setValues((prev) => ({ ...prev, [field]: newValue }));
     // Live re-validate only if the field is already touched — that way
@@ -173,7 +193,7 @@ export default function ContactForm({ variant = 'light' }) {
     }
   };
 
-  const handleBlur = (field) => () => {
+  const handleBlur = (field: FieldName) => () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     const validator =
       field === 'name'
@@ -184,7 +204,7 @@ export default function ContactForm({ variant = 'light' }) {
     setErrors((prev) => ({ ...prev, [field]: validator(values[field]) }));
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (status === 'sending') return;
 
@@ -209,11 +229,11 @@ export default function ContactForm({ variant = 'light' }) {
     if (hasErrors) {
       // Focus the first invalid field — better keyboard UX than just
       // staring at red text and wondering where to look.
-      const firstInvalid = ['name', 'email', 'message'].find(
+      const firstInvalid = (['name', 'email', 'message'] as FieldName[]).find(
         (f) => nextErrors[f],
       );
       if (firstInvalid) {
-        const el = form.querySelector(`[name="${firstInvalid}"]`);
+        const el = form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
         if (el && typeof el.focus === 'function') el.focus();
       }
       showToast(
@@ -288,7 +308,7 @@ export default function ContactForm({ variant = 'light' }) {
 
   // Shared field-class builder — adds the invert variant for the dark
   // footer and the invalid variant when an error is being shown.
-  const fieldClass = (field) => {
+  const fieldClass = (field: FieldName) => {
     const classes = ['field'];
     if (isDark) classes.push('field--invert');
     if (errors[field] && touched[field]) classes.push('field--invalid');
