@@ -43,7 +43,8 @@ export default function AnnotatedImage({
   // -1 = no callout open
   const [openIndex, setOpenIndex] = useState(-1);
 
-  const toggle = (i: number) => () => setOpenIndex((cur) => (cur === i ? -1 : i));
+  const toggle = (i: number) => () =>
+    setOpenIndex((cur) => (cur === i ? -1 : i));
 
   return (
     <div className="annotated-image">

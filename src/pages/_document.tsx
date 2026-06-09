@@ -48,7 +48,10 @@ export default function Document() {
           property="og:description"
           content="Brand, web, and product design work by Hristian Goretsov — a multi-disciplinary designer based in Eindhoven, NL."
         />
-        <meta property="og:image" content="https://www.byhris.cc/og-image.jpg" />
+        <meta
+          property="og:image"
+          content="https://www.byhris.cc/og-image.jpg"
+        />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta
@@ -64,10 +67,17 @@ export default function Document() {
           name="twitter:description"
           content="Brand, web, and product design work by Hristian Goretsov — a multi-disciplinary designer based in Eindhoven, NL."
         />
-        <meta name="twitter:image" content="https://www.byhris.cc/og-image.jpg" />
+        <meta
+          name="twitter:image"
+          content="https://www.byhris.cc/og-image.jpg"
+        />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap"

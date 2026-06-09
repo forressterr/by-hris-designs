@@ -66,7 +66,6 @@ function ScreenImage({
 }
 
 export default function Project({ project }: { project: any }) {
-
   // Other projects, ordered by tag-similarity to this one (most shared
   // tags first, least similar last) — feeds the "More projects" carousel.
   const relatedProjects = projects

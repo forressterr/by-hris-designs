@@ -158,12 +158,15 @@ export default function ContactForm({ variant = 'light' }) {
   // failure). Cleared by the Toast component's onClose (auto-dismiss
   // timer or × button).
   const [toast, setToast] = useState<ToastState | null>(null);
-  const showToast = useCallback((kind: 'success' | 'error', message: string) => {
-    // Setting a fresh object (even if kind/message match) re-mounts the
-    // Toast's auto-dismiss timer via the message dep — handy if the
-    // visitor submits twice quickly with the same error.
-    setToast({ kind, message });
-  }, []);
+  const showToast = useCallback(
+    (kind: 'success' | 'error', message: string) => {
+      // Setting a fresh object (even if kind/message match) re-mounts the
+      // Toast's auto-dismiss timer via the message dep — handy if the
+      // visitor submits twice quickly with the same error.
+      setToast({ kind, message });
+    },
+    [],
+  );
   const dismissToast = useCallback(() => setToast(null), []);
 
   const messageLength = values.message.length;
@@ -177,21 +180,21 @@ export default function ContactForm({ variant = 'light' }) {
   const handleChange =
     (field: FieldName) =>
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newValue = event.target.value;
-    setValues((prev) => ({ ...prev, [field]: newValue }));
-    // Live re-validate only if the field is already touched — that way
-    // an error message disappears the moment the user fixes it, but
-    // we don't surface an error the first time they type.
-    if (touched[field]) {
-      const validator =
-        field === 'name'
-          ? validateName
-          : field === 'email'
-            ? validateEmail
-            : validateMessage;
-      setErrors((prev) => ({ ...prev, [field]: validator(newValue) }));
-    }
-  };
+      const newValue = event.target.value;
+      setValues((prev) => ({ ...prev, [field]: newValue }));
+      // Live re-validate only if the field is already touched — that way
+      // an error message disappears the moment the user fixes it, but
+      // we don't surface an error the first time they type.
+      if (touched[field]) {
+        const validator =
+          field === 'name'
+            ? validateName
+            : field === 'email'
+              ? validateEmail
+              : validateMessage;
+        setErrors((prev) => ({ ...prev, [field]: validator(newValue) }));
+      }
+    };
 
   const handleBlur = (field: FieldName) => () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
