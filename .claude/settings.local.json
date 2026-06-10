@@ -202,7 +202,19 @@
       "Bash(curl -s http://localhost:3000/)",
       "Bash(kill %1)",
       "Bash(pkill -f \"next start\")",
-      "Bash(echo \"clean: $?\")"
+      "Bash(echo \"clean: $?\")",
+      "Bash(vercel --version)",
+      "Bash(vercel whoami *)",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__search_vercel_documentation",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; for \\(const k of Object.keys\\(all\\)\\) if \\(/upstash|botid|vercel|resend|zod|next/.test\\(k\\)\\) console.log\\(k+': '+all[k]\\);\")",
+      "Bash(git pull *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); for \\(const k of ['botid','@upstash/redis','@upstash/ratelimit']\\) console.log\\(k+': '+p.dependencies[k]\\);\")",
+      "Bash(npm audit *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(kill -9 76813)",
+      "Bash(pkill -9 -f \"next-server\")",
+      "Bash(pkill -9 -f \"next start\")",
+      "Bash(echo \"on :3000 now: $\\(lsof -nP -iTCP:3000 -sTCP:LISTEN)"
     ]
   }
 }
