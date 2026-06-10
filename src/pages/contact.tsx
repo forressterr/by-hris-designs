@@ -3,13 +3,6 @@ import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';
 import { homeFaqs } from '../data/projects';
 
-/**
- * Mailto fallback toggle — kept in sync with the same flag in Footer.jsx.
- * Flip both to `true` if the contact form pipeline ever breaks and you
- * want the raw mailto link to surface as a backup.
- */
-const SHOW_MAILTO_FALLBACK = false;
-
 export default function Contact() {
   return (
     <div className="container page-canvas">
@@ -27,13 +20,6 @@ export default function Contact() {
               Open to product, experience, and web design roles in the
               Netherlands, Bulgaria, or fully remote. Always up for a coffee.
             </p>
-            {/* "Let's Talk +" link hidden for now (it's a self-link on
-                the contact page anyway). To bring it back, uncomment:
-
-                <Link to="/contact" className="inline-link" style={{ alignSelf: 'flex-end' }}>
-                  Let's Talk +
-                </Link>
-            */}
           </div>
         </div>
         <div className="divider" />
@@ -75,15 +61,6 @@ export default function Contact() {
             </a>
           </nav>
 
-          {SHOW_MAILTO_FALLBACK && (
-            <a
-              href="mailto:h.goretsov@gmail.com"
-              className="site-footer__email"
-              style={{ color: 'var(--ink)', borderColor: 'var(--ink)' }}
-            >
-              h.goretsov@gmail.com
-            </a>
-          )}
           <ContactForm variant="light" />
         </div>
       </section>

@@ -16,6 +16,7 @@ export interface Project {
   tags?: string[];
   cover?: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accepted boundary: loosely-typed case-study data, retired in Phase 4 (Sanity TypeGen)
   caseStudy?: Record<string, any>;
   [key: string]: unknown;
 }

@@ -14,7 +14,7 @@ import { projects } from '../data/projects';
  *   /projects/x   →  [home] › … › Project name
  *
  * On deep routes the "…" segment is a button that calls
- * `navigate(-1)` — sends the user one step back in browser history.
+ * `router.back()` — sends the user one step back in browser history.
  * Useful when the project page was reached from /works (it bounces
  * back to /works) or from anywhere else (bounces to wherever they
  * came from).

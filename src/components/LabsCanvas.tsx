@@ -8,7 +8,7 @@ import { Plus, Minus, Maximize, Lock, Unlock, Hand } from 'lucide-react';
   organism (hub edges + a couple of inter-links). Pan, zoom, drag nodes, a hand
   tool to toggle node-handling, and a lock that freezes the perspective.
 
-  EDGES ARE RENDER-PROOF (read CONNECTIONS.md before touching the SVG)
+  EDGES ARE RENDER-PROOF — the rules below apply when touching the SVG
   -------------------------------------------------------------------
   Every <path> ships a STATIC `d` (BASE_D, from the nodes' base layout) and the
   rAF loop only *updates* `d` to follow drift/drag — so the connection lines are
@@ -614,11 +614,13 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
 `;
 
-// Global site fonts (loaded in index.html); resolve per element via the tokens.
+// Global site fonts (loaded in _document.tsx); resolve per element via the tokens.
 const mono = 'var(--font-mono)';
 const sans = 'var(--font-sans)';
 
-const S: Record<string, CSSProperties> = {
+// `satisfies` (not a Record annotation) keeps the literal keys, so a typo'd
+// `S.isBtnn` is a compile error instead of silent undefined styling.
+const S = {
   // canvas frame — fills the Labs <section> width, follows the page theme
   canvas: {
     position: 'relative',
@@ -816,4 +818,4 @@ const S: Record<string, CSSProperties> = {
     textAlign: 'center',
   },
   isDiv: { width: 1, height: 18, background: C.hair, margin: '0 3px' },
-};
+} satisfies Record<string, CSSProperties>;
