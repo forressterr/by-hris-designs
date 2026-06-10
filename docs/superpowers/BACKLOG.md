@@ -66,9 +66,17 @@ FormSubmit, or switch to Resend/email API).
 repeats rate-limited; enquiries land in Redis + reach the inbox; no email/endpoint in
 the client bundle.
 
-**Open questions for brainstorm:** keep FormSubmit (proxied) vs switch to Resend? ·
-Upstash confirmed as the Redis? · is "manage enquiries" just store+email, or a future
-admin UI?
+**~~Open questions~~ RESOLVED (user decisions, 2026-06-10):** **keep FormSubmit,
+proxied server-side** (swap to Resend stays possible later without touching the
+form) · **Upstash Redis confirmed** (one instance backs the rate limiter + the
+enquiry store; user creates the account and adds REST URL + token as Vercel env
+vars) · **enquiry management = store + email only** (each enquiry persists to
+Redis with a status field AND reaches the inbox; an admin view stays a possible
+follow-up, not in scope).
+
+**User-side unblockers before executing:** create the Upstash database + add
+`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` to Vercel env · enable
+BotID on the Vercel project.
 
 ---
 
