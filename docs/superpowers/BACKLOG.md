@@ -5,8 +5,9 @@
 > 2026-06-09 — Vite→Next 15 + React 19, Pages Router, strict TS. Post-merge, a Vercel
 > Framework-Preset fix (it was stuck on `vite`, breaking the deploy with a missing
 > `dist` output error) got production green, and preview deployments were verified
-> healthy. The migration branch has been deleted. **Everything below (Phases 2–5 +
-> fast-follows) is not started.**
+> healthy. The migration branch has been deleted. **Phase 2 (contact-form
+> hardening) is now also MERGED + live (PR #3); Phases 3–5 + fast-follows are
+> not started** — see each phase's section below for status.
 >
 > **How to run each item:** one `superpowers` cycle per phase —
 > `brainstorming → writing-plans → executing-plans` (or subagent-driven) — with the
