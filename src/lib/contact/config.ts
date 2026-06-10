@@ -1,17 +1,20 @@
 // Typed access to the contact route's environment. Designed to degrade
-// gracefully: a missing Upstash config disables the store + rate-limiter (the
-// message still gets delivered), and the FormSubmit endpoint has a safe default
-// so the form never goes down because an env var wasn't set. Never logs secrets.
+// gracefully: missing Upstash config disables the store + rate-limiter, and a
+// missing Resend key disables email — the route treats an enquiry as received
+// if it was captured OR emailed, so the form never hard-fails on one missing
+// dependency. Never logs secrets.
 
-// Public FormSubmit AJAX endpoint (the inbox is a public contact address; this
-// is a server-side constant, NOT shipped to the client bundle). Override via
-// CONTACT_FORMSUBMIT_ENDPOINT to point at a hashed FormSubmit alias.
-const DEFAULT_FORMSUBMIT_ENDPOINT =
-  'https://formsubmit.co/ajax/h.goretsov@gmail.com';
+// Where contact-form enquiries are sent. `from` uses Resend's onboarding sender
+// (no domain verification required; only allowed to deliver to the Resend
+// account owner's address, which is the inbox below). The enquirer's address
+// becomes the reply-to so replies go straight to them. These are server-side
+// constants — the inbox never ships in the client bundle.
+export const CONTACT_NOTIFY_TO = 'gorecov4@gmail.com';
+export const CONTACT_NOTIFY_FROM = 'onboarding@resend.dev';
 
-/** The FormSubmit endpoint to forward enquiries to (env override or default). */
-export function getFormsubmitEndpoint(): string {
-  return process.env.CONTACT_FORMSUBMIT_ENDPOINT || DEFAULT_FORMSUBMIT_ENDPOINT;
+/** Resend API key, or undefined when email is not configured. */
+export function getResendApiKey(): string | undefined {
+  return process.env.RESEND_API_KEY;
 }
 
 /** Upstash REST credentials, or null when not configured (store/ratelimit off). */
