@@ -15,6 +15,12 @@ import type {
 // A human cannot fill name + email + message in under this; faster = bot.
 const MIN_FILL_MS = 2500;
 
+// FormSubmit rejects submissions that arrive without a web Origin/Referer
+// ("Make sure you open this page through a web server"). A browser sends these
+// automatically; a server-side fetch must set them. Use the site's canonical
+// origin — the domain the FormSubmit endpoint was activated from.
+const SITE_ORIGIN = 'https://www.byhris.cc';
+
 function getClientIp(req: NextApiRequest): string {
   const fwd = req.headers['x-forwarded-for'];
   if (typeof fwd === 'string') return fwd.split(',')[0]?.trim() || 'unknown';
@@ -44,12 +50,21 @@ export default async function handler(
     return;
   }
 
-  // 2. BotID (basic). In dev this returns isBot:false (no challenge infra);
-  //    real detection runs on Vercel.
-  const bot = await checkBotId({ advancedOptions: { headers: req.headers } });
-  if (bot.isBot) {
-    res.status(403).json({ ok: false, error: 'Access denied.' });
-    return;
+  // 2. BotID (basic). Resilient: off-platform (local `next start`) or during a
+  //    BotID outage, checkBotId throws (it needs Vercel's x-vercel-oidc-token)
+  //    — fail open, since the honeypot, timer and rate-limit still defend.
+  //    Real bot detection runs on Vercel.
+  try {
+    const bot = await checkBotId({ advancedOptions: { headers: req.headers } });
+    if (bot.isBot) {
+      res.status(403).json({ ok: false, error: 'Access denied.' });
+      return;
+    }
+  } catch (err) {
+    console.error(
+      '[contact] BotID check unavailable, allowing through:',
+      err instanceof Error ? err.message : err,
+    );
   }
 
   // 3. Request-timer — implausibly fast submit = bot. Silent success so the
@@ -121,6 +136,8 @@ export default async function handler(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        Origin: SITE_ORIGIN,
+        Referer: `${SITE_ORIGIN}/contact`,
       },
       body: JSON.stringify({
         name: enquiry.name,
