@@ -5,7 +5,7 @@ import {
   type EnquiryInput,
   type FieldName,
 } from '../../lib/contact/validation';
-import { getContactConfig } from '../../lib/contact/config';
+import { getFormsubmitEndpoint } from '../../lib/contact/config';
 import { checkRateLimit, storeEnquiry } from '../../lib/contact/redis';
 import type {
   ContactApiResponse,
@@ -136,8 +136,7 @@ export default async function handler(
 
   // 7. Forward to the inbox via FormSubmit (fail-closed: tell the user).
   try {
-    const { formsubmitEndpoint } = getContactConfig();
-    const forward = await fetch(formsubmitEndpoint, {
+    const forward = await fetch(getFormsubmitEndpoint(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
