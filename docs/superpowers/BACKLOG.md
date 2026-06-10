@@ -48,8 +48,9 @@
 >
 > 1. **Email transport: FormSubmit → Resend.** FormSubmit blocks Vercel's
 >    datacenter IPs (the server fetch throws on every prod submit; works only
->    from a browser/residential IP). Switched to **Resend** (`onboarding@resend.dev`
->    → owner inbox; no domain verify needed; enquirer = replyTo).
+>    from a browser/residential IP). Switched to **Resend**; `byhris.cc` is a
+>    **verified Resend domain** (DKIM/SPF/MX at GoDaddy), so it sends from
+>    `notifications@byhris.cc` → `h.goretsov@gmail.com` (enquirer = replyTo).
 > 2. **BotID is in MONITOR MODE (not blocking).** The client challenge wasn't
 >    issuing tokens in prod, so `checkBotId()` flagged real browsers as bots and
 >    403'd everyone. Now it logs but allows; honeypot + timer + rate-limit +
@@ -58,13 +59,14 @@
 > 3. **Config degrades gracefully** (no fail-fast) so a missing env var can't
 >    take the form down.
 >
-> **PENDING:** (1) **add `RESEND_API_KEY` to Vercel** (Prod+Preview, Sensitive)
+> **DONE:** `RESEND_API_KEY` in Vercel (Prod+Preview) + `byhris.cc` verified →
+> email notifications live (from `notifications@byhris.cc` → `h.goretsov@gmail.com`);
+> Upstash store + rate-limit live; MFA enabled. **Phase 2 functionally complete.**
 >
-> - redeploy → enables email notifications (store already works without it);
->   (2) re-enable BotID blocking once the client challenge issues tokens;
->   (3) Upstash **ACL-scoped token** (needs Upstash console/Management API — can't
->   mint with the data-plane token); (4) Upstash **MFA** (done per user).
->   Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
+> **Remaining hardening (non-blocking follow-ups):** (1) re-enable BotID blocking
+> once the client challenge issues tokens in prod; (2) Upstash **ACL-scoped
+> token** (needs Upstash console/Management API — can't mint with the send/data
+> tokens). Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
 
 ### Original scope (for reference)
 
