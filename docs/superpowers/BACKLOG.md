@@ -19,6 +19,16 @@
 > **Hard dependency:** Phases 2 and 5 (anything server-side or framework-level)
 > need **Phase 1 merged to `main`** first — ✅ now satisfied (Phase 1 merged + live).
 > Phases 3 and 4 also assume the Next.js base is live — likewise satisfied.
+>
+> **Pre-Phase-2 baseline (DONE 2026-06-10):** house-rules skills installed
+> (Claude Code plugin) + the repo is its own plugin marketplace
+> (`.claude-plugin/` + `plugins/byhris-conventions`); ground-floor procedures
+> adopted npm-adapted (editorconfig/gitattributes/vscode, commitlint +
+> dependency-sync hooks, exact pins, CI mirroring `npm run check`, stricter
+> tsconfig incl. `noUncheckedIndexedAccess`); house-rules quality pass applied
+> (contact-form timer race fixed, dead code/stale comments removed, `any`
+> banned with 3 justified boundary exceptions). Plan:
+> `docs/superpowers/plans/2026-06-10-house-rules-ground-floor-baseline.md`.
 
 ---
 
