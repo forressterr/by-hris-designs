@@ -74,9 +74,30 @@ vars) · **enquiry management = store + email only** (each enquiry persists to
 Redis with a status field AND reaches the inbox; an admin view stays a possible
 follow-up, not in scope).
 
-**User-side unblockers before executing:** create the Upstash database + add
-`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` to Vercel env · enable
-BotID on the Vercel project.
+**User-side unblockers before executing:** ~~create the Upstash database~~ ✅ +
+add `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` to Vercel env ·
+enable BotID on the Vercel project.
+
+**Upstash provisioned (2026-06-10):** `by-hris-contact-database` — free tier,
+GCP `europe-west1` (Belgium), TLS in transit. Security posture from Upstash's
+"Strengthen Your Database Security" checklist (decided 2026-06-10):
+
+- **Account MFA → enable now** (user-side, free; Upstash console → Settings).
+- **Redis ACL → a Phase 2 execution step, not now:** once the route's exact
+  command set is known (rate-limiter Lua/EVAL + enquiry reads/writes), create
+  an ACL user restricted to those commands and the `ratelimit:*`/`enquiry:*`
+  key prefixes, mint a REST token for that user, and put THAT in Vercel — the
+  deployed app then can't `FLUSHALL` or touch other keys. (Scoping before the
+  command set is known risks NOPERM breakage mid-build.)
+- **Paywalled items — skipped, with reasons:** IP allowlist (also impractical:
+  Vercel functions have no stable egress IPs without enterprise Secure
+  Compute) · protect-credentials (single-owner account + MFA covers it) ·
+  encryption-at-rest (mitigate instead: minimal-PII enquiry records + a
+  retention/TTL purge for answered enquiries — see steady-state-purge) ·
+  SOC-2 (compliance attestation, N/A for a personal portfolio).
+- **Function region:** pin the contact route near the DB (e.g. `fra1`) —
+  Vercel's default `iad1` would put a transatlantic round-trip on every Redis
+  call.
 
 ---
 
