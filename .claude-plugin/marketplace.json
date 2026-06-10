@@ -1,0 +1,14 @@
+{
+  "name": "by-hris-designs",
+  "owner": {
+    "name": "h.goretsov",
+    "email": "gorecov4@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "byhris-conventions",
+      "source": "./plugins/byhris-conventions",
+      "description": "House conventions for the By_Hris Designs portfolio — workflow protocol, SSR gotchas, content & media rules."
+    }
+  ]
+}

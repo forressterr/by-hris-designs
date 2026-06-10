@@ -1,0 +1,20 @@
+{
+  "extraKnownMarketplaces": {
+    "house-rules": {
+      "source": {
+        "source": "github",
+        "repo": "iliyanyotov/house-rules"
+      }
+    },
+    "by-hris-designs": {
+      "source": {
+        "source": "github",
+        "repo": "forressterr/by-hris-designs"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "house-rules@house-rules": true,
+    "byhris-conventions@by-hris-designs": true
+  }
+}
