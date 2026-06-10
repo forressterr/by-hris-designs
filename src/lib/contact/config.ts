@@ -4,13 +4,13 @@
 // if it was captured OR emailed, so the form never hard-fails on one missing
 // dependency. Never logs secrets.
 
-// Where contact-form enquiries are sent. `from` uses Resend's onboarding sender
-// (no domain verification required; only allowed to deliver to the Resend
-// account owner's address, which is the inbox below). The enquirer's address
-// becomes the reply-to so replies go straight to them. These are server-side
-// constants — the inbox never ships in the client bundle.
-export const CONTACT_NOTIFY_TO = 'gorecov4@gmail.com';
-export const CONTACT_NOTIFY_FROM = 'onboarding@resend.dev';
+// Where contact-form enquiries are sent. `from` is the verified byhris.cc
+// domain in Resend (DKIM/SPF/MX confirmed), so it can deliver to any recipient
+// with good deliverability. The enquirer's address becomes the reply-to so
+// replies go straight to them. Server-side constants — the inbox never ships
+// in the client bundle.
+export const CONTACT_NOTIFY_TO = 'h.goretsov@gmail.com';
+export const CONTACT_NOTIFY_FROM = 'By_Hris Designs <notifications@byhris.cc>';
 
 /** Resend API key, or undefined when email is not configured. */
 export function getResendApiKey(): string | undefined {
