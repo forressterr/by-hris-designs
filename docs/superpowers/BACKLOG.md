@@ -155,20 +155,50 @@ the app looks, works, or feels_.
 `--line`). A literal 1:1 rewrite to utilities is large and **high-risk for low
 user-visible payoff** given the "no visual change" constraint.
 
-**Scope — this is mainly a scoping decision (resolve in brainstorm):**
+**▶ DECISION MADE (2026-06-10): Option A — HYBRID.** Design brainstormed +
+presented (user picked Hybrid); a new chat should confirm the design below →
+write spec → plan → execute on a branch + PR.
 
-- **Option A — Hybrid (recommended):** add Tailwind (v4), map the existing CSS
-  variables into the Tailwind theme as a token bridge, use Tailwind for _new/changed_
-  code, and migrate `index.css` opportunistically. Lowest risk to parity.
-- **Option B — Full 1:1 rewrite:** convert all ~45 components' classes to utilities
-  and delete `index.css`. Big, risky, mostly mechanical; needs per-route visual diffs.
-- Either way: Tailwind set up against the same tokens so colors/spacing/fonts are
-  identical; verify visual parity per route.
+**Concrete findings (from exploring the CSS):** `index.css` = 3,741 lines, single
+file imported once in `_app.tsx`; tokens in `:root` (line ~73); **dark mode via
+~20+ scattered `[data-theme='dark']` overrides**; **11 irregular breakpoints**
+(600/699/700/720/767/768/800/899/900/1024/1100px); 5 `@keyframes`; 0 `@font-face`
+(fonts via Google Fonts `<link>` in `_document.tsx`); 30 components; no existing
+tailwind/postcss config. Those irregular breakpoints + scattered dark-mode rules
+are exactly where a full utility rewrite would silently break parity → Hybrid.
 
-**Dependencies:** Phase 1 merged.
-**Acceptance:** pixel parity across routes + dark mode + breakpoints; Tailwind
-available; (scope-dependent) `index.css` reduced or removed.
-**Open questions:** full vs hybrid? (the pivotal call) · Tailwind v4 config approach.
+**The Hybrid design (presented, pending final approval in the new chat):**
+
+- **Tailwind v4 via `@tailwindcss/postcss`** (exact-pinned) + a `postcss.config.mjs`;
+  CSS-first config (no `tailwind.config.js`).
+- **DISABLE Preflight** — the crux of zero-visual-change. Don't `@import "tailwindcss"`
+  (it ships Preflight, a reset that would restyle headings/lists/buttons). Instead
+  import layers selectively at the top of `index.css`:
+  `@layer theme, base, components, utilities;` +
+  `@import 'tailwindcss/theme.css' layer(theme);` +
+  `@import 'tailwindcss/utilities.css' layer(utilities);`. Utilities are JIT, so
+  unused = no CSS; existing `index.css` untouched → setup changes nothing on screen.
+- **Token bridge via `@theme`** referencing the existing vars:
+  `@theme { --color-ink: var(--ink); --color-bg: var(--bg); --color-line: var(--line); … }`.
+  Since `[data-theme='dark']` already overrides `--ink` et al., Tailwind color
+  utilities (`bg-ink`, `text-line`) **flip in dark mode automatically** — no
+  `dark:` needed for color. Still register
+  `@custom-variant dark (&:where([data-theme='dark'] *))` for the rare explicit case.
+- **Screens:** register the site's primary breakpoints (700/900/1024px) as custom
+  `@theme` screens for NEW code; don't replicate all 11 — existing media queries
+  in `index.css` stay as-is.
+- **Proof, not big-bang:** migrate ONE simple component (e.g. `Breadcrumbs` or the
+  `Logo` wrapper) to utilities and visually diff it light + dark, to prove the
+  bridge yields pixel-identical output. Everything else stays on `index.css` and
+  migrates organically when touched.
+- **Out of scope (YAGNI):** rewriting the other 29 components, deleting `index.css`,
+  replicating all 11 breakpoints, any visual change.
+
+**Dependencies:** Phase 1 merged (✅).
+**Acceptance:** zero visual change across every route × light/dark/breakpoints
+(verify via `npm run build && npm run start` + per-route inspection); the proof
+component's before/after pixel-diff matches; `npm run check` green; Tailwind
+available for new code. No test framework (Phase 5).
 
 ---
 
@@ -239,6 +269,60 @@ GH Actions vs Vercel Cron for the "automated processes"?
   fill). Was intentionally deferred from the faithful port.
 - **Dependency currency**: bump Next/React/etc. to latest patches once Phase 1 is
   merged + verified ("update to newer", the agreed post-merge step).
+
+---
+
+## Queued — Contact enquiry fields + Resend templates (DEFERRED 2026-06-10)
+
+**Ask:** richer contact enquiries + use the user's 3 Resend dashboard templates.
+Deferred by the user mid-work ("leave for later"); parked here. Phase 2's contact
+form is fully live without it (plain-text email from `notifications@byhris.cc`).
+
+**The 3 templates** (built by the user in the Resend dashboard; HTML exports are in
+the chat history of the 2026-06-10 session):
+
+- **Internal notification** (form → owner). Vars (case-sensitive): `name_sender`,
+  `email_sender`, `company_sender`, `subject_sender`, `project_budget`,
+  `project_timeline`, `message`, `submitted_at`, `Source_page` (capital S).
+- **Auto-reply** (form → enquirer). Vars: `your_name`, `project_topic`, `response_time`.
+- **Manual reply** (owner replies by hand) — NOT form-driven; a tool the user uses
+  in the Resend dashboard / mail client. Don't wire it.
+- **Keep the "Trust me bro," / "Test me bro," sign-offs as-is** (deliberate touch —
+  don't edit the template copy).
+
+**Decision MADE: Option B — expand the form** to collect the extra fields (the
+templates expect more than the current name/email/message).
+
+- **Fields** (★ required; rest optional; ALL plain text, validated no-links/no-HTML
+  like the message): Name★, Email★, Company, Subject, Budget, Timeline, Message★.
+- **Variable mapping:** `name_sender`/`your_name` ← name; `email_sender` ← email;
+  `company_sender` ← company; `subject_sender` **and** `project_topic` ← subject
+  (empty → auto-reply says "your project"); `project_budget` ← budget;
+  `project_timeline` ← timeline; `message` ← message (convert `\n`→`<br>` for the
+  raw-HTML template var); `submitted_at` ← formatted `createdAt`; `Source_page` ←
+  derive from the request `Referer`; `response_time` = constant "1–2 working days";
+  empty optionals → "—".
+- **OPEN design fork (decide first):** the `ContactForm` is in the **footer of every
+  page** AND on `/contact`. Recommendation: contact page = full form (all fields);
+  **footer stays the quick 3** (name/email/message) via a `detailed` prop — footer
+  enquiries send "—" for the extras. (Veto options: both full, or both quick.)
+
+**Resend template-by-ID mechanics** (verified against docs): `emails.send` accepts
+`template: { id, variables }` instead of `html`/`text`; template must be
+**Published**; variable names are **case-sensitive**; `from`/`subject`/`reply_to`
+you pass override the template's. Plan: store the 2 template IDs as env vars
+(`RESEND_TEMPLATE_NOTIFY`, `RESEND_TEMPLATE_AUTOREPLY`) → Vercel + `.env.local`;
+graceful fallback to plain-text if absent.
+
+**BLOCKED ON USER:** the **two template IDs/aliases** (internal-notification +
+auto-reply) — the user hadn't provided them when this was deferred.
+
+**Touches:** `validation.ts` (new field validators), `types.ts` (`EnquiryInput` +
+`StoredEnquiry` gain the fields), `ContactForm.tsx` (new inputs + `detailed` prop),
+`api/contact.ts` (parse/validate/store + Referer), `email.ts` (`sendEnquiryEmail`
+→ notify template; add `sendAutoReplyEmail` → auto-reply template). Run as a
+branch + PR. Sources: resend.com/docs/api-reference/emails/send-email +
+/docs/dashboard/templates/template-variables.
 
 ---
 
