@@ -179,7 +179,8 @@
       "Bash(grep -vE '^\\\\s*$')",
       "Bash(git cherry *)",
       "Bash(git branch *)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_deployment"
     ]
   }
 }
