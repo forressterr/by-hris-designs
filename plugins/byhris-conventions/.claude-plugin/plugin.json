@@ -1,0 +1,9 @@
+{
+  "name": "byhris-conventions",
+  "version": "0.1.0",
+  "description": "Project conventions for By_Hris Designs: house protocol, SSR gotchas, content & media rules.",
+  "author": {
+    "name": "h.goretsov",
+    "email": "gorecov4@gmail.com"
+  }
+}
