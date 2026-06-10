@@ -10,21 +10,15 @@ import { ThemeProvider } from '../context/ThemeContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { EASE } from '../lib/motion';
 import '../styles/index.css';
-
-// Easing tuned to match the rest of the motion vocabulary (Reveal +
-// Parallax use the same curve). Copied from the former Layout.jsx.
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: ('instant' in window ? 'instant' : 'auto') as ScrollBehavior,
-    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [router.asPath]);
 
   // Reduced-motion: no transform / fade, no exit hold — AnimatePresence

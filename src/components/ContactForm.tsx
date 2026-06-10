@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
@@ -104,17 +104,29 @@ function validateMessage(raw: string) {
   return null;
 }
 
-function runAllValidations(values: FormValues) {
+// One field→validator mapping — handleChange, handleBlur and submit all
+// derive from it, so adding a field is a single edit.
+const VALIDATORS: Record<FieldName, (raw: string) => string | null> = {
+  name: validateName,
+  email: validateEmail,
+  message: validateMessage,
+};
+
+function runAllValidations(values: FormValues): FormErrors {
   return {
-    name: validateName(values.name || ''),
-    email: validateEmail(values.email || ''),
-    message: validateMessage(values.message || ''),
+    name: VALIDATORS.name(values.name),
+    email: VALIDATORS.email(values.email),
+    message: VALIDATORS.message(values.message),
   };
 }
 
 // ----------------------------------------------------------------------------
 
-export default function ContactForm({ variant = 'light' }) {
+export default function ContactForm({
+  variant = 'light',
+}: {
+  variant?: 'light' | 'dark';
+}) {
   // 'idle' | 'sending' | 'sent' | 'error'
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>(
     'idle',
@@ -158,6 +170,16 @@ export default function ContactForm({ variant = 'light' }) {
   // failure). Cleared by the Toast component's onClose (auto-dismiss
   // timer or × button).
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  // The status-reset timer is tracked so a new submit (or unmount) cancels
+  // the previous one — an untracked stale timer could flip 'sending' back to
+  // 'idle' mid-flight and re-enable the button for a double submit.
+  const idleTimer = useRef<number | undefined>(undefined);
+  const scheduleIdle = useCallback((ms: number) => {
+    window.clearTimeout(idleTimer.current);
+    idleTimer.current = window.setTimeout(() => setStatus('idle'), ms);
+  }, []);
+  useEffect(() => () => window.clearTimeout(idleTimer.current), []);
   const showToast = useCallback(
     (kind: 'success' | 'error', message: string) => {
       // Setting a fresh object (even if kind/message match) re-mounts the
@@ -186,25 +208,19 @@ export default function ContactForm({ variant = 'light' }) {
       // an error message disappears the moment the user fixes it, but
       // we don't surface an error the first time they type.
       if (touched[field]) {
-        const validator =
-          field === 'name'
-            ? validateName
-            : field === 'email'
-              ? validateEmail
-              : validateMessage;
-        setErrors((prev) => ({ ...prev, [field]: validator(newValue) }));
+        setErrors((prev) => ({
+          ...prev,
+          [field]: VALIDATORS[field](newValue),
+        }));
       }
     };
 
   const handleBlur = (field: FieldName) => () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    const validator =
-      field === 'name'
-        ? validateName
-        : field === 'email'
-          ? validateEmail
-          : validateMessage;
-    setErrors((prev) => ({ ...prev, [field]: validator(values[field]) }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: VALIDATORS[field](values[field]),
+    }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -219,7 +235,7 @@ export default function ContactForm({ variant = 'light' }) {
     // succeeded so the bot moves on without retrying.
     if ((data.get('_honey') || '').toString().length > 0) {
       setStatus('sent');
-      window.setTimeout(() => setStatus('idle'), 4000);
+      scheduleIdle(4000);
       return;
     }
 
@@ -250,6 +266,9 @@ export default function ContactForm({ variant = 'light' }) {
     const email = values.email.trim();
     const message = values.message.trim();
 
+    // Entering 'sending' invalidates any pending status-reset from a
+    // previous submit — it must not fire while this request is in flight.
+    window.clearTimeout(idleTimer.current);
     setStatus('sending');
 
     const payload = {
@@ -271,22 +290,27 @@ export default function ContactForm({ variant = 'light' }) {
         },
         body: JSON.stringify(payload),
       });
-      const json = await res.json().catch(() => ({}));
-      const ok = res.ok && (json.success === 'true' || json.success === true);
+      const json: unknown = await res.json().catch(() => ({}));
+      const ok =
+        res.ok &&
+        typeof json === 'object' &&
+        json !== null &&
+        'success' in json &&
+        (json.success === true || json.success === 'true');
 
       if (ok) {
         setStatus('sent');
         setValues({ name: '', email: '', message: '' });
         setTouched({ name: false, email: false, message: false });
         setErrors({ name: null, email: null, message: null });
-        window.setTimeout(() => setStatus('idle'), 4000);
+        scheduleIdle(4000);
         showToast(
           'success',
           'Message on the way — I’ll get back to you within 1–2 working days.',
         );
       } else {
         setStatus('error');
-        window.setTimeout(() => setStatus('idle'), 5000);
+        scheduleIdle(5000);
         showToast(
           'error',
           'That didn’t go through. Give it another try in a moment.',
@@ -294,7 +318,7 @@ export default function ContactForm({ variant = 'light' }) {
       }
     } catch (_err) {
       setStatus('error');
-      window.setTimeout(() => setStatus('idle'), 5000);
+      scheduleIdle(5000);
       showToast(
         'error',
         'Couldn’t reach the inbox just now — try again in a moment.',
