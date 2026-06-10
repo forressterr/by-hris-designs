@@ -131,7 +131,7 @@ textarea {
    What deliberately STAYS as light theme regardless:
      - Site footer (uses frozen tokens directly)
      - Service / Testimonial / More cards (use frozen tokens for text)
-     - Typewriter rope-pull "lit" state (gold gradient + warm glow are
+     - RotatingWords rope-pull "lit" state (gold gradient + warm glow are
        hard-coded on .rotating-word.is-lit and don't reference any
        neutral tokens — they survive the swap automatically)
 ==================================================================== */
@@ -821,7 +821,7 @@ h3 {
 
 /* -------- Landing section (left-aligned headline + right-side media) --------
    Two-column hero. Left column carries the lead "Hris is", the giant
-   rotating Typewriter word (using brand-hero__title for size), and the
+   rotating headline word (RotatingWords, using brand-hero__title for size), and the
    "Based in Eindhoven" subtitle. Right column is a placeholder tile
    that an image/video will drop into later.
 

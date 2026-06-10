@@ -14,6 +14,7 @@ import {
   persistMode,
   resolveTheme,
   subscribeToSystem,
+  STORAGE_KEY,
 } from '../lib/theme';
 import type { ThemeMode, EffectiveTheme } from '../lib/theme';
 
@@ -68,7 +69,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // up via the storage event.
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (event.key && event.key !== 'theme-mode') return;
+      if (event.key && event.key !== STORAGE_KEY) return;
       const fresh = getStoredMode();
       setModeState(fresh);
     };

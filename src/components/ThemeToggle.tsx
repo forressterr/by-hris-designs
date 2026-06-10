@@ -53,7 +53,7 @@ export default function ThemeToggle() {
   const { mode, cycleMode } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const icon = ICONS[mounted ? mode : 'system'] || ICONS.system;
+  const icon = ICONS[mounted ? mode : 'system'];
   const prefersReducedMotion = useReducedMotion();
 
   // Motion props collapse to identity when the user prefers reduced

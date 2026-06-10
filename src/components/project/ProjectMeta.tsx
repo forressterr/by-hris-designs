@@ -21,7 +21,7 @@ export default function ProjectMeta({
   items: MetaItem[];
   className?: string;
 }) {
-  if (!items || !items.length) return null;
+  if (!items.length) return null;
   return (
     <dl className={`project-meta-grid ${className}`}>
       {items.map((item) => (

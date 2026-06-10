@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Typewriter — cycles through a list of strings with a soft, vertical
- * "slide down + fade" reveal. (Name kept for backward compatibility with
- * existing imports, even though there's no longer per-character typing.)
+ * RotatingWords — cycles through a list of strings with a soft, vertical
+ * "slide down + fade" reveal.
  *
  * Lifecycle per word:
  *   1. Held visible for HOLD ms.
@@ -27,7 +26,7 @@ import { useEffect, useState } from 'react';
 const HOLD = 2500; // ms each word stays fully visible
 const FADE = 500; // ms for the out-transition (in is the same, in CSS)
 
-export default function Typewriter({
+export default function RotatingWords({
   words = [],
   className,
   lit = false,

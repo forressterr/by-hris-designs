@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { MotionProps, Variants } from 'framer-motion';
+import { EASE } from '../lib/motion';
 
 const Chevron = () => (
   <svg
@@ -23,7 +24,6 @@ const Chevron = () => (
 // Stagger orchestration — parent <ul> cascades each <li> in turn as
 // the list scrolls into view. Tuned for ~50 ms per item so a 12-item
 // list still finishes in under a second.
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const listVariants: Variants = {
   hidden: {},

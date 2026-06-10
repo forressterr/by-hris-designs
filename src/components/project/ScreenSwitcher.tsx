@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
+import { EASE } from '../../lib/motion';
 
 /**
  * ScreenSwitcher — tabs across the top, image swap below.
@@ -18,8 +19,6 @@ interface SwitcherTab {
   alt?: string;
   children?: ReactNode;
 }
-
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function ScreenSwitcher({
   tabs,

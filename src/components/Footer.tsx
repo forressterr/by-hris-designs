@@ -2,14 +2,6 @@ import NavLink from './NavLink';
 import Logo from './Logo';
 import ContactForm from './ContactForm';
 
-/**
- * Mailto fallback toggle.
- * Set to `true` if the contact form ever breaks — that surfaces the raw
- * mailto link again so visitors can still reach the inbox. Hidden by
- * default while the FormSubmit pipeline is the canonical path.
- */
-const SHOW_MAILTO_FALLBACK = false;
-
 export default function Footer() {
   return (
     <footer className="site-footer">
@@ -21,14 +13,6 @@ export default function Footer() {
               I’d love to hear from you — whether you have a project in mind, or
               just want to say hi. Always up for a coffee.
             </p>
-            {SHOW_MAILTO_FALLBACK && (
-              <a
-                href="mailto:h.goretsov@gmail.com"
-                className="site-footer__email"
-              >
-                h.goretsov@gmail.com
-              </a>
-            )}
           </div>
           <ContactForm variant="dark" />
         </div>

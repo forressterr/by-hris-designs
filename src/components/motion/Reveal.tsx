@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import type { CSSProperties, ElementType, ReactNode } from 'react';
+import { EASE } from '../../lib/motion';
 
 /**
  * Reveal — drop-in scroll-triggered fade + rise.
@@ -13,8 +14,6 @@ import type { CSSProperties, ElementType, ReactNode } from 'react';
  * Respects prefers-reduced-motion — animation collapses to a one-frame
  * opacity flip with no transform.
  */
-
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const parentVariants = (
   distance: number,
@@ -81,7 +80,7 @@ export default function Reveal({
 
   // motion[tag] is not indexable by an arbitrary string in TS; the cast
   // keeps the dynamic polymorphic tag while staying renderable.
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- accepted boundary: polymorphic motion tag (framer-motion limitation)
   const MotionTag = ((motion as any)[Component as string] ||
     motion.div) as ElementType;
 
