@@ -34,6 +34,23 @@
 
 ## Phase 2 — Contact-form integrity (server-side) + Redis enquiry store
 
+> **STATUS: MERGED to `main` (PR #3, merge `fae0ec2`) + deployed to production
+> 2026-06-10.** `POST /api/contact` is live (region `fra1`); the client-side
+> FormSubmit endpoint is retired (inbox no longer in the bundle). Verified:
+> full pipeline locally against real Upstash + FormSubmit (store w/ 30-day TTL,
+> email, rate-limit 429, validation, timer, honeypot); on production — region
+> `fra1`, BotID active + clean (correctly 403s non-browser curl), site 200.
+> Two platform fixes landed during verification: **BotID fails open** when
+> off-platform/outage (`checkBotId` throws without Vercel's `x-vercel-oidc-token`),
+> and the FormSubmit forward sends the site's canonical **Origin/Referer**
+> (FormSubmit rejects server posts without one). **PENDING:** (1) one real
+> **browser submit** on www.byhris.cc/contact to confirm BotID passes real users
+> end-to-end (curl can't — BotID rejects it by design); (2) mint an Upstash
+> **ACL-scoped token** + swap into Vercel; (3) enable Upstash account **MFA**.
+> Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
+
+### Original scope (for reference)
+
 **Original asks:** Vercel hidden captcha (bot captcha + request-timer + "proxy"); a
 rate limiter on enquiries; a Redis DB to manage/answer incoming enquiries.
 
