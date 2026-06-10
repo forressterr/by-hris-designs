@@ -220,7 +220,22 @@
       "Bash(curl -s -w '%{http_code} ' -o /tmp/pc.json -H 'Content-Type: application/json' -d '{\"name\":\"Quick Draw\",\"email\":\"q@q.co\",\"message\":\"hello there world ok\",\"elapsedMs\":10}' https://www.byhris.cc/api/contact)",
       "Bash(curl -s -w '%{http_code} ' -o /tmp/pd.json -H 'Content-Type: application/json' -d '{\"name\":\"Madonna\",\"email\":\"q@q.co\",\"message\":\"hello there world ok\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
       "Bash(curl -s -D /tmp/ph.txt -o /tmp/pe.json -w '    HTTP %{http_code}\\\\n' -H 'Content-Type: application/json' -d '{\"name\":\"Prod Check\",\"email\":\"prodcheck@example.com\",\"message\":\"Production end-to-end verification of the contact route.\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
-      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_runtime_logs"
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_runtime_logs",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(git stash *)",
+      "Bash(curl -s -D /tmp/h.txt -o /tmp/r.json -w 'HTTP %{http_code}\\\\n' -H 'Content-Type: application/json' -d '{\"name\":\"Prod Verify\",\"email\":\"prodverify@example.com\",\"message\":\"Verifying the contact route works end-to-end after the BotID monitor-mode fix.\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
+      "Bash(curl -s -o /tmp/r.json -w 'HTTP %{http_code}\\\\n' -H 'Content-Type: application/json' -d '{\"name\":\"Deploy Check\",\"email\":\"deploycheck@example.com\",\"message\":\"Checking whether the monitor-mode fix is live in production yet.\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__deploy_to_vercel",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}\\\\n' -X POST https://api.resend.com/emails -H 'Authorization: Bearer re_8ZwFbhWT_HS3Hj5ewucVeYcPjvWAM4TSd' -H 'Content-Type: application/json' -d '{\"from\":\"onboarding@resend.dev\",\"to\":\"gorecov4@gmail.com\",\"subject\":\"By_Hris contact route — Resend test\",\"reply_to\":\"visitor@example.com\",\"html\":\"<p>Resend works from a server. If you got this, the API key is valid and we can switch the contact form to Resend.</p>\"}')",
+      "Bash(node -e \"console.log\\('resend:', require\\('./package.json'\\).dependencies.resend\\)\")",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" \"https://api.resend.com/emails?limit=3\" -H \"Authorization: Bearer re_8ZwFbhWT_HS3Hj5ewucVeYcPjvWAM4TSd\")",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}\\\\n' -X POST https://api.resend.com/emails -H 'Authorization: Bearer re_8ZwFbhWT_HS3Hj5ewucVeYcPjvWAM4TSd' -H 'Content-Type: application/json' -d '{\"from\":\"onboarding@resend.dev\",\"to\":\"h.goretsov@gmail.com\",\"subject\":\"By_Hris — recipient test\",\"text\":\"Testing whether the onboarding sender can deliver to h.goretsov@gmail.com.\"}')",
+      "Bash(dig +short NS byhris.cc)",
+      "Bash(nslookup -type=NS byhris.cc)",
+      "Bash(dig +short TXT byhris.cc)",
+      "Bash(curl -s -w '\\\\nHTTP %{http_code}\\\\n' -X POST https://api.resend.com/emails -H 'Authorization: Bearer re_8ZwFbhWT_HS3Hj5ewucVeYcPjvWAM4TSd' -H 'Content-Type: application/json' -d '{\"from\":\"By_Hris Designs <notifications@byhris.cc>\",\"to\":\"h.goretsov@gmail.com\",\"reply_to\":\"visitor@example.com\",\"subject\":\"Contact Form Enquiry — branded sender test\",\"text\":\"This confirms notifications@byhris.cc can deliver to h.goretsov@gmail.com. If you got this, I will switch the contact form to use it.\"}')",
+      "WebFetch(domain:resend.com)",
+      "WebSearch"
     ]
   }
 }
