@@ -1,13 +1,11 @@
 node_modules
-dist
-dist-ssr
 .DS_Store
-.env
-.env.local
-.vite
 *.log
 .idea
-.vscode
+
+# Environment — document variables in .env.example, never commit real values
+.env*
+!.env.example
 
 # Next.js
 /.next/
