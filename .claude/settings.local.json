@@ -180,7 +180,28 @@
       "Bash(git cherry *)",
       "Bash(git branch *)",
       "Bash(git check-ignore *)",
-      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_deployment"
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_deployment",
+      "Bash(claude --version)",
+      "Bash(npm -v)",
+      "Bash(gh --version)",
+      "Bash(gh api *)",
+      "Bash(npx commitlint *)",
+      "Bash(echo \"EXIT-BAD=$?\")",
+      "Bash(node -e ' *)",
+      "Bash(claude plugin *)",
+      "Bash(awk 'NR>=621 && NR<=780 && /^};$/ {print NR\": \"$0; exit}' src/components/LabsCanvas.tsx)",
+      "Bash(sed -n '745,760p' src/components/LabsCanvas.tsx)",
+      "Bash(awk 'NR>621 && /^};$/ {print NR; exit}' src/components/LabsCanvas.tsx)",
+      "Bash(sed -n '838,852p' src/components/LabsCanvas.tsx)",
+      "Bash(sed -n '26,32p;765,770p;864,869p;1168,1174p' src/data/projects.ts)",
+      "Bash(sed -n '352,362p' src/pages/projects/[slug].tsx)",
+      "Bash(sed -n '12,24p' src/types/content.ts)",
+      "Bash(lsof -nP -iTCP:3000 -sTCP:LISTEN)",
+      "Bash(ps -o pid,lstart,command -p 76605)",
+      "Bash(kill 76605)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"next start\")"
     ]
   }
 }
