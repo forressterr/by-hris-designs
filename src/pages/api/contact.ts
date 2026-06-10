@@ -50,19 +50,25 @@ export default async function handler(
     return;
   }
 
-  // 2. BotID (basic). Resilient: off-platform (local `next start`) or during a
-  //    BotID outage, checkBotId throws (it needs Vercel's x-vercel-oidc-token)
-  //    — fail open, since the honeypot, timer and rate-limit still defend.
-  //    Real bot detection runs on Vercel.
+  // 2. BotID (basic) — MONITOR MODE (does not block). The client-side
+  //    challenge (instrumentation-client `initBotId`) is not issuing tokens in
+  //    production, so checkBotId() returns isBot:true for real browsers too — a
+  //    hard block rejected legitimate visitors. We log the verdict but allow the
+  //    request through; the honeypot, request-timer, per-IP rate-limit and
+  //    server-side validation remain the active bot defenses. Re-enable blocking
+  //    only once the client challenge is confirmed working in production (see
+  //    BACKLOG Phase 2). checkBotId also throws off-platform (local `next start`,
+  //    or a BotID outage) — caught here.
   try {
     const bot = await checkBotId({ advancedOptions: { headers: req.headers } });
     if (bot.isBot) {
-      res.status(403).json({ ok: false, error: 'Access denied.' });
-      return;
+      console.warn(
+        '[contact] BotID flagged this request as a bot (monitor mode — not blocking)',
+      );
     }
   } catch (err) {
     console.error(
-      '[contact] BotID check unavailable, allowing through:',
+      '[contact] BotID check unavailable:',
       err instanceof Error ? err.message : err,
     );
   }
