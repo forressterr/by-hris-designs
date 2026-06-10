@@ -14,7 +14,7 @@ import { projects } from '../data/projects';
  *   /projects/x   →  [home] › … › Project name
  *
  * On deep routes the "…" segment is a button that calls
- * `navigate(-1)` — sends the user one step back in browser history.
+ * `router.back()` — sends the user one step back in browser history.
  * Useful when the project page was reached from /works (it bounces
  * back to /works) or from anywhere else (bounces to wherever they
  * came from).
@@ -66,7 +66,7 @@ const ChevronIcon = () => (
 
 export default function Breadcrumbs() {
   const router = useRouter();
-  const pathname = router.asPath.split(/[?#]/)[0];
+  const pathname = router.asPath.split(/[?#]/)[0] ?? router.asPath;
 
   // Home page: no breadcrumbs.
   if (pathname === '/') return null;
@@ -74,8 +74,9 @@ export default function Breadcrumbs() {
   let currentLabel = '';
   let isDeep = false;
 
-  if (ROUTE_LABELS[pathname]) {
-    currentLabel = ROUTE_LABELS[pathname];
+  const knownLabel = ROUTE_LABELS[pathname];
+  if (knownLabel) {
+    currentLabel = knownLabel;
   } else if (pathname.startsWith('/projects/')) {
     isDeep = true;
     const slug = pathname.split('/').filter(Boolean).pop();

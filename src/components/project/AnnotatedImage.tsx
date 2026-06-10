@@ -25,7 +25,9 @@ import type { ReactNode } from 'react';
 interface Callout {
   x: number;
   y: number;
-  label: ReactNode;
+  // string (not ReactNode) — the label is interpolated into the hotspot's
+  // aria-label, where JSX would read as "[object Object]".
+  label: string;
   body?: ReactNode;
 }
 

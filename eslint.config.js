@@ -35,9 +35,11 @@ export default [
       // TypeScript handles undefined-name resolution; the base rule
       // false-positives on type-only references.
       'no-undef': 'off',
-      // Pragmatic `any` is used at a few dynamic boundaries (polymorphic
-      // motion tags, the loosely-typed caseStudy data). Tighten in a later pass.
-      '@typescript-eslint/no-explicit-any': 'off',
+      // `any` is banned. The three accepted boundary sites (the polymorphic
+      // motion tags in Parallax/Reveal, the loosely-typed caseStudy data)
+      // carry inline eslint-disable comments with their justification, so
+      // any NEW `any` fails the lint gate.
+      '@typescript-eslint/no-explicit-any': 'error',
       // Use the TS-aware unused-vars rule (understands type-only usage).
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [

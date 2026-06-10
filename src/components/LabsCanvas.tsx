@@ -8,7 +8,7 @@ import { Plus, Minus, Maximize, Lock, Unlock, Hand } from 'lucide-react';
   organism (hub edges + a couple of inter-links). Pan, zoom, drag nodes, a hand
   tool to toggle node-handling, and a lock that freezes the perspective.
 
-  EDGES ARE RENDER-PROOF (read CONNECTIONS.md before touching the SVG)
+  EDGES ARE RENDER-PROOF — the rules below apply when touching the SVG
   -------------------------------------------------------------------
   Every <path> ships a STATIC `d` (BASE_D, from the nodes' base layout) and the
   rAF loop only *updates* `d` to follow drift/drag — so the connection lines are
@@ -150,10 +150,10 @@ const bez = (p0: Pt, c: Pt, p1: Pt, t: number) => ({
 });
 
 // static fallback layout — guarantees lines are visible without the loop
-const POS_INIT = (id: string) =>
-  id === 'center'
-    ? { x: 0, y: 0 }
-    : { x: NODE_BY_ID[id].x, y: NODE_BY_ID[id].y };
+const POS_INIT = (id: string) => {
+  const node = id === 'center' ? undefined : NODE_BY_ID[id];
+  return node ? { x: node.x, y: node.y } : { x: 0, y: 0 };
+};
 const BASE_D = EDGES.map(
   (e) => geom(toSvg(POS_INIT(e.a)), toSvg(POS_INIT(e.b))).d,
 );
@@ -217,7 +217,7 @@ export default function LabsCanvas() {
     reduced.current =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
     const posOf = (id: string) =>
-      id === 'center' ? { x: 0, y: 0 } : live.current[id];
+      id === 'center' ? { x: 0, y: 0 } : (live.current[id] ?? POS_INIT(id));
 
     const draw = (now: number) => {
       const v = view.current;
@@ -237,14 +237,14 @@ export default function LabsCanvas() {
 
       // nodes
       for (const node of NODES) {
-        const b = base.current[node.id];
+        const b = base.current[node.id] ?? { x: node.x, y: node.y };
         let x = b.x,
           y = b.y;
         const dragging = dragNode.current && dragNode.current.id === node.id;
         if (!dragging) {
           const target = hoverRef.current === node.id ? 0.2 : 1;
-          calm.current[node.id] = lerp(calm.current[node.id], target, 0.08);
-          const cf = calm.current[node.id];
+          const cf = lerp(calm.current[node.id] ?? 1, target, 0.08);
+          calm.current[node.id] = cf;
           const amp = (4 + node.depth * 6) * m * cf;
           x += Math.sin(t * 0.6 + node.phase) * amp;
           y += Math.cos(t * 0.5 + node.phase * 1.3) * amp * 0.8;
@@ -261,7 +261,7 @@ export default function LabsCanvas() {
       for (let i = 0; i < EDGES.length; i++) {
         const e = EDGES[i];
         const path = edgeEls.current[i];
-        if (!path) continue;
+        if (!e || !path) continue;
         const g = geom(toSvg(posOf(e.a)), toSvg(posOf(e.b)));
         path.setAttribute('d', g.d);
       }
@@ -270,7 +270,7 @@ export default function LabsCanvas() {
       for (let j = 0; j < HUB.length; j++) {
         const e = HUB[j];
         const dot = dotEls.current[j];
-        if (!dot) continue;
+        if (!e || !dot) continue;
         const a = toSvg(posOf(e.a)),
           b = toSvg(posOf(e.b)),
           g = geom(a, b);
@@ -364,6 +364,7 @@ export default function LabsCanvas() {
     if (locked || !moveNodes) return;
     e.stopPropagation();
     const l = live.current[id];
+    if (!l) return;
     base.current[id] = { x: l.x, y: l.y };
     dragNode.current = { id, sx: e.clientX, sy: e.clientY, ox: l.x, oy: l.y };
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -446,14 +447,15 @@ export default function LabsCanvas() {
             })}
             {HUB.map((e, j) => {
               const lit = hover && (e.a === hover || e.b === hover);
+              const dotBase = BASE_DOT[j] ?? { x: OFF.x, y: OFF.y };
               return (
                 <circle
                   key={j}
                   ref={(el) => {
                     dotEls.current[j] = el;
                   }}
-                  cx={BASE_DOT[j].x}
-                  cy={BASE_DOT[j].y}
+                  cx={dotBase.x}
+                  cy={dotBase.y}
                   r={lit ? 3 : 2.2}
                   style={{
                     fill: lit ? C.spark : C.faint,
@@ -612,11 +614,13 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
 `;
 
-// Global site fonts (loaded in index.html); resolve per element via the tokens.
+// Global site fonts (loaded in _document.tsx); resolve per element via the tokens.
 const mono = 'var(--font-mono)';
 const sans = 'var(--font-sans)';
 
-const S: Record<string, CSSProperties> = {
+// `satisfies` (not a Record annotation) keeps the literal keys, so a typo'd
+// `S.isBtnn` is a compile error instead of silent undefined styling.
+const S = {
   // canvas frame — fills the Labs <section> width, follows the page theme
   canvas: {
     position: 'relative',
@@ -814,4 +818,4 @@ const S: Record<string, CSSProperties> = {
     textAlign: 'center',
   },
   isDiv: { width: 1, height: 18, background: C.hair, margin: '0 3px' },
-};
+} satisfies Record<string, CSSProperties>;

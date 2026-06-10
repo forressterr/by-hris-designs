@@ -37,8 +37,10 @@ const BE: [string, string, number][] = [
   ['side', 'ai', 0],
   ['principles', 'skills', 0],
 ];
-const base = (id: string) =>
-  id === 'c' ? { x: BC.x, y: BC.y } : { x: BB[id].x, y: BB[id].y };
+const base = (id: string) => {
+  const node = id === 'c' ? undefined : BB[id];
+  return node ? { x: node.x, y: node.y } : { x: BC.x, y: BC.y };
+};
 
 function curve(a: { x: number; y: number }, b: { x: number; y: number }) {
   const dx = b.x - a.x,
@@ -81,7 +83,7 @@ function ConstellationBG({ reduced }: { reduced: boolean }) {
 
   useEffect(() => {
     const posOf = (id: string) =>
-      id === 'c' ? { x: BC.x, y: BC.y } : live.current[id];
+      id === 'c' ? { x: BC.x, y: BC.y } : (live.current[id] ?? base(id));
     const draw = (now: number) => {
       const t = now * 0.001,
         m = reduced ? 0 : 1;

@@ -1,6 +1,9 @@
 # By_Hris Designs — Pre-Deploy Health & Quality Protocol
 
-Run before every deploy. The checks below are automated via `npm run check`.
+Run before every deploy. The checks below are automated via `npm run check`,
+and **CI runs the same five gates** (lint, format, typecheck, audit-high,
+build) on every pull request and push to `main` via GitHub Actions
+(`.github/workflows/ci.yml`).
 
 ## Automated gate — `npm run check`
 
@@ -29,7 +32,16 @@ Run before every deploy. The checks below are automated via `npm run check`.
    StrictMode, on by default via `next.config.js`, breaks AnimatePresence exit
    animations in dev).
 
-## Pre-commit (automatic)
+## Git hooks (automatic)
 
-A husky + lint-staged pre-commit hook runs `eslint --fix` + `prettier --write` on
-staged files, so most issues are fixed before they ever land.
+- **pre-commit** — husky + lint-staged runs `eslint --fix` + `prettier --write`
+  on staged files, then `npm run typecheck`, so most issues are fixed before
+  they ever land.
+- **commit-msg** — commitlint enforces Conventional Commits
+  (`type: description`).
+- **post-merge / post-checkout** — `npm install` runs automatically whenever
+  `package.json` / `package-lock.json` changed, keeping `node_modules` in sync.
+
+Dependency hygiene: `.npmrc` pins exact versions on install (`save-exact`),
+and `package.json` carries exact pins — version bumps are deliberate edits,
+never side effects.

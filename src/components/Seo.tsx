@@ -4,8 +4,7 @@ import { canonicalForPath } from '../lib/seo';
 
 /**
  * Per-page <title> + self-referential canonical, reusing the existing
- * pure helpers verbatim. Reproduces the old Layout.jsx per-route effect
- * (document.title + applyCanonical), but server-rendered.
+ * pure helpers (lib/pageTitle + lib/seo) — server-rendered via next/head.
  */
 export default function Seo({ path }: { path: string }) {
   return (

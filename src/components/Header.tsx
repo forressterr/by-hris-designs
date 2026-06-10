@@ -9,8 +9,8 @@ import ThemeToggle from './ThemeToggle';
 const LiveTime = dynamic(() => import('./LiveTime'), { ssr: false });
 
 /**
- * Primary navigation items. Each one is a real top-level page in the
- * router (see App.jsx). The dynamic project detail route (/projects/:slug)
+ * Primary navigation items. Each one is a real top-level page under
+ * src/pages/. The dynamic project detail route (/projects/[slug])
  * is intentionally NOT listed here — those are reached via the Work page,
  * not directly from the global nav.
  */
