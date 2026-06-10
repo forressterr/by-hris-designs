@@ -35,20 +35,36 @@
 
 ## Phase 2 — Contact-form integrity (server-side) + Redis enquiry store
 
-> **STATUS: MERGED to `main` (PR #3, merge `fae0ec2`) + deployed to production
-> 2026-06-10.** `POST /api/contact` is live (region `fra1`); the client-side
-> FormSubmit endpoint is retired (inbox no longer in the bundle). Verified:
-> full pipeline locally against real Upstash + FormSubmit (store w/ 30-day TTL,
-> email, rate-limit 429, validation, timer, honeypot); on production — region
-> `fra1`, BotID active + clean (correctly 403s non-browser curl), site 200.
-> Two platform fixes landed during verification: **BotID fails open** when
-> off-platform/outage (`checkBotId` throws without Vercel's `x-vercel-oidc-token`),
-> and the FormSubmit forward sends the site's canonical **Origin/Referer**
-> (FormSubmit rejects server posts without one). **PENDING:** (1) one real
-> **browser submit** on www.byhris.cc/contact to confirm BotID passes real users
-> end-to-end (curl can't — BotID rejects it by design); (2) mint an Upstash
-> **ACL-scoped token** + swap into Vercel; (3) enable Upstash account **MFA**.
-> Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
+> **STATUS: MERGED + LIVE in production 2026-06-10** (PR #3 `fae0ec2`, plus
+> hotfixes `68971d9`/`7e9fe0d`/`56a64d6`). `POST /api/contact` is live (region
+> `fra1`); the client-side FormSubmit endpoint is retired. Pipeline: honeypot →
+> BotID → request-timer → validation → rate-limit → **capture (store + email)**.
+> **Success contract: an enquiry counts as received if it was stored OR emailed**
+> — one missing/failing dependency can't 502 the form. Verified on production:
+> site 200, region `fra1`, Upstash store working (30-day TTL), visitors get
+> success.
+>
+> **Three things changed from the original plan during the live rollout:**
+>
+> 1. **Email transport: FormSubmit → Resend.** FormSubmit blocks Vercel's
+>    datacenter IPs (the server fetch throws on every prod submit; works only
+>    from a browser/residential IP). Switched to **Resend** (`onboarding@resend.dev`
+>    → owner inbox; no domain verify needed; enquirer = replyTo).
+> 2. **BotID is in MONITOR MODE (not blocking).** The client challenge wasn't
+>    issuing tokens in prod, so `checkBotId()` flagged real browsers as bots and
+>    403'd everyone. Now it logs but allows; honeypot + timer + rate-limit +
+>    validation are the active defenses. Re-enable blocking once the client
+>    challenge is confirmed working.
+> 3. **Config degrades gracefully** (no fail-fast) so a missing env var can't
+>    take the form down.
+>
+> **PENDING:** (1) **add `RESEND_API_KEY` to Vercel** (Prod+Preview, Sensitive)
+>
+> - redeploy → enables email notifications (store already works without it);
+>   (2) re-enable BotID blocking once the client challenge issues tokens;
+>   (3) Upstash **ACL-scoped token** (needs Upstash console/Management API — can't
+>   mint with the data-plane token); (4) Upstash **MFA** (done per user).
+>   Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
 
 ### Original scope (for reference)
 
