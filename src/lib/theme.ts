@@ -17,18 +17,20 @@
  * the right theme on first byte (no flash).
  */
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export const THEME_MODES = ['light', 'dark', 'system'] as const;
+export type ThemeMode = (typeof THEME_MODES)[number];
 export type EffectiveTheme = 'light' | 'dark';
 
-export const THEME_MODES: ThemeMode[] = ['light', 'dark', 'system'];
 export const STORAGE_KEY = 'theme-mode';
+
+function isThemeMode(value: string): value is ThemeMode {
+  return (THEME_MODES as readonly string[]).includes(value);
+}
 
 export function getStoredMode(): ThemeMode {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored && THEME_MODES.includes(stored as ThemeMode)
-      ? (stored as ThemeMode)
-      : 'system';
+    return stored && isThemeMode(stored) ? stored : 'system';
   } catch (_e) {
     return 'system';
   }
@@ -86,5 +88,5 @@ export function subscribeToSystem(
 /** Cycles light → dark → system → light → … */
 export function nextMode(current: ThemeMode): ThemeMode {
   const index = THEME_MODES.indexOf(current);
-  return THEME_MODES[(index + 1) % THEME_MODES.length];
+  return THEME_MODES[(index + 1) % THEME_MODES.length] ?? 'light';
 }

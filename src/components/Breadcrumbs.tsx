@@ -66,7 +66,7 @@ const ChevronIcon = () => (
 
 export default function Breadcrumbs() {
   const router = useRouter();
-  const pathname = router.asPath.split(/[?#]/)[0];
+  const pathname = router.asPath.split(/[?#]/)[0] ?? router.asPath;
 
   // Home page: no breadcrumbs.
   if (pathname === '/') return null;
@@ -74,8 +74,9 @@ export default function Breadcrumbs() {
   let currentLabel = '';
   let isDeep = false;
 
-  if (ROUTE_LABELS[pathname]) {
-    currentLabel = ROUTE_LABELS[pathname];
+  const knownLabel = ROUTE_LABELS[pathname];
+  if (knownLabel) {
+    currentLabel = knownLabel;
   } else if (pathname.startsWith('/projects/')) {
     isDeep = true;
     const slug = pathname.split('/').filter(Boolean).pop();

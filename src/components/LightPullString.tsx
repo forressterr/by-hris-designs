@@ -358,9 +358,9 @@ export default function LightPullString({
       // (≈16.67ms) so the spring/damping constants stay consistent.
       // Scaled by RELEASE_VELOCITY_SCALE so the swing stays gentle even
       // if the user yanks the cord aggressively.
-      if (s.pointerHistory.length >= 2) {
-        const first = s.pointerHistory[0];
-        const last = s.pointerHistory[s.pointerHistory.length - 1];
+      const first = s.pointerHistory[0];
+      const last = s.pointerHistory[s.pointerHistory.length - 1];
+      if (s.pointerHistory.length >= 2 && first && last) {
         const dtFrames = (last.t - first.t) / 16.67;
         if (dtFrames > 0.5) {
           s.vx = ((last.x - first.x) / dtFrames) * RELEASE_VELOCITY_SCALE;
