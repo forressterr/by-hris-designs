@@ -355,7 +355,7 @@ export const getStaticPaths: GetStaticPaths = () => ({
 export const getStaticProps: GetStaticProps<{ project: ProjectData }> = ({
   params,
 }) => {
-  const project = projects.find((p) => p.slug === params?.slug) ?? null;
+  const project = projects.find((p) => p.slug === params?.slug);
   if (!project) return { notFound: true };
   return { props: { project } };
 };

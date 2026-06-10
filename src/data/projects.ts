@@ -26,7 +26,7 @@ export const profile: Profile = {
 export const projects: Project[] = [
   // ─────────────────────────────────────────────────────────────────
   // SURGE — first project with a populated `caseStudy` field.
-  // When `caseStudy` is present, Project.jsx renders real content into
+  // When `caseStudy` is present, the project page ([slug].tsx) renders real content into
   // the template (otherwise placeholders fill every section). Other
   // projects can be migrated one at a time by adding their own
   // `caseStudy` block.
@@ -765,7 +765,7 @@ export const projects: Project[] = [
 
 // ---------- Services (used on the Home services row) ----------
 // Card colors are intentionally untouched. Each `num` is also the key
-// into ICONS inside ServiceCard.jsx (where the SVG is rendered) and
+// into ICONS inside ServiceCard.tsx (where the SVG is rendered) and
 // the lookup key for the flip-card back face's subSkills list.
 //
 // Each subSkill now has:
@@ -864,7 +864,7 @@ export const services = [
 // service cards (purple → green → pink → yellow) so neighbouring
 // tiles in the marquee never share a background.
 //
-// `icon` is a key into the ICONS map in MarqueeSubSkillCard.jsx —
+// `icon` is a key into the ICONS map in MarqueeSubSkillCard.tsx —
 // each sub-skill gets a visually distinct SVG that nods at the
 // skill it describes.
 export const marqueeSubSkills = [
@@ -1168,7 +1168,7 @@ export const achievements = [
 
 // ---------- Testimonials (Home section under Services) ----------
 // Same shape philosophy as `services` — `num` keys into ICONS inside
-// TestimonialCard.jsx; `color` reuses the same 4-color accent palette
+// TestimonialCard.tsx; `color` reuses the same 4-color accent palette
 // so the cards visually pair with the services row above.
 //
 // Each entry maps to one of the four "praise" themes:

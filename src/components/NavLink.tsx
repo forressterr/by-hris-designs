@@ -20,7 +20,7 @@ export default function NavLink({
   ...rest
 }: NavLinkProps) {
   const { asPath } = useRouter();
-  const path = asPath.split(/[?#]/)[0];
+  const path = asPath.split(/[?#]/)[0] ?? asPath;
   const hrefStr = typeof href === 'string' ? href : (href.pathname ?? '');
   const isActive =
     path === hrefStr || (hrefStr !== '/' && path.startsWith(`${hrefStr}/`));

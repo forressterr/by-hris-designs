@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Seo from '../components/Seo';
 import ProjectCard from '../components/ProjectCard';
 import FAQ from '../components/FAQ';
-import Typewriter from '../components/Typewriter';
+import RotatingWords from '../components/RotatingWords';
 import ServiceCard from '../components/ServiceCard';
 import TestimonialCard from '../components/TestimonialCard';
 import LightPullString from '../components/LightPullString';
@@ -25,9 +25,6 @@ import {
 // static lead line above ("Hris is a"), so each role here is just the
 // noun (or noun phrase). Pulled from the bio + CV — multi-disciplinary
 // span (research, UI, systems, code, 3D) + curious-tinkerer persona.
-// The Typewriter component auto-detects roles > 20 chars and shifts
-// them to a smaller font (.rotating-word--long) so they fit in two
-// lines without breaking the rest of the landing layout.
 const ROLES = [
   'Designer.',
   'Researcher.',
@@ -38,12 +35,12 @@ const ROLES = [
 ];
 
 export default function Home() {
-  // Ref to the typewriter title element. LightPullString uses this to
-  // drive its IntersectionObserver — the cord + hint fade out the
-  // moment the typewriter leaves the viewport (not when the entire
+  // Ref to the rotating-headline title element. LightPullString uses this
+  // to drive its IntersectionObserver — the cord + hint fade out the
+  // moment the headline leaves the viewport (not when the entire
   // landing section does), so they disappear as soon as the
   // user-relevant area is off-screen.
-  const titleRef = useRef(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
 
   // Toggled by the pull-string. When true, the rotating headline word
   // renders with the gold gradient + glow (.rotating-word.is-lit).
@@ -64,7 +61,7 @@ export default function Home() {
           subtitle on the left, placeholder media on the right.
           The right tile is intentionally left as a placeholder for an
           image/video drop-in later. */}
-        {/* Landing: full-width single column. The typewriter title
+        {/* Landing: full-width single column. The rotating-headline title
           reserves at least 2 lines of height (CSS min-height: 2lh) so
           short rotating words don't cause the subtitle below to jump
           when they swap. */}
@@ -72,7 +69,7 @@ export default function Home() {
           <div className="landing__text">
             <h2 className="landing__lead">Get to know Hris as a</h2>
             <h1 ref={titleRef} className="brand-hero__title landing__title">
-              <Typewriter words={ROLES} lit={isLit} />
+              <RotatingWords words={ROLES} lit={isLit} />
             </h1>
             <p className="brand-hero__sub landing__sub">
               Born and raised in Sofia, BG
@@ -107,7 +104,7 @@ export default function Home() {
       >
         <div className="hero-marquee__track">
           {/* Each tile is one sub-skill from the four service categories
-              (see data/projects.js → marqueeSubSkills). The A/B variant
+              (see data/projects.ts → marqueeSubSkills). The A/B variant
               alternates so the chain-link border-radius rhythm holds —
               even index = A (rounded ↘ diagonal), odd = B (rounded ↙).
               The whole set is rendered twice back-to-back so the
@@ -248,15 +245,6 @@ export default function Home() {
         <Reveal as="section" className="section">
           <div className="section-head">
             <h2>Services.</h2>
-            {/* "Get in touch +" aside hidden for now. To bring it back,
-              uncomment the block below:
-
-              <div className="section-head__aside">
-                <Link to="/contact" className="inline-link">
-                  Get in touch +
-                </Link>
-              </div>
-          */}
           </div>
 
           <Reveal as="div" className="services" stagger={0.08}>
@@ -340,7 +328,7 @@ export default function Home() {
       {/* Hanging pull-string. Rendered via a portal into document.body
           so its position: fixed escapes any parent stacking context.
           The title ref drives its IntersectionObserver — the cord
-          + hint vanish as soon as the typewriter heading leaves the
+          + hint vanish as soon as the rotating headline leaves the
           viewport (not when the whole landing section does). */}
       <LightPullString visibilityRef={titleRef} onPull={togglePull} />
     </>
