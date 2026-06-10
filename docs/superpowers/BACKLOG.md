@@ -1,9 +1,12 @@
 # By_Hris Designs — Rework Backlog / Roadmap
 
 > Forward plan for the "Big Changes" rework. **Phase 1 (Next.js + TypeScript) is
-> done** — on branch `feat/nextjs-typescript-migration`, PR #1
-> (https://github.com/forressterr/by-hris-designs/pull/1), pending visual review +
-> merge to `main`. Everything below is **not started**.
+> MERGED to `main` (PR #1) and LIVE in production** at https://www.byhris.cc as of
+> 2026-06-09 — Vite→Next 15 + React 19, Pages Router, strict TS. Post-merge, a Vercel
+> Framework-Preset fix (it was stuck on `vite`, breaking the deploy with a missing
+> `dist` output error) got production green, and preview deployments were verified
+> healthy. The migration branch has been deleted. **Everything below (Phases 2–5 +
+> fast-follows) is not started.**
 >
 > **How to run each item:** one `superpowers` cycle per phase —
 > `brainstorming → writing-plans → executing-plans` (or subagent-driven) — with the
@@ -14,8 +17,8 @@
 > as the gate before every PR.
 >
 > **Hard dependency:** Phases 2 and 5 (anything server-side or framework-level)
-> need **Phase 1 merged to `main`** first. Phases 3 and 4 also assume the Next.js
-> base is live.
+> need **Phase 1 merged to `main`** first — ✅ now satisfied (Phase 1 merged + live).
+> Phases 3 and 4 also assume the Next.js base is live — likewise satisfied.
 
 ---
 
