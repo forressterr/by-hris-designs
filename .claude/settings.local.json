@@ -214,7 +214,13 @@
       "Bash(kill -9 76813)",
       "Bash(pkill -9 -f \"next-server\")",
       "Bash(pkill -9 -f \"next start\")",
-      "Bash(echo \"on :3000 now: $\\(lsof -nP -iTCP:3000 -sTCP:LISTEN)"
+      "Bash(echo \"on :3000 now: $\\(lsof -nP -iTCP:3000 -sTCP:LISTEN)",
+      "Bash(curl -s -o /dev/null -w 'GET → %{http_code} \\(want 405\\)\\\\n' https://www.byhris.cc/api/contact)",
+      "Bash(curl -s -w '%{http_code} ' -o /tmp/pb.json -H 'Content-Type: application/json' -d '{\"name\":\"Bot Bot\",\"email\":\"b@b.co\",\"message\":\"hi there friend ok\",\"_honey\":\"x\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
+      "Bash(curl -s -w '%{http_code} ' -o /tmp/pc.json -H 'Content-Type: application/json' -d '{\"name\":\"Quick Draw\",\"email\":\"q@q.co\",\"message\":\"hello there world ok\",\"elapsedMs\":10}' https://www.byhris.cc/api/contact)",
+      "Bash(curl -s -w '%{http_code} ' -o /tmp/pd.json -H 'Content-Type: application/json' -d '{\"name\":\"Madonna\",\"email\":\"q@q.co\",\"message\":\"hello there world ok\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
+      "Bash(curl -s -D /tmp/ph.txt -o /tmp/pe.json -w '    HTTP %{http_code}\\\\n' -H 'Content-Type: application/json' -d '{\"name\":\"Prod Check\",\"email\":\"prodcheck@example.com\",\"message\":\"Production end-to-end verification of the contact route.\",\"elapsedMs\":9000}' https://www.byhris.cc/api/contact)",
+      "mcp__ac3cff1f-08eb-43e7-9508-0ff943fa7cea__get_runtime_logs"
     ]
   }
 }
