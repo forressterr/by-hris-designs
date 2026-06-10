@@ -34,7 +34,7 @@ export default class ErrorBoundary extends Component<
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
+  override componentDidCatch(error: Error) {
     const message = String((error && error.message) || error || '');
     if (CHUNK_ERROR.test(message)) {
       try {
@@ -57,7 +57,7 @@ export default class ErrorBoundary extends Component<
     window.location.reload();
   }
 
-  render() {
+  override render() {
     if (!this.state.hasError) return this.props.children;
     return (
       <div className="container page-canvas">
