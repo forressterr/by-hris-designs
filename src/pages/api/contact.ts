@@ -5,8 +5,8 @@ import {
   type EnquiryInput,
   type FieldName,
 } from '../../lib/contact/validation';
-import { getFormsubmitEndpoint } from '../../lib/contact/config';
 import { checkRateLimit, storeEnquiry } from '../../lib/contact/redis';
+import { sendEnquiryEmail } from '../../lib/contact/email';
 import type {
   ContactApiResponse,
   StoredEnquiry,
@@ -14,12 +14,6 @@ import type {
 
 // A human cannot fill name + email + message in under this; faster = bot.
 const MIN_FILL_MS = 2500;
-
-// FormSubmit rejects submissions that arrive without a web Origin/Referer
-// ("Make sure you open this page through a web server"). A browser sends these
-// automatically; a server-side fetch must set them. Use the site's canonical
-// origin — the domain the FormSubmit endpoint was activated from.
-const SITE_ORIGIN = 'https://www.byhris.cc';
 
 function getClientIp(req: NextApiRequest): string {
   const fwd = req.headers['x-forwarded-for'];
@@ -117,7 +111,6 @@ export default async function handler(
     );
   }
 
-  // 6. Store (best-effort backup — the email is the real notification).
   const enquiry: StoredEnquiry = {
     id: `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
     name: input.name.trim(),
@@ -125,58 +118,28 @@ export default async function handler(
     message: input.message.trim(),
     createdAt: new Date().toISOString(),
   };
+
+  // 6. Capture the enquiry two ways — a durable Redis record AND an email
+  //    notification. Both are best-effort; the enquiry counts as received if
+  //    EITHER succeeds, so one unconfigured/failing dependency can't take the
+  //    form down. (storeEnquiry returns false when Upstash isn't configured;
+  //    sendEnquiryEmail returns false when Resend isn't configured or fails.)
+  let stored = false;
   try {
-    await storeEnquiry(enquiry);
+    stored = await storeEnquiry(enquiry);
   } catch (err) {
     console.error(
-      '[contact] enquiry store failed (continuing to email):',
+      '[contact] enquiry store failed:',
       err instanceof Error ? err.message : err,
     );
   }
+  const emailed = await sendEnquiryEmail(enquiry);
 
-  // 7. Forward to the inbox via FormSubmit (fail-closed: tell the user).
-  try {
-    const forward = await fetch(getFormsubmitEndpoint(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Origin: SITE_ORIGIN,
-        Referer: `${SITE_ORIGIN}/contact`,
-      },
-      body: JSON.stringify({
-        name: enquiry.name,
-        email: enquiry.email,
-        message: enquiry.message,
-        _subject: `Contact Form Enquiry — ${enquiry.name}`,
-        _replyto: enquiry.email,
-        _template: 'table',
-        _captcha: 'false',
-      }),
-    });
-    const json: unknown = await forward.json().catch(() => ({}));
-    const delivered =
-      forward.ok &&
-      typeof json === 'object' &&
-      json !== null &&
-      'success' in json &&
-      ((json as { success: unknown }).success === true ||
-        (json as { success: unknown }).success === 'true');
-    if (!delivered) {
-      res.status(502).json({
-        ok: false,
-        error: 'Could not deliver your message — please try again.',
-      });
-      return;
-    }
-  } catch (err) {
-    console.error(
-      '[contact] FormSubmit forward failed:',
-      err instanceof Error ? err.message : err,
-    );
+  // 7. Only ask the visitor to retry if we captured the enquiry NOWHERE.
+  if (!stored && !emailed) {
     res.status(502).json({
       ok: false,
-      error: 'Could not reach the inbox just now — please try again.',
+      error: 'Could not send your message just now — please try again.',
     });
     return;
   }

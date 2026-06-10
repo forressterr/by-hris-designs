@@ -39,11 +39,15 @@ export function checkRateLimit(ip: string): Promise<{ success: boolean }> {
   return c.ratelimit.limit(ip);
 }
 
-/** Persist one enquiry with a 30-day TTL. No-op when no store is configured. */
-export async function storeEnquiry(enquiry: StoredEnquiry): Promise<void> {
+/**
+ * Persist one enquiry with a 30-day TTL. Returns true if it was stored, false
+ * when no store is configured (so the caller can treat email as the fallback).
+ */
+export async function storeEnquiry(enquiry: StoredEnquiry): Promise<boolean> {
   const c = clients();
-  if (!c) return;
+  if (!c) return false;
   await c.redis.set(`enquiry:${enquiry.id}`, enquiry, {
     ex: ENQUIRY_TTL_SECONDS,
   });
+  return true;
 }
