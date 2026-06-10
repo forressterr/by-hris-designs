@@ -74,9 +74,17 @@ vars) · **enquiry management = store + email only** (each enquiry persists to
 Redis with a status field AND reaches the inbox; an admin view stays a possible
 follow-up, not in scope).
 
-**User-side unblockers before executing:** ~~create the Upstash database~~ ✅ +
-add `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` to Vercel env ·
-enable BotID on the Vercel project.
+**User-side unblockers before executing:** ~~create the Upstash database~~ ✅
+(`by-hris-contact-database` — credentials live-verified 2026-06-10 via REST
+PING + write/read/del round-trip; stored locally in the gitignored
+`.env.local`) · **REMAINING: add the two env vars in the Vercel dashboard**
+(Production + Preview, token marked Sensitive) · ~~enable BotID~~ — turns out
+this is **not a dashboard task**: BotID _basic_ mode is configured purely in
+code (`initBotId` client paths + `checkBotId()` in the route — Vercel's docs
+use `/api/contact` with `checkLevel: 'basic'` as the example); the project
+setting only governs the paid _deepAnalysis_ tier. Phase 2 defaults to basic
+(paired with honeypot + request-timer + rate limit); revisit deepAnalysis only
+if bots actually get through.
 
 **Upstash provisioned (2026-06-10):** `by-hris-contact-database` — free tier,
 GCP `europe-west1` (Belgium), TLS in transit. Security posture from Upstash's
