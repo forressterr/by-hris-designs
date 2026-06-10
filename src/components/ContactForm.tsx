@@ -3,122 +3,24 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
 import Toast from './Toast';
+import {
+  MAX_MESSAGE_LENGTH,
+  VALIDATORS,
+  validateEnquiry,
+} from '../lib/contact/validation';
+import type {
+  EnquiryInput,
+  FieldName,
+  FormErrors,
+} from '../lib/contact/validation';
 
-/**
- * FormSubmit.co AJAX endpoint — no signup required.
- *
- * First submission triggers a one-time confirmation email to
- * h.goretsov@gmail.com — click the link inside once and from then on every
- * form submission lands in the inbox automatically.
- *
- * If you'd rather not have the email address visible in the front-end
- * bundle, after the first confirmation FormSubmit assigns you a random
- * hashed alias (e.g. https://formsubmit.co/ajax/abc123def…). Swap the
- * endpoint below for that alias to keep the address out of public source.
- */
-const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/h.goretsov@gmail.com';
+// Validation rules + the per-field validators are shared with the server
+// (src/lib/contact/validation.ts) so the client (live UX) and the
+// /api/contact security gate stay identical. These checks remain CLIENT-SIDE
+// for UX only — the server re-runs them as the real gate.
 
-// ----------------------------------------------------------------------------
-// VALIDATION RULES
-// ----------------------------------------------------------------------------
-// Per the brief:
-//   - Name: 2 names required, up to 3 allowed (e.g. "John Doe" or "Mary Anne Smith")
-//   - Email: real format like example@example.com
-//   - Message: text only — no URLs, HTML, markdown links — capped at 1500 chars
-// These are CLIENT-SIDE checks for UX + spam reduction. They are NOT a
-// substitute for server-side validation — anyone with devtools can bypass
-// them. Pair with FormSubmit's spam filtering and the hidden honeypot.
-// ----------------------------------------------------------------------------
-
-type FieldName = 'name' | 'email' | 'message';
-type FormValues = { name: string; email: string; message: string };
-type FormErrors = {
-  name: string | null;
-  email: string | null;
-  message: string | null;
-};
 type FormTouched = { name: boolean; email: boolean; message: boolean };
 type ToastState = { kind: 'success' | 'error'; message: string };
-
-const MAX_MESSAGE_LENGTH = 1500;
-
-// Allow letters from any script (\p{L}) plus apostrophes and hyphens so
-// names like "O'Brien" and "Mary-Jane" pass.
-const NAME_PART_PATTERN = /^[\p{L}][\p{L}'-]*$/u;
-
-// Pragmatic email check: at least one char before @, a domain with a dot,
-// and a 2+ char TLD. Doesn't try to match the full RFC 5321 grammar (no
-// browser-side regex realistically does) — type="email" + this catches
-// every normal typo.
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-// URL / domain detection — keep loose. Any obvious link should bounce.
-const URL_SCHEME_PATTERN = /\b(?:https?:\/\/|ftp:\/\/|www\.)/i;
-const DOMAIN_LIKE_PATTERN =
-  /\b[\w-]+\.(?:com|org|net|io|dev|app|co|uk|de|nl|fr|info|biz|edu|gov|me|tech|xyz|ly|us|to|ai|cc|gg|tv)(?:\b|\/)/i;
-const HTML_TAG_PATTERN = /<[^>\s][^>]*>/;
-const MARKDOWN_LINK_PATTERN = /\[[^\]]*]\([^)]+\)/;
-
-function validateName(raw: string) {
-  const value = raw.trim();
-  if (!value) return 'Please enter your name.';
-  const parts = value.split(/\s+/).filter(Boolean);
-  if (parts.length < 2) {
-    return 'Please enter at least 2 names (e.g. John Doe).';
-  }
-  if (parts.length > 3) {
-    return 'Up to 3 names, please.';
-  }
-  for (const part of parts) {
-    if (!NAME_PART_PATTERN.test(part)) {
-      return 'Names should contain letters only (apostrophes and hyphens are fine).';
-    }
-  }
-  return null;
-}
-
-function validateEmail(raw: string) {
-  const value = raw.trim();
-  if (!value) return 'Please enter your email.';
-  if (!EMAIL_PATTERN.test(value)) {
-    return 'Please enter a valid email (e.g. example@example.com).';
-  }
-  return null;
-}
-
-function validateMessage(raw: string) {
-  const value = raw.trim();
-  if (!value) return 'Please write a message.';
-  if (value.length > MAX_MESSAGE_LENGTH) {
-    return `Keep it under ${MAX_MESSAGE_LENGTH} characters (currently ${value.length}).`;
-  }
-  if (URL_SCHEME_PATTERN.test(value) || DOMAIN_LIKE_PATTERN.test(value)) {
-    return 'Please don’t include links or domains.';
-  }
-  if (HTML_TAG_PATTERN.test(value)) {
-    return 'HTML tags aren’t allowed.';
-  }
-  if (MARKDOWN_LINK_PATTERN.test(value)) {
-    return 'Please don’t include markdown links.';
-  }
-  return null;
-}
-
-// One field→validator mapping — handleChange, handleBlur and submit all
-// derive from it, so adding a field is a single edit.
-const VALIDATORS: Record<FieldName, (raw: string) => string | null> = {
-  name: validateName,
-  email: validateEmail,
-  message: validateMessage,
-};
-
-function runAllValidations(values: FormValues): FormErrors {
-  return {
-    name: VALIDATORS.name(values.name),
-    email: VALIDATORS.email(values.email),
-    message: VALIDATORS.message(values.message),
-  };
-}
 
 // ----------------------------------------------------------------------------
 
@@ -144,7 +46,7 @@ export default function ContactForm({
       };
 
   // Controlled values so we can validate live + show a character counter.
-  const [values, setValues] = useState<FormValues>({
+  const [values, setValues] = useState<EnquiryInput>({
     name: '',
     email: '',
     message: '',
@@ -180,6 +82,13 @@ export default function ContactForm({
     idleTimer.current = window.setTimeout(() => setStatus('idle'), ms);
   }, []);
   useEffect(() => () => window.clearTimeout(idleTimer.current), []);
+
+  // Stamp when the form mounted; the elapsed-since-mount time is sent to the
+  // server, which rejects implausibly fast submits as bots.
+  const mountedAt = useRef<number>(0);
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
   const showToast = useCallback(
     (kind: 'success' | 'error', message: string) => {
       // Setting a fresh object (even if kind/message match) re-mounts the
@@ -230,18 +139,10 @@ export default function ContactForm({
     const form = event.currentTarget;
     const data = new FormData(form);
 
-    // Honeypot trip: bots tend to fill every field. Humans can't see the
-    // _honey input, so any value here means a bot submitted. Pretend it
-    // succeeded so the bot moves on without retrying.
-    if ((data.get('_honey') || '').toString().length > 0) {
-      setStatus('sent');
-      scheduleIdle(4000);
-      return;
-    }
-
     // Run every validator on submit and mark every field touched so the
-    // errors show even for fields the user never focused.
-    const nextErrors = runAllValidations(values);
+    // errors show even for fields the user never focused. The server re-runs
+    // these as the real gate; this is for fast, local feedback.
+    const nextErrors = validateEnquiry(values);
     setErrors(nextErrors);
     setTouched({ name: true, email: true, message: true });
     const hasErrors = Object.values(nextErrors).some(Boolean);
@@ -262,41 +163,31 @@ export default function ContactForm({
       return;
     }
 
-    const name = values.name.trim();
-    const email = values.email.trim();
-    const message = values.message.trim();
-
     // Entering 'sending' invalidates any pending status-reset from a
     // previous submit — it must not fire while this request is in flight.
     window.clearTimeout(idleTimer.current);
     setStatus('sending');
 
-    const payload = {
-      name,
-      email,
-      message,
-      _subject: `Contact Form Enquiry — ${name || 'New message'}`,
-      _replyto: email,
-      _template: 'table',
-      _captcha: 'false',
-    };
-
     try {
-      const res = await fetch(FORMSUBMIT_ENDPOINT, {
+      // POST to our own server route. It owns the honeypot, BotID, the
+      // request-timer, validation, rate-limiting, persistence, and the inbox
+      // forward — the FormSubmit endpoint/email no longer ships to the client.
+      const res = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          email: values.email.trim(),
+          message: values.message.trim(),
+          _honey: (data.get('_honey') || '').toString(),
+          elapsedMs: Date.now() - mountedAt.current,
+        }),
       });
       const json: unknown = await res.json().catch(() => ({}));
-      const ok =
-        res.ok &&
-        typeof json === 'object' &&
-        json !== null &&
-        'success' in json &&
-        (json.success === true || json.success === 'true');
+      const payload = (
+        typeof json === 'object' && json !== null ? json : {}
+      ) as { ok?: unknown; error?: unknown; fields?: unknown };
+      const ok = res.ok && payload.ok === true;
 
       if (ok) {
         setStatus('sent');
@@ -311,9 +202,16 @@ export default function ContactForm({
       } else {
         setStatus('error');
         scheduleIdle(5000);
+        // Surface server-side field errors if present.
+        if (payload.fields && typeof payload.fields === 'object') {
+          setErrors((prev) => ({ ...prev, ...(payload.fields as FormErrors) }));
+          setTouched({ name: true, email: true, message: true });
+        }
         showToast(
           'error',
-          'That didn’t go through. Give it another try in a moment.',
+          typeof payload.error === 'string'
+            ? payload.error
+            : 'That didn’t go through. Give it another try in a moment.',
         );
       }
     } catch (_err) {
