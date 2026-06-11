@@ -516,6 +516,11 @@ h3 {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
+  /* Cap + centre the header content to the same 1440px track as
+     .container so the logo and nav line up with the body on wide /
+     ultrawide screens. The frosted .site-header bar stays full-bleed. */
+  max-width: var(--container-max);
+  margin: 0 auto;
   padding: 18px var(--gutter);
 }
 
