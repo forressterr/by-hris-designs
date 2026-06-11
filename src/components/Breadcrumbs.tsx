@@ -11,7 +11,7 @@ import { projects } from '../data/projects';
  *   /works        →  [home] › Work
  *   /labs         →  [home] › Labs
  *   /contact      →  [home] › Contact
- *   /projects/x   →  [home] › … › Project name
+ *   /works/x      →  [home] › … › Project name
  *
  * On deep routes the "…" segment is a button that calls
  * `router.back()` — sends the user one step back in browser history.
@@ -77,7 +77,7 @@ export default function Breadcrumbs() {
   const knownLabel = ROUTE_LABELS[pathname];
   if (knownLabel) {
     currentLabel = knownLabel;
-  } else if (pathname.startsWith('/projects/')) {
+  } else if (pathname.startsWith('/works/')) {
     isDeep = true;
     const slug = pathname.split('/').filter(Boolean).pop();
     const project = projects.find((p) => p.slug === slug);

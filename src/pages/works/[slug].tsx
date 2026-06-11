@@ -157,7 +157,7 @@ export default function Project({ project }: { project: ProjectData }) {
 
   return (
     <div className="container page-canvas">
-      <Seo path={`/projects/${project.slug}`} />
+      <Seo path={`/works/${project.slug}`} project={project} />
       <ProjectShell sections={TEMPLATE_SECTIONS}>
         {/* ──────────── OVERVIEW ──────────── */}
         <section id="overview" className="project-section">
