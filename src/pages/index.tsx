@@ -13,13 +13,19 @@ import LabsCover from '../components/LabsCover';
 import Reveal from '../components/motion/Reveal';
 import Parallax from '../components/motion/Parallax';
 import {
-  projects,
   services,
   testimonials,
   homeFaqs,
-  labsStats,
   marqueeSubSkills,
 } from '../data/projects';
+import type { GetStaticProps } from 'next';
+import type {
+  PROJECTS_QUERY_RESULT,
+  LABS_QUERY_RESULT,
+} from '../../sanity.types';
+import { sanityOr } from '../sanity/lib/client';
+import { PROJECTS_QUERY, LABS_QUERY } from '../sanity/lib/queries';
+import { FALLBACK_PROJECTS, FALLBACK_LABS } from '../sanity/lib/fallback';
 
 // Rotating roles for the landing headline. The article "a" lives in the
 // static lead line above ("Hris is a"), so each role here is just the
@@ -34,7 +40,13 @@ const ROLES = [
   'Jack of all trades, mastering them all.',
 ];
 
-export default function Home() {
+export default function Home({
+  projects,
+  labs,
+}: {
+  projects: PROJECTS_QUERY_RESULT;
+  labs: LABS_QUERY_RESULT;
+}) {
   // Ref to the rotating-headline title element. LightPullString uses this
   // to drive its IntersectionObserver — the cord + hint fade out the
   // moment the headline leaves the viewport (not when the entire
@@ -283,7 +295,7 @@ export default function Home() {
             stagger={0.06}
             style={{ marginTop: 56 }}
           >
-            {labsStats.map((stat) => (
+            {(labs?.stats ?? []).map((stat) => (
               <Reveal item as="div" key={stat.label} className="stat">
                 <div className="stat__value">{stat.value}</div>
                 <div className="stat__label">{stat.label}</div>
@@ -334,3 +346,14 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps<{
+  projects: PROJECTS_QUERY_RESULT;
+  labs: LABS_QUERY_RESULT;
+}> = async () => {
+  const [projects, labs] = await Promise.all([
+    sanityOr(PROJECTS_QUERY, FALLBACK_PROJECTS),
+    sanityOr(LABS_QUERY, FALLBACK_LABS),
+  ]);
+  return { props: { projects, labs } };
+};

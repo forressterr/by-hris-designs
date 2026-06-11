@@ -3,8 +3,17 @@ import Image from 'next/image';
 import type { ReactNode } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import { motion } from 'framer-motion';
-import { projects } from '../../data/projects';
-import type { Project as ProjectData } from '../../types/content';
+import type {
+  PROJECT_QUERY_RESULT,
+  PROJECTS_QUERY_RESULT,
+} from '../../../sanity.types';
+import { client } from '../../sanity/lib/client';
+import {
+  PROJECT_QUERY,
+  PROJECT_SLUGS_QUERY,
+  PROJECTS_QUERY,
+} from '../../sanity/lib/queries';
+import { FALLBACK_PROJECTS } from '../../sanity/lib/fallback';
 import Seo from '../../components/Seo';
 import ProjectCard from '../../components/ProjectCard';
 import ProjectShell from '../../components/project/ProjectShell';
@@ -15,12 +24,6 @@ import AnnotatedImage from '../../components/project/AnnotatedImage';
 import ScreenSwitcher from '../../components/project/ScreenSwitcher';
 
 const MotionLink = motion.create(Link);
-
-// Loose shapes for the optional `caseStudy` content the page maps over
-// (the data itself is typed `Record<string, any>` on Project.caseStudy).
-type ScreenTab = { id: string; label: string; src?: string; alt?: string };
-type Shot = { label?: string; src?: string; alt?: string };
-type Stat = { value?: string; label?: string };
 
 // Sections that appear in the sidebar nav, in order. Same `id`s are
 // used as anchor targets in the main content below.
@@ -64,7 +67,11 @@ function ScreenImage({
   slide,
   fallbackLabel,
 }: {
-  slide?: { src?: string; alt?: string; label?: string } | null;
+  slide?: {
+    src?: string | null;
+    alt?: string | null;
+    label?: string | null;
+  } | null;
   fallbackLabel?: ReactNode;
 }) {
   if (slide?.src) {
@@ -80,10 +87,16 @@ function ScreenImage({
   return <Placeholder label={fallbackLabel} />;
 }
 
-export default function Project({ project }: { project: ProjectData }) {
+export default function Project({
+  project,
+  allProjects,
+}: {
+  project: NonNullable<PROJECT_QUERY_RESULT>;
+  allProjects: PROJECTS_QUERY_RESULT;
+}) {
   // Other projects, ordered by tag-similarity to this one (most shared
   // tags first, least similar last) — feeds the "More projects" carousel.
-  const relatedProjects = projects
+  const relatedProjects = allProjects
     .filter((p) => p.slug !== project.slug)
     .map((p) => ({
       p,
@@ -123,7 +136,9 @@ export default function Project({ project }: { project: ProjectData }) {
     { label: 'Mobile checkout' },
   ];
 
-  const hotspots = cs?.hotspots || {
+  const hotspots = cs?.hotspots ?? {
+    src: null,
+    alt: null,
     callouts: [
       {
         x: 18,
@@ -147,10 +162,10 @@ export default function Project({ project }: { project: ProjectData }) {
   };
 
   const switcherTabs = cs?.switcher || [
-    { id: 'home', label: 'Home' },
-    { id: 'goals', label: 'Goals' },
-    { id: 'profile', label: 'Profile' },
-    { id: 'settings', label: 'Settings' },
+    { id: 'home', label: 'Home', src: null, alt: null },
+    { id: 'goals', label: 'Goals', src: null, alt: null },
+    { id: 'profile', label: 'Profile', src: null, alt: null },
+    { id: 'settings', label: 'Settings', src: null, alt: null },
   ];
 
   const outcomeCopy =
@@ -177,10 +192,13 @@ export default function Project({ project }: { project: ProjectData }) {
             {heroThemes ? (
               <DeviceFrame variant="desktop" label="Home — light / dark">
                 <ScreenSwitcher
-                  tabs={heroThemes.map((t: ScreenTab) => ({
-                    ...t,
+                  tabs={heroThemes.map((t) => ({
+                    id: t.id ?? '',
+                    label: t.label,
+                    src: t.src ?? undefined,
+                    alt: t.alt ?? undefined,
                     children: t.src ? undefined : (
-                      <Placeholder label={`${t.label} view`} />
+                      <Placeholder label={`${t.label ?? ''} view`} />
                     ),
                   }))}
                 />
@@ -237,10 +255,13 @@ export default function Project({ project }: { project: ProjectData }) {
           </p>
           <DeviceFrame variant="desktop" label="Key screens">
             <ScreenSwitcher
-              tabs={switcherTabs.map((t: ScreenTab) => ({
-                ...t,
+              tabs={switcherTabs.map((t) => ({
+                id: t.id ?? '',
+                label: t.label,
+                src: t.src ?? undefined,
+                alt: t.alt ?? undefined,
                 children: t.src ? undefined : (
-                  <Placeholder label={`${t.label} view`} />
+                  <Placeholder label={`${t.label ?? ''} view`} />
                 ),
               }))}
             />
@@ -255,7 +276,7 @@ export default function Project({ project }: { project: ProjectData }) {
             page across a small set of mobile frames.
           </p>
           <div className="project-grid-row project-grid-row--mobile-trio">
-            {mobileScreens.slice(0, 3).map((s: Shot, i: number) => (
+            {mobileScreens.slice(0, 3).map((s, i) => (
               <DeviceFrame key={i} variant="mobile" label={s.label}>
                 <ScreenImage slide={s} fallbackLabel={s.label} />
               </DeviceFrame>
@@ -274,9 +295,14 @@ export default function Project({ project }: { project: ProjectData }) {
           </p>
           <DeviceFrame variant="desktop" label="Annotated screen">
             <AnnotatedImage
-              src={hotspots.src}
+              src={hotspots.src ?? undefined}
               alt={hotspots.alt || 'Annotated screen'}
-              callouts={hotspots.callouts}
+              callouts={(hotspots.callouts ?? []).map((c) => ({
+                x: c.x ?? 0,
+                y: c.y ?? 0,
+                label: c.label ?? '',
+                body: c.body,
+              }))}
             >
               {!hotspots.src && (
                 <Placeholder label="Annotated screen · placeholder" />
@@ -292,7 +318,7 @@ export default function Project({ project }: { project: ProjectData }) {
           <h2 className="project-section__title">Outcome</h2>
           <p className="project-section__body">{outcomeCopy}</p>
           <div className="project-stat-row">
-            {outcomeStats.map((s: Stat, i: number) => (
+            {outcomeStats.map((s, i) => (
               <div key={i} className="project-stat">
                 <div className="project-stat__value">{s.value}</div>
                 <div className="project-stat__label">{s.label}</div>
@@ -355,15 +381,30 @@ export default function Project({ project }: { project: ProjectData }) {
   );
 }
 
-export const getStaticPaths: GetStaticPaths = () => ({
-  paths: projects.map((p) => ({ params: { slug: p.slug } })),
-  fallback: false,
-});
+export const getStaticPaths: GetStaticPaths = async () => {
+  const slugs = await client
+    .fetch(PROJECT_SLUGS_QUERY)
+    .catch(() => FALLBACK_PROJECTS.map((p) => ({ slug: p.slug })));
+  return {
+    paths: slugs
+      .map((s) => s.slug)
+      .filter((slug): slug is string => Boolean(slug))
+      .map((slug) => ({ params: { slug } })),
+    fallback: false,
+  };
+};
 
-export const getStaticProps: GetStaticProps<{ project: ProjectData }> = ({
-  params,
-}) => {
-  const project = projects.find((p) => p.slug === params?.slug);
+export const getStaticProps: GetStaticProps<{
+  project: NonNullable<PROJECT_QUERY_RESULT>;
+  allProjects: PROJECTS_QUERY_RESULT;
+}> = async ({ params }) => {
+  const slug = params?.slug as string;
+  const [fetched, allProjects] = await Promise.all([
+    client.fetch(PROJECT_QUERY, { slug }).catch(() => null),
+    client.fetch(PROJECTS_QUERY).catch(() => FALLBACK_PROJECTS),
+  ]);
+  const project =
+    fetched ?? FALLBACK_PROJECTS.find((p) => p.slug === slug) ?? null;
   if (!project) return { notFound: true };
-  return { props: { project } };
+  return { props: { project, allProjects } };
 };

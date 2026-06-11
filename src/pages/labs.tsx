@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { labsAbout } from '../data/projects';
+import type { GetStaticProps } from 'next';
 import Seo from '../components/Seo';
+import type { LABS_QUERY_RESULT } from '../../sanity.types';
+import { sanityOr } from '../sanity/lib/client';
+import { LABS_QUERY } from '../sanity/lib/queries';
+import { FALLBACK_LABS } from '../sanity/lib/fallback';
 
 const LabsCanvas = dynamic(() => import('../components/LabsCanvas'), {
   ssr: false,
@@ -18,7 +22,7 @@ const LabsCanvas = dynamic(() => import('../components/LabsCanvas'), {
  * "work in progress" overview. Self-contained (no React Flow); the
  * page supplies the chrome (eyebrow + h1 + lede + CTA) above it.
  */
-export default function Labs() {
+export default function Labs({ labs }: { labs: LABS_QUERY_RESULT }) {
   return (
     <div className="container page-canvas">
       <Seo path="/labs" />
@@ -68,7 +72,7 @@ export default function Labs() {
             </h2>
           </div>
           <dl className="gear__list">
-            {labsAbout.map((item) => (
+            {(labs?.about ?? []).map((item) => (
               <div key={item.name} className="gear__row">
                 <dt>{item.name}</dt>
                 <dd>{item.desc}</dd>
@@ -80,3 +84,10 @@ export default function Labs() {
     </div>
   );
 }
+
+export const getStaticProps: GetStaticProps<{
+  labs: LABS_QUERY_RESULT;
+}> = async () => {
+  const labs = await sanityOr(LABS_QUERY, FALLBACK_LABS);
+  return { props: { labs } };
+};

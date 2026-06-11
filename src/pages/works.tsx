@@ -1,28 +1,38 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import type { GetStaticProps } from 'next';
 import Seo from '../components/Seo';
 import ProjectCard from '../components/ProjectCard';
 import FAQ from '../components/FAQ';
-import { projects, homeFaqs } from '../data/projects';
-import type { Project } from '../types/content';
+import { homeFaqs } from '../data/projects';
+import type { PROJECTS_QUERY_RESULT } from '../../sanity.types';
+import { sanityOr } from '../sanity/lib/client';
+import { PROJECTS_QUERY } from '../sanity/lib/queries';
+import { FALLBACK_PROJECTS } from '../sanity/lib/fallback';
+
+type ProjectItem = PROJECTS_QUERY_RESULT[number];
 
 // Newest-first ordering for the grid. Primary key is the visible chip year
 // (the 2-digit `date`, e.g. "_25" → 25) so the grid reads descending exactly
 // as labelled; ties break on the most recent year in `year` (so a 2024–2025
 // project beats a 2024 one).
-const chipYear = (p: Project) => {
+const chipYear = (p: ProjectItem) => {
   const m = (p.date || '').match(/\d+/);
   return m ? Number(m[0]) : 0;
 };
-const yearMax = (p: Project) => {
+const yearMax = (p: ProjectItem) => {
   const ys = (p.year || '').match(/\d{4}/g);
   return ys ? Math.max(...ys.map(Number)) : 0;
 };
-const projectsByRecency = [...projects].sort(
-  (a, b) => chipYear(b) - chipYear(a) || yearMax(b) - yearMax(a),
-);
 
-export default function Works() {
+export default function Works({
+  projects,
+}: {
+  projects: PROJECTS_QUERY_RESULT;
+}) {
+  const projectsByRecency = [...projects].sort(
+    (a, b) => chipYear(b) - chipYear(a) || yearMax(b) - yearMax(a),
+  );
   return (
     <div className="container page-canvas">
       <Seo path="/works" />
@@ -102,3 +112,10 @@ export default function Works() {
     </div>
   );
 }
+
+export const getStaticProps: GetStaticProps<{
+  projects: PROJECTS_QUERY_RESULT;
+}> = async () => {
+  const projects = await sanityOr(PROJECTS_QUERY, FALLBACK_PROJECTS);
+  return { props: { projects } };
+};

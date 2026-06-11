@@ -1,8 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Project } from '../types/content';
+import type { PROJECTS_QUERY_RESULT } from '../../sanity.types';
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({
+  project,
+}: {
+  project: PROJECTS_QUERY_RESULT[number];
+}) {
   // Tile thumbnail: prefer the dedicated cover image, then fall back to the
   // case-study hero. Projects without either fall back to the checkered
   // placeholder.
