@@ -14,6 +14,12 @@ permissions:
 
 env:
   NEXT_TELEMETRY_DISABLED: 1
+  # Public Sanity config so `npm run build` can fetch content (the cutover
+  # dropped the data fallback). These NEXT_PUBLIC_* values ship in the client
+  # bundle anyway; the `production` dataset is public → tokenless reads.
+  NEXT_PUBLIC_SANITY_PROJECT_ID: tjykilgt
+  NEXT_PUBLIC_SANITY_DATASET: production
+  NEXT_PUBLIC_SANITY_API_VERSION: '2024-10-01'
 
 jobs:
   check:
