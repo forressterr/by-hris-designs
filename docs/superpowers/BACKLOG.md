@@ -5,9 +5,12 @@
 > 2026-06-09 — Vite→Next 15 + React 19, Pages Router, strict TS. Post-merge, a Vercel
 > Framework-Preset fix (it was stuck on `vite`, breaking the deploy with a missing
 > `dist` output error) got production green, and preview deployments were verified
-> healthy. The migration branch has been deleted. **Phase 2 (contact-form
-> hardening) is now also MERGED + live (PR #3); Phases 3–5 + fast-follows are
-> not started** — see each phase's section below for status.
+> healthy. The migration branch has been deleted. **Phases 2 & 3 are MERGED +
+> live** (contact-form hardening PR #3; Hybrid Tailwind PR #7), **SEO/metadata +
+> /projects→/works routing** is merged (PR #8), and **all fast-follows are done**
+> (nav-width PR #9, dep bumps PR #10, next/image PR #11, dead-dep cleanup PR #12).
+> **Phase 4 (Sanity CMS) is in progress; Phase 5 is not started** — see each
+> phase's section below for status.
 >
 > **How to run each item:** one `superpowers` cycle per phase —
 > `brainstorming → writing-plans → executing-plans` (or subagent-driven) — with the
@@ -155,9 +158,9 @@ the app looks, works, or feels_.
 `--line`). A literal 1:1 rewrite to utilities is large and **high-risk for low
 user-visible payoff** given the "no visual change" constraint.
 
-**▶ DECISION MADE (2026-06-10): Option A — HYBRID.** Design brainstormed +
-presented (user picked Hybrid); a new chat should confirm the design below →
-write spec → plan → execute on a branch + PR.
+> **STATUS: MERGED + LIVE (PR #7, 2026-06-11).** Hybrid Tailwind v4 — no-Preflight
+> selective import + `@theme inline` token bridge; Breadcrumbs migrated as the
+> proof component. Details in the SESSION_HANDOFF + the phase3 spec/plan.
 
 **Concrete findings (from exploring the CSS):** `index.css` = 3,741 lines, single
 file imported once in `_app.tsx`; tokens in `:root` (line ~73); **dark mode via
@@ -203,6 +206,9 @@ available for new code. No test framework (Phase 5).
 ---
 
 ## Phase 4 — Headless CMS (Works · Projects · Labs)
+
+> **STATUS: IN PROGRESS (2026-06-11).** Scope = Projects + Labs (About/Home stays
+> in code). Spec + plan: `docs/superpowers/{specs,plans}/2026-06-11-phase4-sanity-cms*`.
 
 **Original ask:** a headless CMS for content edited often — Works, Projects, and the
 Labs sub-pages.
