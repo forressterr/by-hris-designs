@@ -7,3 +7,7 @@ next-env.d.ts
 *.html
 public/_headers
 public/_redirects
+
+# Sanity TypeGen output (generated) + extract intermediate
+sanity.types.ts
+schema.json

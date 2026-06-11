@@ -6,7 +6,7 @@
 
 **Architecture:** Embedded Sanity Studio (`next-sanity` `NextStudio` at `/studio`). Public `production` dataset → tokenless reads (`useCdn`). Pages fetch via typed GROQ in `getStaticProps`/`getStaticPaths`; `projects.ts` stays as a typed fallback (`src/sanity/lib/fallback.ts`) until a final cutover. Render-time `projects.find()` lookups in metadata helpers are replaced by threading the `project` object through props. A `/api/revalidate` webhook regenerates static pages on publish.
 
-**Tech Stack:** Next 15 (Pages Router), React 19, TypeScript strict, Sanity v4 / next-sanity, GROQ, Sanity TypeGen. Verification = `npm run check` (lint + format + typecheck + audit-high + build) + `npm run build && npm run start` parity inspection (no unit-test runner until Phase 5).
+**Tech Stack:** Next 15 (Pages Router), React 19, TypeScript strict, Sanity **v5** (pinned `sanity@5.31.1` + `next-sanity@11.6.13` — the Next-15-compatible line; `sanity@6`/`next-sanity@13` peer-require Next 16, which this repo deliberately skipped), `@sanity/vision@5.31.1`, `@sanity/webhook@4.0.4`, `styled-components@6.4.2`, GROQ, Sanity TypeGen. Verification = `npm run check` (lint + format + typecheck + audit-high + build) + `npm run build && npm run start` parity inspection (no unit-test runner until Phase 5).
 
 **Reference spec:** `docs/superpowers/specs/2026-06-11-phase4-sanity-cms-design.md`
 
@@ -101,10 +101,10 @@ SANITY_REVALIDATE_SECRET=<generate: openssl rand -hex 32>
 - [ ] **Step 1: Install (auto-pins via `.npmrc save-exact`).**
 
 ```bash
-npm i sanity next-sanity @sanity/vision @sanity/webhook styled-components
+npm i sanity@5.31.1 next-sanity@11.6.13 @sanity/vision@5.31.1 @sanity/webhook@4.0.4 styled-components@6.4.2
 ```
 
-Expected: added to `dependencies` at exact versions; `npm ls sanity next-sanity` resolves.
+Pinned to the **Sanity v5 line** on purpose: `next-sanity@12+`/`@13` and `sanity@6` peer-require `next@^16`, but this repo stays on Next 15. `next-sanity@11.6.13` peers `next ^15.1 || ^16` and `sanity ^4.22 || ^5`. Expected: 0 high/critical audit findings (`npm audit --audit-level=high` exits 0; ~19 moderate transitive, below the gate).
 
 - [ ] **Step 2: Add the `typegen` script.** In `package.json` `scripts`, add after `"start": "next start",`:
 
