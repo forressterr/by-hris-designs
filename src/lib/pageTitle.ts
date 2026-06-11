@@ -26,7 +26,7 @@ export function titleForPath(pathname: string): string {
 
   if (STATIC_TITLES[path]) return STATIC_TITLES[path];
 
-  const projectMatch = path.match(/^\/projects\/([^/]+)$/);
+  const projectMatch = path.match(/^\/works\/([^/]+)$/);
   if (projectMatch) {
     const project = projects.find((p) => p.slug === projectMatch[1]);
     return project ? `${project.name} — ${BRAND}` : `Work — ${BRAND}`;

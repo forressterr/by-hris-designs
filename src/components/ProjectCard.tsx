@@ -7,7 +7,7 @@ export default function ProjectCard({ project }: { project: Project }) {
   // placeholder.
   const thumb = project.cover || project.caseStudy?.overview?.hero?.src;
   return (
-    <Link href={`/projects/${project.slug}`} className="project-card">
+    <Link href={`/works/${project.slug}`} className="project-card">
       <div className="project-card__media" aria-hidden="true">
         {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
       </div>

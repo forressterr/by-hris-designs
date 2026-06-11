@@ -19,6 +19,16 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/projects/:slug',
+        destination: '/works/:slug',
+        permanent: true,
+      },
+      { source: '/projects', destination: '/works', permanent: true },
+    ];
+  },
 };
 
 export default withBotId(nextConfig);

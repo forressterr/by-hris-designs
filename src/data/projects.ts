@@ -17,7 +17,7 @@ export const profile: Profile = {
 };
 
 // ---------- Projects ----------
-// `slug`  → URL path under /projects/:slug
+// `slug`  → URL path under /works/:slug
 // `name`  → label shown on the project card grid
 // `date`  → small meta date next to the name (kept in the original _MM.YY shape)
 // `title` → full title on the project detail page
