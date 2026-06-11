@@ -31,6 +31,12 @@ export default function App({ Component, pageProps }: AppProps) {
     : { opacity: 0, y: -10, transition: { duration: 0.2, ease: EASE } };
   const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12 };
 
+  // Sanity Studio brings its own full-screen UI — render it bare, outside the
+  // site Header/Footer/Breadcrumbs/transition shell.
+  if (router.asPath.startsWith('/studio')) {
+    return <Component {...pageProps} />;
+  }
+
   return (
     <ErrorBoundary>
       <ThemeProvider>
