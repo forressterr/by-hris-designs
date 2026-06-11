@@ -1,4 +1,60 @@
 /* ============================================================
+   Tailwind v4 — utilities only, NO Preflight.
+   We import the theme + utilities layers selectively and OMIT
+   preflight.css on purpose: Preflight is a reset that would
+   restyle the hand-built CSS below. Utilities are JIT, so any
+   class not used in the markup emits no CSS — adding the engine
+   changes nothing on screen. See
+   docs/superpowers/specs/2026-06-11-phase3-hybrid-tailwind-design.md
+   ============================================================ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Bridge Tailwind's theme namespace to the existing :root design
+   tokens (defined further down). `inline` is REQUIRED: it inlines
+   var(--token) into each utility so colours resolve at the use-site
+   and flip automatically inside [data-theme='dark'] — no `dark:`
+   variant needed for colour. Plain @theme would freeze utilities to
+   the light palette. The font/radius keys intentionally share names
+   with the site tokens; `inline` keeps them safe by not re-emitting
+   them to :root (verified by the Breadcrumbs proof). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-invert-fg: var(--invert-fg);
+  --color-invert-bg: var(--invert-bg);
+  --color-placeholder: var(--placeholder);
+  --color-placeholder-2: var(--placeholder-2);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-green: var(--accent-green);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-yellow: var(--accent-yellow);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --breakpoint-sm: 700px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1024px;
+}
+
+/* Explicit dark variant for the rare case a utility needs a different
+   value in dark beyond the automatic token flip above. */
+@custom-variant dark (&:where([data-theme='dark'] *));
+
+/* ============================================================
    By_Hris Designs — Global Stylesheet
    Single file to keep the runtime light. Organized in sections.
    ============================================================ */
