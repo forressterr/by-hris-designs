@@ -1375,6 +1375,7 @@ h3 {
    image, clipped to the tile's rounded corners. Scoped to the lead pair so
    other .tile-aspect uses (the About image, slideshows) are untouched. */
 .tile-pair--lead .tile-aspect {
+  position: relative;
   overflow: hidden;
 }
 .tile-pair--lead .tile-aspect > img {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TouchEvent } from 'react';
+import Image from 'next/image';
 
 /**
  * SlideShow — soft crossfade carousel that fills its parent container.
@@ -164,23 +165,21 @@ export default function SlideShow({
     >
       <div className="slideshow__stack" aria-live="polite">
         {slides.map((slide, i) => (
-          <img
+          <Image
             key={slide.src}
             src={slide.src}
-            alt={slide.alt}
+            alt={slide.alt || ''}
+            fill
+            sizes="(max-width: 900px) 100vw, 45vw"
             className={`slideshow__image${i === index ? ' is-active' : ''}`}
-            draggable="false"
-            // Eager-load the first image so the initial paint isn't a
-            // blank tile. Other slides are lazy.
-            loading={i === 0 ? 'eager' : 'lazy'}
-            decoding="async"
+            draggable={false}
+            // Eager-load (priority) the first image so the initial paint
+            // isn't a blank tile. Other slides lazy-load by default.
+            priority={i === 0}
             aria-hidden={i !== index}
             // Per-slide crop bias. With object-fit: cover the default
-            // crop centres on the image. Pass `position: '70% 50%'`
-            // (or any CSS object-position value) when a specific photo
-            // is framed off-centre and needs the visible window
-            // shifted (e.g. group shots where a person sits near an
-            // edge).
+            // crop centres on the image. Pass `position: '70% 50%'` (or any
+            // CSS object-position value) when a photo is framed off-centre.
             style={
               slide.position ? { objectPosition: slide.position } : undefined
             }

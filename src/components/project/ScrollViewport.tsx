@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import {
   motion,
   useReducedMotion,
@@ -64,14 +65,30 @@ export default function ScrollViewport({
         // Reduced motion: render full image static, allow vertical scroll
         // within the viewport using overflow rather than animating.
         <div className="scroll-viewport__inner scroll-viewport__inner--static">
-          {children || (src && <img src={src} alt={alt} />)}
+          {children ||
+            (src && (
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes="(max-width: 900px) 100vw, 70vw"
+              />
+            ))}
         </div>
       ) : (
         <motion.div
           className="scroll-viewport__inner"
           style={{ y, height: fullInner }}
         >
-          {children || (src && <img src={src} alt={alt} />)}
+          {children ||
+            (src && (
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes="(max-width: 900px) 100vw, 70vw"
+              />
+            ))}
         </motion.div>
       )}
     </div>

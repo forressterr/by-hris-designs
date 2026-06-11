@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Project } from '../types/content';
 
 export default function ProjectCard({ project }: { project: Project }) {
@@ -9,7 +10,14 @@ export default function ProjectCard({ project }: { project: Project }) {
   return (
     <Link href={`/works/${project.slug}`} className="project-card">
       <div className="project-card__media" aria-hidden="true">
-        {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" />}
+        {thumb && (
+          <Image
+            src={thumb}
+            alt=""
+            fill
+            sizes="(max-width: 700px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        )}
       </div>
       <div className="project-card__meta">
         <span>{project.name}</span>

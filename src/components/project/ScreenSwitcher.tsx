@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
+import Image from 'next/image';
 import { EASE } from '../../lib/motion';
 
 /**
@@ -90,7 +91,14 @@ export default function ScreenSwitcher({
             {...fade}
           >
             {active?.children ||
-              (active?.src && <img src={active.src} alt={active.alt || ''} />)}
+              (active?.src && (
+                <Image
+                  src={active.src}
+                  alt={active.alt || ''}
+                  fill
+                  sizes="(max-width: 700px) 100vw, 80vw"
+                />
+              ))}
           </motion.div>
         </AnimatePresence>
       </div>

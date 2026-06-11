@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import { motion } from 'framer-motion';
@@ -67,7 +68,14 @@ function ScreenImage({
   fallbackLabel?: ReactNode;
 }) {
   if (slide?.src) {
-    return <img src={slide.src} alt={slide.alt || slide.label || ''} />;
+    return (
+      <Image
+        src={slide.src}
+        alt={slide.alt || slide.label || ''}
+        fill
+        sizes="(max-width: 700px) 90vw, 60vw"
+      />
+    );
   }
   return <Placeholder label={fallbackLabel} />;
 }
