@@ -23,9 +23,8 @@ import type {
   PROJECTS_QUERY_RESULT,
   LABS_QUERY_RESULT,
 } from '../../sanity.types';
-import { sanityOr } from '../sanity/lib/client';
+import { client } from '../sanity/lib/client';
 import { PROJECTS_QUERY, LABS_QUERY } from '../sanity/lib/queries';
-import { FALLBACK_PROJECTS, FALLBACK_LABS } from '../sanity/lib/fallback';
 
 // Rotating roles for the landing headline. The article "a" lives in the
 // static lead line above ("Hris is a"), so each role here is just the
@@ -352,8 +351,8 @@ export const getStaticProps: GetStaticProps<{
   labs: LABS_QUERY_RESULT;
 }> = async () => {
   const [projects, labs] = await Promise.all([
-    sanityOr(PROJECTS_QUERY, FALLBACK_PROJECTS),
-    sanityOr(LABS_QUERY, FALLBACK_LABS),
+    client.fetch(PROJECTS_QUERY),
+    client.fetch(LABS_QUERY),
   ]);
   return { props: { projects, labs } };
 };

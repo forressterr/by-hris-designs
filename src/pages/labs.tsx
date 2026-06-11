@@ -3,9 +3,8 @@ import dynamic from 'next/dynamic';
 import type { GetStaticProps } from 'next';
 import Seo from '../components/Seo';
 import type { LABS_QUERY_RESULT } from '../../sanity.types';
-import { sanityOr } from '../sanity/lib/client';
+import { client } from '../sanity/lib/client';
 import { LABS_QUERY } from '../sanity/lib/queries';
-import { FALLBACK_LABS } from '../sanity/lib/fallback';
 
 const LabsCanvas = dynamic(() => import('../components/LabsCanvas'), {
   ssr: false,
@@ -88,6 +87,6 @@ export default function Labs({ labs }: { labs: LABS_QUERY_RESULT }) {
 export const getStaticProps: GetStaticProps<{
   labs: LABS_QUERY_RESULT;
 }> = async () => {
-  const labs = await sanityOr(LABS_QUERY, FALLBACK_LABS);
+  const labs = await client.fetch(LABS_QUERY);
   return { props: { labs } };
 };

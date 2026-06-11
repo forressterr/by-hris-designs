@@ -13,7 +13,6 @@ import {
   PROJECT_SLUGS_QUERY,
   PROJECTS_QUERY,
 } from '../../sanity/lib/queries';
-import { FALLBACK_PROJECTS } from '../../sanity/lib/fallback';
 import Seo from '../../components/Seo';
 import ProjectCard from '../../components/ProjectCard';
 import ProjectShell from '../../components/project/ProjectShell';
@@ -382,9 +381,7 @@ export default function Project({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const slugs = await client
-    .fetch(PROJECT_SLUGS_QUERY)
-    .catch(() => FALLBACK_PROJECTS.map((p) => ({ slug: p.slug })));
+  const slugs = await client.fetch(PROJECT_SLUGS_QUERY);
   return {
     paths: slugs
       .map((s) => s.slug)
@@ -399,12 +396,10 @@ export const getStaticProps: GetStaticProps<{
   allProjects: PROJECTS_QUERY_RESULT;
 }> = async ({ params }) => {
   const slug = params?.slug as string;
-  const [fetched, allProjects] = await Promise.all([
-    client.fetch(PROJECT_QUERY, { slug }).catch(() => null),
-    client.fetch(PROJECTS_QUERY).catch(() => FALLBACK_PROJECTS),
+  const [project, allProjects] = await Promise.all([
+    client.fetch(PROJECT_QUERY, { slug }),
+    client.fetch(PROJECTS_QUERY),
   ]);
-  const project =
-    fetched ?? FALLBACK_PROJECTS.find((p) => p.slug === slug) ?? null;
   if (!project) return { notFound: true };
   return { props: { project, allProjects } };
 };

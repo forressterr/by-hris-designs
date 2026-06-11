@@ -6,9 +6,8 @@ import ProjectCard from '../components/ProjectCard';
 import FAQ from '../components/FAQ';
 import { homeFaqs } from '../data/projects';
 import type { PROJECTS_QUERY_RESULT } from '../../sanity.types';
-import { sanityOr } from '../sanity/lib/client';
+import { client } from '../sanity/lib/client';
 import { PROJECTS_QUERY } from '../sanity/lib/queries';
-import { FALLBACK_PROJECTS } from '../sanity/lib/fallback';
 
 type ProjectItem = PROJECTS_QUERY_RESULT[number];
 
@@ -116,6 +115,6 @@ export default function Works({
 export const getStaticProps: GetStaticProps<{
   projects: PROJECTS_QUERY_RESULT;
 }> = async () => {
-  const projects = await sanityOr(PROJECTS_QUERY, FALLBACK_PROJECTS);
+  const projects = await client.fetch(PROJECTS_QUERY);
   return { props: { projects } };
 };
