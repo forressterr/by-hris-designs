@@ -7,6 +7,12 @@ node_modules
 .env*
 !.env.example
 
+# Claude Code — local, machine-specific settings. NEVER commit: the permission
+# allow-list accumulates approved command strings that can carry secrets (this
+# file once leaked a Resend API key). Shared config lives in the committed
+# .claude/settings.json instead.
+.claude/settings.local.json
+
 # Next.js
 /.next/
 /out/
