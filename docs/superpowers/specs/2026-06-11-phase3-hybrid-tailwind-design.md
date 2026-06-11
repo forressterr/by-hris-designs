@@ -125,6 +125,29 @@ the font/radius bridge lines and use arbitrary utilities
 (`font-[family-name:var(--font-mono)]`) — colors (the real deliverable) are
 unaffected either way.
 
+## Cascade — the site reset must live in `@layer base`
+
+**Discovered by the proof, fixed in the engine setup.** Tailwind utilities live in the
+`utilities` layer; the existing `index.css` element resets (`a { color: inherit }`,
+`button { … }`, `*`, `body`, `img/svg/video`, `input/textarea`) were **unlayered**. In
+the cascade **unlayered always beats layered**, so unlayered `a { color: inherit }`
+outranks a `.text-ink` utility on a link — the proof's home `<a>` rendered ink-soft
+(inherited from the list) instead of full ink, in both themes.
+
+Fix: wrap the reset block in **`@layer base { … }`** — the slot Tailwind's Preflight
+would normally occupy. Layer order `theme, base, components, utilities` then lets
+utilities outrank the reset, exactly as in vanilla Tailwind. This is
+**behaviour-preserving for the existing site**: the reset still loses to the
+(still-unlayered) component rules that already override it, and the `:root` tokens
+stay unlayered so they keep winning over `theme.css` defaults. Verified post-change on
+the prod build: body font = DM Sans, `--radius-sm/md` = 8/16px, body bg = white, a
+legacy header link = ink(10,10,10) — all unchanged.
+
+**Model for new code:** utilities beat the base reset (normal Tailwind). To override a
+legacy **component** rule, _migrate_ that component (delete its rule) rather than
+shadowing it with a utility — legacy component rules stay unlayered and outrank
+utilities by design.
+
 ## Proof: migrate `Breadcrumbs` to utilities
 
 Rewrite `src/components/Breadcrumbs.tsx` className strings to Tailwind utilities and

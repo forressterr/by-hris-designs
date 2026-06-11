@@ -368,6 +368,18 @@ gh pr create --fill --base main \
 
 ---
 
+## Addendum — `@layer base` (discovered during execution)
+
+The Breadcrumbs proof revealed a cascade gap the original plan missed: utilities (in
+the `utilities` layer) **lose** to the unlayered `index.css` element resets, so
+`a { color: inherit }` outranked `text-ink` and the home `<a>` rendered ink-soft
+instead of ink. Fix (extra `build:` commit on the branch): wrap the `index.css` reset
+section (`*`, `html/body`, `img/svg/video`, `.labs-canvas svg`, `a`, `button`,
+`input/textarea`) in **`@layer base { … }`** so utilities outrank it — the slot
+Preflight would normally fill. Re-verified: home link ink in both themes; global
+tokens (DM Sans, radii 8/16px, white bg, legacy header link ink) unchanged. See the
+spec's "Cascade — the site reset must live in `@layer base`" section.
+
 ## Self-review (run against the spec)
 
 - **Spec coverage:** engine (Task 2) · no-Preflight selective import (Task 3) ·
