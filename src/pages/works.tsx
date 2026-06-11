@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Seo from '../components/Seo';
 import ProjectCard from '../components/ProjectCard';
 import FAQ from '../components/FAQ';
@@ -70,9 +71,11 @@ export default function Works() {
             </div>
           </div>
           <div className="tile tile-aspect">
-            <img
+            <Image
               src="/work-overview.jpg"
               alt="Selected work — a montage of storefront and product-platform screens"
+              fill
+              sizes="(max-width: 900px) 100vw, 45vw"
             />
           </div>
         </div>

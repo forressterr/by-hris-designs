@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 
 /**
  * AnnotatedImage — a single image overlaid with numbered hotspots.
@@ -51,7 +52,15 @@ export default function AnnotatedImage({
   return (
     <div className="annotated-image">
       <div className="annotated-image__media">
-        {children || (src && <img src={src} alt={alt} />)}
+        {children ||
+          (src && (
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              sizes="(max-width: 700px) 100vw, 80vw"
+            />
+          ))}
         {callouts.map((c, i) => (
           <button
             key={i}
