@@ -22,7 +22,12 @@ export interface Project {
 }
 
 export interface Profile {
+  name?: string;
   brand?: string;
   title: string;
+  location?: string;
+  email?: string;
+  linkedin?: string;
+  status?: string;
   [key: string]: unknown;
 }

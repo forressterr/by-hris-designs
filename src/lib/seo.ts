@@ -16,3 +16,8 @@ export function canonicalForPath(pathname: string): string {
   const path = normalize(pathname);
   return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`;
 }
+
+// Absolute URL for an app-relative asset path (OG image, JSON-LD image).
+export function absoluteUrl(assetPath: string): string {
+  return assetPath.startsWith('http') ? assetPath : `${SITE_URL}${assetPath}`;
+}
