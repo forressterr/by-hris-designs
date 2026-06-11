@@ -1,72 +1,136 @@
 /* ============================================================
+   Tailwind v4 — utilities only, NO Preflight.
+   We import the theme + utilities layers selectively and OMIT
+   preflight.css on purpose: Preflight is a reset that would
+   restyle the hand-built CSS below. Utilities are JIT, so any
+   class not used in the markup emits no CSS — adding the engine
+   changes nothing on screen. See
+   docs/superpowers/specs/2026-06-11-phase3-hybrid-tailwind-design.md
+   ============================================================ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Bridge Tailwind's theme namespace to the existing :root design
+   tokens (defined further down). `inline` is REQUIRED: it inlines
+   var(--token) into each utility so colours resolve at the use-site
+   and flip automatically inside [data-theme='dark'] — no `dark:`
+   variant needed for colour. Plain @theme would freeze utilities to
+   the light palette. The font/radius keys intentionally share names
+   with the site tokens; `inline` keeps them safe by not re-emitting
+   them to :root (verified by the Breadcrumbs proof). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-invert-fg: var(--invert-fg);
+  --color-invert-bg: var(--invert-bg);
+  --color-placeholder: var(--placeholder);
+  --color-placeholder-2: var(--placeholder-2);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-green: var(--accent-green);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-yellow: var(--accent-yellow);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --breakpoint-sm: 700px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1024px;
+}
+
+/* Explicit dark variant for the rare case a utility needs a different
+   value in dark beyond the automatic token flip above. */
+@custom-variant dark (&:where([data-theme='dark'] *));
+
+/* ============================================================
    By_Hris Designs — Global Stylesheet
    Single file to keep the runtime light. Organized in sections.
    ============================================================ */
 
-/* -------- Reset & Box Model -------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* Site reset lives in @layer base — the slot Tailwind's Preflight would occupy.
+   Preflight is omitted, but the reset still belongs in `base` so utility classes
+   (the `utilities` layer) WIN over these element resets. Left unlayered, an
+   `a { color: inherit }` / `button { … }` reset outranks `text-*`/`bg-*`
+   utilities on links and buttons (unlayered always beats layered) — which would
+   silently break utility colours on new components. See the phase 3 spec. */
+@layer base {
+  /* -------- Reset & Box Model -------- */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-}
+  html,
+  body,
+  #root {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  text-rendering: optimizeLegibility;
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
 
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-img,
-svg,
-video {
-  display: block;
-  max-width: 100%;
-}
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
 
-/* The Labs canvas wires its nodes with an oversized edge <svg> (2400×1700). The
+  /* The Labs canvas wires its nodes with an oversized edge <svg> (2400×1700). The
    reset above would clamp it to ~0 width against its zero-width parent and the
    connection lines vanish. Scope the cap off for that canvas only — do NOT delete
    the global reset; other media on the site rely on it. (The component also sets
    maxWidth:'none' inline; this is defence in depth.) */
-.labs-canvas svg {
-  max-width: none;
-}
+  .labs-canvas svg {
+    max-width: none;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-}
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+  }
 
-input,
-textarea {
-  font: inherit;
-  color: inherit;
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 /* -------- Design Tokens -------- */
@@ -354,95 +418,6 @@ h3 {
     -webkit-mask-image: none;
     mask-image: none;
   }
-}
-
-/* -------- Breadcrumbs --------------------------------------------
-   Minimalist mono breadcrumb above the page-head on every non-home
-   page. Three levels max:
-     [home] › Current  (top-level routes)
-     [home] › … › Current  (deep routes — "…" navigates back) */
-
-.breadcrumbs {
-  padding: 24px 0 12px;
-}
-
-.breadcrumbs__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--ink-soft);
-  letter-spacing: 0.02em;
-}
-
-.breadcrumbs__item {
-  display: flex;
-  align-items: center;
-}
-
-/* Chevron separator — mid-grey so the eye prioritizes the linked
-   labels on either side. */
-.breadcrumbs__sep {
-  display: flex;
-  align-items: center;
-  color: var(--ink-soft);
-  opacity: 0.45;
-}
-
-/* Shared link / button styling. The home icon link, the "…" back
-   button, and the current page span all sit on the same baseline
-   typographically. */
-.breadcrumbs__link {
-  display: inline-flex;
-  align-items: center;
-  background: transparent;
-  border: 0;
-  padding: 2px 4px;
-  margin: -2px -4px;
-  border-radius: 4px;
-  font: inherit;
-  letter-spacing: inherit;
-  color: var(--ink-soft);
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity var(--transition);
-}
-
-.breadcrumbs__link:hover {
-  opacity: 0.6;
-}
-
-.breadcrumbs__link:focus-visible {
-  outline: 1px solid var(--ink);
-  outline-offset: 2px;
-}
-
-/* Home icon is the brand mark in miniature — render it at full ink
-   so it reads as the "anchor" of the trail. */
-.breadcrumbs__home {
-  color: var(--ink);
-}
-
-.breadcrumbs__back {
-  /* The "…" button keeps the same baseline as the surrounding mono
-     text — letter-spacing nudged slightly so the ellipsis dots
-     breathe. */
-  font-family: var(--font-mono);
-  font-size: inherit;
-  letter-spacing: 0.15em;
-  line-height: 1;
-}
-
-/* Current-page label — full ink (vs the muted siblings) so the
-   user immediately sees "where you are". */
-.breadcrumbs__item--current {
-  color: var(--ink);
-  padding: 2px 0;
 }
 
 .section {

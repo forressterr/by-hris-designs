@@ -92,39 +92,49 @@ export default function Breadcrumbs() {
   }
 
   return (
-    <nav className="breadcrumbs" aria-label="Breadcrumb">
-      <ol className="breadcrumbs__list">
-        <li className="breadcrumbs__item">
+    // Phase 3 proof component: migrated from the .breadcrumbs* block in
+    // index.css to Tailwind utilities to validate the no-Preflight token
+    // bridge (colours flip in dark via the bridged --ink/--ink-soft tokens,
+    // no dark: variant needed). Siblings stay on index.css until next touched.
+    <nav className="breadcrumbs pt-6 pb-3" aria-label="Breadcrumb">
+      <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 font-mono text-[0.75rem] tracking-[0.02em] text-ink-soft">
+        <li className="flex items-center">
           <Link
             href="/"
-            className="breadcrumbs__link breadcrumbs__home"
+            className="-mx-1 -my-0.5 inline-flex cursor-pointer items-center rounded-[4px] border-0 bg-transparent px-1 py-0.5 text-ink no-underline [transition:opacity_180ms_ease] hover:opacity-[0.6] focus-visible:[outline:1px_solid_var(--ink)] focus-visible:outline-offset-[2px]"
             aria-label="Home"
           >
             <HomeIcon />
           </Link>
         </li>
-        <li className="breadcrumbs__sep" aria-hidden="true">
+        <li
+          className="flex items-center text-ink-soft opacity-[0.45]"
+          aria-hidden="true"
+        >
           <ChevronIcon />
         </li>
         {isDeep && (
           <>
-            <li className="breadcrumbs__item">
+            <li className="flex items-center">
               {/* "…" sends the user one step back in history. */}
               <button
                 type="button"
-                className="breadcrumbs__link breadcrumbs__back"
+                className="-mx-1 -my-0.5 inline-flex cursor-pointer items-center rounded-[4px] border-0 bg-transparent px-1 py-0.5 font-mono leading-none tracking-[0.15em] text-ink-soft no-underline [transition:opacity_180ms_ease] hover:opacity-[0.6] focus-visible:[outline:1px_solid_var(--ink)] focus-visible:outline-offset-[2px]"
                 onClick={() => router.back()}
                 aria-label="Go back one step"
               >
                 …
               </button>
             </li>
-            <li className="breadcrumbs__sep" aria-hidden="true">
+            <li
+              className="flex items-center text-ink-soft opacity-[0.45]"
+              aria-hidden="true"
+            >
               <ChevronIcon />
             </li>
           </>
         )}
-        <li className="breadcrumbs__item breadcrumbs__item--current">
+        <li className="flex items-center py-0.5 text-ink">
           <span aria-current="page">{currentLabel}</span>
         </li>
       </ol>
