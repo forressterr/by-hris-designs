@@ -1,4 +1,4 @@
-import { projects } from '../data/projects';
+import type { PROJECT_QUERY_RESULT } from '../../sanity.types';
 import { canonicalForPath } from './seo';
 
 export const TITLE_BRAND = 'By Hris';
@@ -67,7 +67,15 @@ function clampDescription(text: string, max = 155): string {
   return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).trimEnd()}…`;
 }
 
-export function metaForPath(pathname: string): PageMeta {
+type ProjectMetaInput = Pick<
+  NonNullable<PROJECT_QUERY_RESULT>,
+  'name' | 'title' | 'description' | 'headline'
+>;
+
+export function metaForPath(
+  pathname: string,
+  project?: ProjectMetaInput | null,
+): PageMeta {
   const path = normalize(pathname);
   const canonical = canonicalForPath(path);
 
@@ -76,8 +84,6 @@ export function metaForPath(pathname: string): PageMeta {
 
   const projectMatch = path.match(/^\/works\/([^/]+)$/);
   if (projectMatch) {
-    const slug = projectMatch[1];
-    const project = projects.find((p) => p.slug === slug);
     if (project) {
       const raw =
         project.description ||

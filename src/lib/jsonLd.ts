@@ -1,7 +1,12 @@
-import { profile, projects } from '../data/projects';
-import type { Project } from '../types/content';
+import { profile } from '../data/projects';
+import type { PROJECT_QUERY_RESULT } from '../../sanity.types';
 import { SITE_URL, canonicalForPath, absoluteUrl } from './seo';
 import { OG_IMAGE_PATH, TITLE_BRAND } from './pageMeta';
+
+type ProjectJsonLdInput = Pick<
+  NonNullable<PROJECT_QUERY_RESULT>,
+  'slug' | 'name' | 'title' | 'description' | 'cover' | 'year'
+>;
 
 const PERSON_ID = `${SITE_URL}/#person`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
@@ -48,7 +53,9 @@ export function webSiteJsonLd(): Record<string, unknown> {
   };
 }
 
-export function creativeWorkJsonLd(project: Project): Record<string, unknown> {
+export function creativeWorkJsonLd(
+  project: ProjectJsonLdInput,
+): Record<string, unknown> {
   return {
     '@type': 'CreativeWork',
     name: project.title || project.name,
@@ -61,7 +68,10 @@ export function creativeWorkJsonLd(project: Project): Record<string, unknown> {
   };
 }
 
-export function breadcrumbJsonLd(pathname: string): Record<string, unknown> {
+export function breadcrumbJsonLd(
+  pathname: string,
+  project?: { name: string | null } | null,
+): Record<string, unknown> {
   const path = normalize(pathname);
   const items: { name: string; url: string }[] = [
     { name: 'Home', url: `${SITE_URL}/` },
@@ -74,7 +84,6 @@ export function breadcrumbJsonLd(pathname: string): Record<string, unknown> {
     const projectMatch = path.match(/^\/works\/([^/]+)$/);
     if (projectMatch) {
       items.push({ name: 'Work', url: canonicalForPath('/works') });
-      const project = projects.find((p) => p.slug === projectMatch[1]);
       items.push({
         name: project?.name || projectMatch[1] || 'Project',
         url: canonicalForPath(path),

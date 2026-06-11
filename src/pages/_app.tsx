@@ -60,7 +60,12 @@ export default function App({ Component, pageProps }: AppProps) {
                 exit={exit}
               >
                 <div className="container">
-                  <Breadcrumbs />
+                  <Breadcrumbs
+                    projectName={
+                      (pageProps as { project?: { name?: string | null } })
+                        .project?.name
+                    }
+                  />
                 </div>
                 <Component {...pageProps} />
               </motion.div>

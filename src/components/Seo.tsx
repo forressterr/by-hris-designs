@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import type { Project } from '../types/content';
+import type { PROJECT_QUERY_RESULT } from '../../sanity.types';
 import {
   metaForPath,
   OG_IMAGE_PATH,
@@ -26,16 +26,16 @@ export default function Seo({
   project,
 }: {
   path: string;
-  project?: Project;
+  project?: PROJECT_QUERY_RESULT;
 }) {
-  const meta = metaForPath(path);
+  const meta = metaForPath(path, project);
   const ogImage = absoluteUrl(OG_IMAGE_PATH);
 
   const nodes =
     path === '/'
       ? [personJsonLd(), webSiteJsonLd()]
       : project
-        ? [creativeWorkJsonLd(project), breadcrumbJsonLd(path)]
+        ? [creativeWorkJsonLd(project), breadcrumbJsonLd(path, project)]
         : [breadcrumbJsonLd(path)];
 
   // Escape `<` so a stray `</script>` in any data string can't break out.

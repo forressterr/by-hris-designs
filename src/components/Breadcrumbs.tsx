@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { projects } from '../data/projects';
 
 /**
  * Breadcrumbs — minimalist nav line that sits above the page-head on
@@ -64,7 +63,11 @@ const ChevronIcon = () => (
   </svg>
 );
 
-export default function Breadcrumbs() {
+export default function Breadcrumbs({
+  projectName,
+}: {
+  projectName?: string | null;
+}) {
   const router = useRouter();
   const pathname = router.asPath.split(/[?#]/)[0] ?? router.asPath;
 
@@ -80,11 +83,10 @@ export default function Breadcrumbs() {
   } else if (pathname.startsWith('/works/')) {
     isDeep = true;
     const slug = pathname.split('/').filter(Boolean).pop();
-    const project = projects.find((p) => p.slug === slug);
-    // Prefer the project's display name (e.g. "SURGE®") from data,
-    // fall back to a Title-Cased slug if the lookup misses.
+    // Prefer the project's display name (e.g. "SURGE®"), passed from the
+    // page's getStaticProps via _app; fall back to a Title-Cased slug.
     currentLabel =
-      project?.name ||
+      projectName ||
       (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'Project');
   } else {
     // Unknown route (e.g. 404). Skip breadcrumbs entirely.
