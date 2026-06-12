@@ -24,3 +24,12 @@ export function getUpstashConfig(): { url: string; token: string } | null {
   if (!url || !token) return null;
   return { url, token };
 }
+
+/**
+ * Whether BotID BLOCKS flagged requests (true) or only observes them (default).
+ * Off by default = monitor mode. Flip with the CONTACT_BOTID_ENFORCE env var
+ * (Vercel) + a redeploy — no code change needed to enable or roll back.
+ */
+export function isBotIdEnforced(): boolean {
+  return process.env.CONTACT_BOTID_ENFORCE === 'true';
+}
