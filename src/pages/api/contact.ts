@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import * as Sentry from '@sentry/nextjs';
-import { checkBotId } from 'botid/server';
+import { evaluateBotId } from '../../lib/contact/botid';
+import { isBotIdEnforced } from '../../lib/contact/config';
 import {
   validateEnquiry,
   type EnquiryInput,
@@ -45,28 +46,19 @@ export default async function handler(
     return;
   }
 
-  // 2. BotID (basic) — MONITOR MODE (does not block). The client-side
-  //    challenge (instrumentation-client `initBotId`) is not issuing tokens in
-  //    production, so checkBotId() returns isBot:true for real browsers too — a
-  //    hard block rejected legitimate visitors. We log the verdict but allow the
-  //    request through; the honeypot, request-timer, per-IP rate-limit and
-  //    server-side validation remain the active bot defenses. Re-enable blocking
-  //    only once the client challenge is confirmed working in production (see
-  //    BACKLOG Phase 2). checkBotId also throws off-platform (local `next start`,
-  //    or a BotID outage) — caught here.
-  try {
-    const bot = await checkBotId({ advancedOptions: { headers: req.headers } });
-    if (bot.isBot) {
-      console.warn(
-        '[contact] BotID flagged this request as a bot (monitor mode — not blocking)',
-      );
-    }
-  } catch (err) {
-    console.error(
-      '[contact] BotID check unavailable:',
-      err instanceof Error ? err.message : err,
-    );
-    Sentry.captureException(err);
+  // 2. BotID — observe always, block only when enforced. Tag (low-cardinality:
+  //    bot|human|error) + log the verdict so the real-traffic flag-rate is
+  //    measurable before we ever block. 'error' fails open: an off-platform run
+  //    or a BotID outage must never reject a visitor. Re-enable blocking by
+  //    setting CONTACT_BOTID_ENFORCE=true once a Preview deploy confirms real
+  //    browsers read as 'human' (see the phase-2-hardening spec).
+  const verdict = await evaluateBotId(req.headers);
+  Sentry.setTag('botid.verdict', verdict);
+  const enforced = isBotIdEnforced();
+  console.warn(`[contact] botid verdict=${verdict} enforce=${enforced}`);
+  if (verdict === 'bot' && enforced) {
+    res.status(403).json({ ok: false, error: 'Access denied.' });
+    return;
   }
 
   // 3. Request-timer — implausibly fast submit = bot. Silent success so the
