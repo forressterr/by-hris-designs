@@ -67,10 +67,14 @@
 > email notifications live (from `notifications@byhris.cc` → `h.goretsov@gmail.com`);
 > Upstash store + rate-limit live; MFA enabled. **Phase 2 functionally complete.**
 >
-> **Remaining hardening (non-blocking follow-ups):** (1) re-enable BotID blocking
-> once the client challenge issues tokens in prod; (2) Upstash **ACL-scoped
-> token** (needs Upstash console/Management API — can't mint with the send/data
-> tokens). Spec/plan: `docs/superpowers/{specs,plans}/2026-06-10-phase2-contact-hardening*`.
+> **Hardening — PR #17 MERGED 2026-06-13** (`docs/superpowers/{specs,plans}/2026-06-13-phase2-hardening*`):
+> (1) BotID **enforce toggle** `CONTACT_BOTID_ENFORCE` (default off = monitor) + per-request verdict
+> telemetry (`botid.verdict` tag + log) shipped — blocking is now one Vercel env flip away, with a
+> safe Preview-first decide-path. (2) Upstash **ACL-scoped token** scope + runbook documented
+> (`ACL SETUSER … +@read +@write +@scripting -@dangerous ~enquiry:* ~ratelimit:contact:*` → `ACL RESTTOKEN`).
+> **▶ REMAINING = operator (no code):** run the BotID Preview→Prod decide-path; mint + swap the ACL token
+> in Vercel (also the post-April-2026-incident rotation); propagate the rotated `RESEND_API_KEY` to
+> Vercel + `.env.local`. (Earlier original-build spec/plan: `…/2026-06-10-phase2-contact-hardening*`.)
 
 ### Original scope (for reference)
 
