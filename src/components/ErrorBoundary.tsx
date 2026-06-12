@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ReactNode } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 /**
  * App-level error boundary.
@@ -45,7 +46,10 @@ export default class ErrorBoundary extends Component<
       } catch (_e) {
         /* storage blocked — fall through to the fallback UI */
       }
+      return;
     }
+    // Genuine render error (not an expected stale-deploy chunk miss) → report.
+    Sentry.captureException(error);
   }
 
   handleReload() {

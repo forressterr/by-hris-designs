@@ -1,4 +1,5 @@
 import { withBotId } from 'botid/next/config';
+import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -31,4 +32,13 @@ const nextConfig = {
   },
 };
 
-export default withBotId(nextConfig);
+export default withSentryConfig(withBotId(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true,
+  // Upload source maps only when the auth token is present (Vercel builds);
+  // local + GitHub CI builds skip upload and stay green with no Sentry secrets.
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+  widenClientFileUpload: true,
+  disableLogger: true,
+});

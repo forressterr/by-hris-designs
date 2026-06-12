@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import * as Sentry from '@sentry/nextjs';
 import { checkBotId } from 'botid/server';
 import {
   validateEnquiry,
@@ -65,6 +66,7 @@ export default async function handler(
       '[contact] BotID check unavailable:',
       err instanceof Error ? err.message : err,
     );
+    Sentry.captureException(err);
   }
 
   // 3. Request-timer — implausibly fast submit = bot. Silent success so the
@@ -109,6 +111,7 @@ export default async function handler(
       '[contact] rate-limit check failed, allowing through:',
       err instanceof Error ? err.message : err,
     );
+    Sentry.captureException(err);
   }
 
   const enquiry: StoredEnquiry = {
@@ -132,6 +135,7 @@ export default async function handler(
       '[contact] enquiry store failed:',
       err instanceof Error ? err.message : err,
     );
+    Sentry.captureException(err);
   }
   const emailed = await sendEnquiryEmail(enquiry);
 

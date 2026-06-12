@@ -5,9 +5,13 @@
 > 2026-06-09 — Vite→Next 15 + React 19, Pages Router, strict TS. Post-merge, a Vercel
 > Framework-Preset fix (it was stuck on `vite`, breaking the deploy with a missing
 > `dist` output error) got production green, and preview deployments were verified
-> healthy. The migration branch has been deleted. **Phase 2 (contact-form
-> hardening) is now also MERGED + live (PR #3); Phases 3–5 + fast-follows are
-> not started** — see each phase's section below for status.
+> healthy. The migration branch has been deleted. **Phases 2 & 3 are MERGED + live**
+> (contact-form hardening PR #3; Hybrid Tailwind PR #7), **SEO/metadata + /works
+> routing** is merged (PR #8), and **all fast-follows are done** (PRs #9–12).
+> **Phase 4 (Sanity CMS) was BUILT then ABANDONED + reverted 2026-06-12** (a CMS is
+> overkill for this rarely-changing static portfolio; nothing merged, `main`
+> untouched). **Phase 5 (health & integrity) is IN PROGRESS — Sentry first.** — see
+> each phase's section below for status.
 >
 > **How to run each item:** one `superpowers` cycle per phase —
 > `brainstorming → writing-plans → executing-plans` (or subagent-driven) — with the
@@ -155,9 +159,9 @@ the app looks, works, or feels_.
 `--line`). A literal 1:1 rewrite to utilities is large and **high-risk for low
 user-visible payoff** given the "no visual change" constraint.
 
-**▶ DECISION MADE (2026-06-10): Option A — HYBRID.** Design brainstormed +
-presented (user picked Hybrid); a new chat should confirm the design below →
-write spec → plan → execute on a branch + PR.
+> **STATUS: MERGED + LIVE (PR #7, 2026-06-11).** Hybrid Tailwind v4 — no-Preflight
+> selective import + `@theme inline` token bridge; Breadcrumbs migrated as the proof
+> component. The Hybrid design below is the historical record.
 
 **Concrete findings (from exploring the CSS):** `index.css` = 3,741 lines, single
 file imported once in `_app.tsx`; tokens in `:root` (line ~73); **dark mode via
@@ -204,6 +208,14 @@ available for new code. No test framework (Phase 5).
 
 ## Phase 4 — Headless CMS (Works · Projects · Labs)
 
+> **STATUS: BUILT then ABANDONED + REVERTED (2026-06-12).** A full Sanity CMS was
+> built (embedded Studio, typed GROQ, on-demand revalidation, the `caseStudy: any`
+> retired) — then the user decided a headless CMS is overkill for this
+> rarely-changing static portfolio. Reverted entirely: PR #13 closed, branch
+> deleted, **nothing merged**, `main` untouched. Recoverable at git `e7feba3`;
+> durable Sanity gotchas (pin v5; dot-less doc IDs) are in the session memory.
+> Don't re-pitch a CMS unless asked.
+
 **Original ask:** a headless CMS for content edited often — Works, Projects, and the
 Labs sub-pages.
 
@@ -231,6 +243,11 @@ keep `projects.ts` as a fallback during migration?
 ---
 
 ## Phase 5 — Health & integrity: Sentry · E2E-in-CI · scheduled cron
+
+> **STATUS: IN PROGRESS (2026-06-12).** Delivered as 3 incremental sub-projects:
+> **(1) Sentry** — errors + performance, PII-scrubbed, source maps on Vercel only
+> (branch `feat/phase5-sentry`) → **(2) Playwright E2E-in-CI** → **(3) randomised
+> daily cron**. Spec: `docs/superpowers/specs/2026-06-12-phase5-sentry-design.md`.
 
 **Original asks:** Sentry to catch production errors; E2E checks run via Git daily; a
 CRON job scheduler with a **randomised start** for automated processes (the daily E2E).
