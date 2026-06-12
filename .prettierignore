@@ -7,3 +7,5 @@ next-env.d.ts
 *.html
 public/_headers
 public/_redirects
+playwright-report
+test-results
