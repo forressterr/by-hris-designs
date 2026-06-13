@@ -279,17 +279,30 @@ GH Actions vs Vercel Cron for the "automated processes"?
 
 ## Fast-follows (small, low-risk — can be batched any time after Phase 1 merges)
 
-- **Nav-bar width = body width** (Medium change #8): match the header's inner
-  max-width to the content container so the nav lines up with the body on **desktop +
-  ultrawide**. Pure CSS; verify both breakpoints.
-- **Component-level perf lazy-load** (#4 remainder): beyond the route-level splitting
-  Next already does + the `ssr:false` widgets — defer any remaining heavy below-fold
-  components. Revisit after Tailwind.
-- **`next/image`**: adopt for the 11 `<img>` sites for image optimisation. Mind the
-  deliberate eager-load hero decision and avoid layout shift (needs width/height or
-  fill). Was intentionally deferred from the faithful port.
-- **Dependency currency**: bump Next/React/etc. to latest patches once Phase 1 is
-  merged + verified ("update to newer", the agreed post-merge step).
+> **STATUS (2026-06-13):** mostly done. The polish round
+> (`docs/superpowers/{specs,plans}/2026-06-13-polish-deps-responsive*`) shipped the safe
+> dependency bumps + a responsive spot-check (no issues found); next/image + lazy-load were
+> already satisfied. Remaining: the nav-bar-width **design call** + the two deferred dependency
+> **majors**.
+
+- ✅ **`next/image`** — DONE (already in place): no raw `<img>` JSX remains; 7 components use
+  `next/image` (`ProjectCard`, `SlideShow`, `ScrollViewport`, `ScreenSwitcher`, `AnnotatedImage`,
+  `works.tsx`, `works/[slug].tsx`).
+- ✅ **Component-level perf lazy-load** (#4 remainder) — DONE (already in place): the heaviest
+  client-only pieces are `ssr:false` dynamic imports (`LiveTime`, `LabsCanvas`); nothing else
+  warrants deferring.
+- ◑ **Dependency currency** — safe bumps **shipped** (`tailwindcss` + `@tailwindcss/postcss`
+  4.3.0→4.3.1, `lucide-react` 1.17→1.18; React already current). **Deferred as their own
+  major-migration cycles:** `next` 15→**16** (framework major — interacts with Sentry + BotID + the
+  build) and `eslint`/`@eslint/js` 9→**10** (may outpace the pinned `typescript-eslint` /
+  `eslint-plugin-react`).
+- ✅ **Responsive spot-check** — verified 2026-06-13: zero horizontal overflow on all six pages at
+  360/390/414px; at 2560px body text stays capped (~700–780px) and only the hero headline is
+  intentionally large. No fixes needed.
+- 🔲 **Nav-bar width = body width** (Medium change #8): at ultrawide the header spans full width
+  while the content column is left-aligned/capped, so they don't line up. **This is a design call
+  (intentional full-bleed nav vs. match-content) — left for the owner**, not changed under a
+  fix-what-breaks pass. Pure CSS once decided.
 
 ---
 
