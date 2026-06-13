@@ -4,6 +4,7 @@ import type { EnquiryInput, FieldName } from './validation';
 export interface StoredEnquiry extends EnquiryInput {
   id: string;
   createdAt: string; // ISO-8601
+  sourcePage: string; // page the form was submitted from (Referer path) or '—'
 }
 
 /** The /api/contact JSON response contract. */
