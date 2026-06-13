@@ -61,7 +61,7 @@ export default function Contact() {
             </a>
           </nav>
 
-          <ContactForm variant="light" />
+          <ContactForm variant="light" detailed />
         </div>
       </section>
 
