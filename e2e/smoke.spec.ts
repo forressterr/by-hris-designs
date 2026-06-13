@@ -33,3 +33,17 @@ test('an unknown route returns 404', async ({ page }) => {
   const response = await page.goto('/this-route-does-not-exist');
   expect(response?.status()).toBe(404);
 });
+
+test('the contact page shows the detailed enquiry fields', async ({ page }) => {
+  await page.goto('/contact');
+  for (const name of ['company', 'subject', 'budget', 'timeline']) {
+    await expect(page.locator(`input[name="${name}"]`)).toBeVisible();
+  }
+});
+
+test('the footer form stays the quick three (no detailed fields)', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('input[name="company"]')).toHaveCount(0);
+});
