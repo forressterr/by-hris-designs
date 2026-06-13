@@ -292,10 +292,13 @@ GH Actions vs Vercel Cron for the "automated processes"?
   client-only pieces are `ssr:false` dynamic imports (`LiveTime`, `LabsCanvas`); nothing else
   warrants deferring.
 - ◑ **Dependency currency** — safe bumps **shipped** (`tailwindcss` + `@tailwindcss/postcss`
-  4.3.0→4.3.1, `lucide-react` 1.17→1.18; React already current). **Deferred as their own
-  major-migration cycles:** `next` 15→**16** (framework major — interacts with Sentry + BotID + the
-  build) and `eslint`/`@eslint/js` 9→**10** (may outpace the pinned `typescript-eslint` /
-  `eslint-plugin-react`).
+  4.3.0→4.3.1, `lucide-react` 1.17→1.18; React already current). **Deferred majors (researched
+  2026-06-13):** `eslint`/`@eslint/js` 9→**10** is **BLOCKED** — `eslint-plugin-react@7.37.5` (latest)
+  caps its eslint peer at `^9.7`; no ESLint-10-compatible release exists yet (`typescript-eslint@8.61`,
+  `eslint-plugin-react-hooks`, `@eslint/js@10` are all ready). Revisit when `eslint-plugin-react` ships
+  ESLint 10 support. `next` 15→**16** is **dependency-feasible** (react 19.2.7 ✓, `@sentry/nextjs@10.57`
+  peer `^16.0.0-0` ✓, `botid` peer `next:*` ✓) but deferred to a **dedicated session** — a framework
+  major needs the Next codemod + full re-verification (build · E2E · Sentry · BotID · contact route).
 - ✅ **Responsive spot-check** — verified 2026-06-13: zero horizontal overflow on all six pages at
   360/390/414px; at 2560px body text stays capped (~700–780px) and only the hero headline is
   intentionally large. No fixes needed.
