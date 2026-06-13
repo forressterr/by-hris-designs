@@ -40,5 +40,7 @@ export default withSentryConfig(withBotId(nextConfig), {
   // local + GitHub CI builds skip upload and stay green with no Sentry secrets.
   sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
   widenClientFileUpload: true,
-  disableLogger: true,
+  // Tree-shake Sentry's debug logging out of the client bundle (replaces the
+  // deprecated `disableLogger`).
+  webpack: { treeshake: { removeDebugLogging: true } },
 });
