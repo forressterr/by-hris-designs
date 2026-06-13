@@ -299,10 +299,11 @@ GH Actions vs Vercel Cron for the "automated processes"?
 - ✅ **Responsive spot-check** — verified 2026-06-13: zero horizontal overflow on all six pages at
   360/390/414px; at 2560px body text stays capped (~700–780px) and only the hero headline is
   intentionally large. No fixes needed.
-- 🔲 **Nav-bar width = body width** (Medium change #8): at ultrawide the header spans full width
-  while the content column is left-aligned/capped, so they don't line up. **This is a design call
-  (intentional full-bleed nav vs. match-content) — left for the owner**, not changed under a
-  fix-what-breaks pass. Pure CSS once decided.
+- ✅ **Nav-bar width = body width** (Medium change #8) — DONE (already in place): `.site-header__inner`
+  is capped to `--container-max` (1440px) + centred, matching `.container` / `.page-canvas`. Verified
+  2026-06-13 at 2560px — header inner, container, and page-canvas all share identical edges (left 560 /
+  right 2000); the logo + nav line up exactly with the body column (the frosted bar stays full-bleed).
+  The earlier "open design call" note was a misread of a scaled screenshot.
 
 ---
 
