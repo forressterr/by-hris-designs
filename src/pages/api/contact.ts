@@ -150,9 +150,12 @@ export default async function handler(
     Sentry.captureException(err);
   }
   const emailed = await sendEnquiryEmail(enquiry);
-  // Courtesy auto-reply — fire-and-forget; its outcome must not change the
-  // success contract (received = stored OR notify-emailed).
-  void sendAutoReplyEmail(enquiry);
+  // Courtesy auto-reply — AWAITED. A serverless function can freeze the instant
+  // the response is sent, so a fire-and-forget (un-awaited) send gets dropped —
+  // which is exactly why the auto-reply never arrived. It never throws and its
+  // result is ignored, so it can't change the success contract (received =
+  // stored OR notify-emailed); awaiting only adds one Resend round-trip.
+  await sendAutoReplyEmail(enquiry);
 
   // 7. Only ask the visitor to retry if we captured the enquiry NOWHERE.
   if (!stored && !emailed) {
