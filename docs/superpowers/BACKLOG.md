@@ -310,11 +310,18 @@ GH Actions vs Vercel Cron for the "automated processes"?
 
 ---
 
-## Queued — Contact enquiry fields + Resend templates (DEFERRED 2026-06-10)
+## DONE — Contact enquiry fields + Resend templates (SHIPPED 2026-06-13, PR #20)
 
-**Ask:** richer contact enquiries + use the user's 3 Resend dashboard templates.
-Deferred by the user mid-work ("leave for later"); parked here. Phase 2's contact
-form is fully live without it (plain-text email from `notifications@byhris.cc`).
+**STATUS: shipped, verified on preview, merged + live.** `/contact` now has 7 fields via a `detailed`
+prop — Name/Email/Message **required**; Company/Subject/Budget/Timeline **optional** (text/numbers only;
+links/HTML/markdown rejected on every field; no file inputs) — and the footer stays the quick 3. The
+Resend **notify + auto-reply** templates send by ID (`RESEND_TEMPLATE_NOTIFY`/`RESEND_TEMPLATE_AUTOREPLY`
+in Vercel) with a plain-text fallback; `source_page` (lowercase) is derived from the `Referer`.
+Specs/plan: `docs/superpowers/{specs,plans}/2026-06-13-contact-enquiry-fields*`. **Gotcha fixed
+mid-rollout:** the auto-reply was fire-and-forget (`void`) and the Vercel serverless function froze
+after the `200`, silently dropping it — **awaiting** the send fixed it (see [[byhris-contact-api]]).
+The detail below is the original 2026-06-10 design, kept for reference (note: `source_page` shipped
+lowercase, not the capital-S noted below).
 
 **The 3 templates** (built by the user in the Resend dashboard; HTML exports are in
 the chat history of the 2026-06-10 session):
