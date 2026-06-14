@@ -19,15 +19,45 @@ import type {
 // /api/contact security gate stay identical. These checks remain CLIENT-SIDE
 // for UX only — the server re-runs them as the real gate.
 
-type FormTouched = { name: boolean; email: boolean; message: boolean };
+type FormTouched = Record<FieldName, boolean>;
 type ToastState = { kind: 'success' | 'error'; message: string };
+
+const EMPTY_VALUES: EnquiryInput = {
+  name: '',
+  email: '',
+  message: '',
+  company: '',
+  subject: '',
+  budget: '',
+  timeline: '',
+};
+const NO_ERRORS: FormErrors = {
+  name: null,
+  email: null,
+  message: null,
+  company: null,
+  subject: null,
+  budget: null,
+  timeline: null,
+};
+const NOT_TOUCHED: FormTouched = {
+  name: false,
+  email: false,
+  message: false,
+  company: false,
+  subject: false,
+  budget: false,
+  timeline: false,
+};
 
 // ----------------------------------------------------------------------------
 
 export default function ContactForm({
   variant = 'light',
+  detailed = false,
 }: {
   variant?: 'light' | 'dark';
+  detailed?: boolean;
 }) {
   // 'idle' | 'sending' | 'sent' | 'error'
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>(
@@ -46,27 +76,15 @@ export default function ContactForm({
       };
 
   // Controlled values so we can validate live + show a character counter.
-  const [values, setValues] = useState<EnquiryInput>({
-    name: '',
-    email: '',
-    message: '',
-  });
+  const [values, setValues] = useState<EnquiryInput>(EMPTY_VALUES);
 
   // Per-field error strings (null = valid / not yet validated).
-  const [errors, setErrors] = useState<FormErrors>({
-    name: null,
-    email: null,
-    message: null,
-  });
+  const [errors, setErrors] = useState<FormErrors>(NO_ERRORS);
 
   // Per-field "touched" — only show an error once the user has either
   // tabbed away from the field or tried to submit. Saves them from being
   // yelled at while they're still mid-typing.
-  const [touched, setTouched] = useState<FormTouched>({
-    name: false,
-    email: false,
-    message: false,
-  });
+  const [touched, setTouched] = useState<FormTouched>(NOT_TOUCHED);
 
   // Floating toast — set on submit (success, validation fail, or API
   // failure). Cleared by the Toast component's onClose (auto-dismiss
@@ -144,14 +162,30 @@ export default function ContactForm({
     // these as the real gate; this is for fast, local feedback.
     const nextErrors = validateEnquiry(values);
     setErrors(nextErrors);
-    setTouched({ name: true, email: true, message: true });
+    setTouched({
+      name: true,
+      email: true,
+      message: true,
+      company: true,
+      subject: true,
+      budget: true,
+      timeline: true,
+    });
     const hasErrors = Object.values(nextErrors).some(Boolean);
     if (hasErrors) {
       // Focus the first invalid field — better keyboard UX than just
       // staring at red text and wondering where to look.
-      const firstInvalid = (['name', 'email', 'message'] as FieldName[]).find(
-        (f) => nextErrors[f],
-      );
+      const firstInvalid = (
+        [
+          'name',
+          'email',
+          'message',
+          'company',
+          'subject',
+          'budget',
+          'timeline',
+        ] as FieldName[]
+      ).find((f) => nextErrors[f]);
       if (firstInvalid) {
         const el = form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
         if (el && typeof el.focus === 'function') el.focus();
@@ -179,6 +213,10 @@ export default function ContactForm({
           name: values.name.trim(),
           email: values.email.trim(),
           message: values.message.trim(),
+          company: values.company.trim(),
+          subject: values.subject.trim(),
+          budget: values.budget.trim(),
+          timeline: values.timeline.trim(),
           _honey: (data.get('_honey') || '').toString(),
           elapsedMs: Date.now() - mountedAt.current,
         }),
@@ -191,9 +229,9 @@ export default function ContactForm({
 
       if (ok) {
         setStatus('sent');
-        setValues({ name: '', email: '', message: '' });
-        setTouched({ name: false, email: false, message: false });
-        setErrors({ name: null, email: null, message: null });
+        setValues(EMPTY_VALUES);
+        setTouched(NOT_TOUCHED);
+        setErrors(NO_ERRORS);
         scheduleIdle(4000);
         showToast(
           'success',
@@ -205,7 +243,15 @@ export default function ContactForm({
         // Surface server-side field errors if present.
         if (payload.fields && typeof payload.fields === 'object') {
           setErrors((prev) => ({ ...prev, ...(payload.fields as FormErrors) }));
-          setTouched({ name: true, email: true, message: true });
+          setTouched({
+            name: true,
+            email: true,
+            message: true,
+            company: true,
+            subject: true,
+            budget: true,
+            timeline: true,
+          });
         }
         showToast(
           'error',
@@ -300,6 +346,60 @@ export default function ContactForm({
           </span>
         )}
       </label>
+
+      {detailed &&
+        (
+          [
+            {
+              field: 'company',
+              placeholder: 'Company (optional)',
+              autoComplete: 'organization',
+            },
+            {
+              field: 'subject',
+              placeholder: 'Subject (optional)',
+              autoComplete: 'off',
+            },
+            {
+              field: 'budget',
+              placeholder: 'Budget (optional, e.g. ~€5k)',
+              autoComplete: 'off',
+            },
+            {
+              field: 'timeline',
+              placeholder: 'Timeline (optional, e.g. Q3 2026)',
+              autoComplete: 'off',
+            },
+          ] as { field: FieldName; placeholder: string; autoComplete: string }[]
+        ).map(({ field, placeholder, autoComplete }) => (
+          <label key={field} className={fieldClass(field)}>
+            <span className="visually-hidden">{placeholder}</span>
+            <input
+              type="text"
+              name={field}
+              placeholder={placeholder}
+              autoComplete={autoComplete}
+              value={values[field]}
+              onChange={handleChange(field)}
+              onBlur={handleBlur(field)}
+              aria-invalid={errors[field] && touched[field] ? 'true' : 'false'}
+              aria-describedby={
+                errors[field] && touched[field]
+                  ? `contact-${field}-error`
+                  : undefined
+              }
+            />
+            {errors[field] && touched[field] && (
+              <span
+                id={`contact-${field}-error`}
+                className="field__error"
+                role="alert"
+              >
+                {errors[field]}
+              </span>
+            )}
+          </label>
+        ))}
 
       <label className={fieldClass('message')}>
         <span className="visually-hidden">Message</span>

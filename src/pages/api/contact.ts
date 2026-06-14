@@ -8,7 +8,7 @@ import {
   type FieldName,
 } from '../../lib/contact/validation';
 import { checkRateLimit, storeEnquiry } from '../../lib/contact/redis';
-import { sendEnquiryEmail } from '../../lib/contact/email';
+import { sendEnquiryEmail, sendAutoReplyEmail } from '../../lib/contact/email';
 import type {
   ContactApiResponse,
   StoredEnquiry,
@@ -22,6 +22,17 @@ function getClientIp(req: NextApiRequest): string {
   if (typeof fwd === 'string') return fwd.split(',')[0]?.trim() || 'unknown';
   if (Array.isArray(fwd)) return fwd[0] ?? 'unknown';
   return 'unknown';
+}
+
+// The page the form was submitted from — `Referer` pathname, or '—'.
+function getSourcePage(req: NextApiRequest): string {
+  const ref = req.headers.referer;
+  if (typeof ref !== 'string' || !ref) return '—';
+  try {
+    return new URL(ref).pathname || '—';
+  } catch {
+    return '—';
+  }
 }
 
 function str(value: unknown): string {
@@ -74,6 +85,10 @@ export default async function handler(
     name: str(body.name),
     email: str(body.email),
     message: str(body.message),
+    company: str(body.company),
+    subject: str(body.subject),
+    budget: str(body.budget),
+    timeline: str(body.timeline),
   };
   const errors = validateEnquiry(input);
   const fields = Object.fromEntries(
@@ -111,7 +126,12 @@ export default async function handler(
     name: input.name.trim(),
     email: input.email.trim(),
     message: input.message.trim(),
+    company: input.company.trim(),
+    subject: input.subject.trim(),
+    budget: input.budget.trim(),
+    timeline: input.timeline.trim(),
     createdAt: new Date().toISOString(),
+    sourcePage: getSourcePage(req),
   };
 
   // 6. Capture the enquiry two ways — a durable Redis record AND an email
@@ -130,6 +150,12 @@ export default async function handler(
     Sentry.captureException(err);
   }
   const emailed = await sendEnquiryEmail(enquiry);
+  // Courtesy auto-reply — AWAITED. A serverless function can freeze the instant
+  // the response is sent, so a fire-and-forget (un-awaited) send gets dropped —
+  // which is exactly why the auto-reply never arrived. It never throws and its
+  // result is ignored, so it can't change the success contract (received =
+  // stored OR notify-emailed); awaiting only adds one Resend round-trip.
+  await sendAutoReplyEmail(enquiry);
 
   // 7. Only ask the visitor to retry if we captured the enquiry NOWHERE.
   if (!stored && !emailed) {

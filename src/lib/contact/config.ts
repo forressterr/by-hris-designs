@@ -33,3 +33,14 @@ export function getUpstashConfig(): { url: string; token: string } | null {
 export function isBotIdEnforced(): boolean {
   return process.env.CONTACT_BOTID_ENFORCE === 'true';
 }
+
+/**
+ * Resend template IDs (optional). When a template ID is absent the email layer
+ * degrades — notify falls back to plain text, auto-reply is skipped.
+ */
+export function getResendTemplates(): { notify?: string; autoReply?: string } {
+  return {
+    notify: process.env.RESEND_TEMPLATE_NOTIFY,
+    autoReply: process.env.RESEND_TEMPLATE_AUTOREPLY,
+  };
+}
